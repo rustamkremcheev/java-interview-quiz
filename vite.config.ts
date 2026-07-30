@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: '/java-interview-quiz/',
+  
   plugins: [
     react(),
     VitePWA({
@@ -15,6 +17,8 @@ export default defineConfig({
         theme_color: '#0b0f19',
         background_color: '#0b0f19',
         display: 'standalone',
+		start_url: '/java-interview-quiz/',
+        scope: '/java-interview-quiz/',
         icons: [
           {
             src: 'pwa-192x192.png',
