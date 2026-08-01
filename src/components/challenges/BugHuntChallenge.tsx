@@ -1,139 +1,114 @@
 import React, { useState } from 'react';
-import { BugLine, LocalizedText, LanguageMode } from '../../types/mission';
-import { CheckCircle, AlertOctagon, Info } from 'lucide-react';
+import { BugHuntChallenge } from '../../types/domain';
+import { useAppStore } from '../../store/useAppStore';
+import { ConfidenceSelector } from '../workspace/ConfidenceSelector';
+import { Bug, Trash2 } from 'lucide-react';
 
 interface BugHuntChallengeProps {
-  instruction: LocalizedText;
-  code: string;
-  lines: BugLine[];
-  languageMode: LanguageMode;
-  onComplete: (correct: boolean) => void;
+  challenge: BugHuntChallenge;
+  onAttemptSubmit: (selectedLineNumbers: number[]) => void;
+  disabled?: boolean;
 }
 
-export const BugHuntChallenge: React.FC<BugHuntChallengeProps> = ({
-  instruction,
-  code,
-  lines,
-  languageMode,
-  onComplete
+export const BugHuntChallengeView: React.FC<BugHuntChallengeProps> = ({
+  challenge,
+  onAttemptSubmit,
+  disabled = false
 }) => {
+  const { languageMode } = useAppStore();
   const [selectedLines, setSelectedLines] = useState<number[]>([]);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [confidence, setConfidence] = useState<'CONFIDENT' | 'UNSURE' | 'GUESSING'>('UNSURE');
 
-  const codeLineArray = code.split('\n');
+  const getText = (en: string, ru: string) => {
+    if (languageMode === 'ru') return ru;
+    return en;
+  };
 
-  const toggleLine = (lineNum: number) => {
-    if (isSubmitted) return;
-    setSelectedLines((prev) =>
-      prev.includes(lineNum) ? prev.filter((l) => l !== lineNum) : [...prev, lineNum]
-    );
+  const handleLineClick = (lineNumber: number) => {
+    if (disabled) return;
+    if (selectedLines.includes(lineNumber)) {
+      setSelectedLines(selectedLines.filter((l) => l !== lineNumber));
+    } else {
+      setSelectedLines([...selectedLines, lineNumber]);
+    }
+  };
+
+  const handleClear = () => {
+    if (disabled) return;
+    setSelectedLines([]);
   };
 
   const handleSubmit = () => {
-    const bugLineNumbers = lines.filter((l) => l.isBug).map((l) => l.lineNumber);
-    
-    // Check if user selected at least 1 actual bug line and NO non-bug lines
-    const correctSelection =
-      selectedLines.length > 0 &&
-      selectedLines.every((l) => bugLineNumbers.includes(l)) &&
-      bugLineNumbers.every((l) => selectedLines.includes(l));
-
-    setIsCorrect(correctSelection);
-    setIsSubmitted(true);
-    onComplete(correctSelection);
-  };
-
-  const getInstruction = () => {
-    if (languageMode === 'ru') return instruction.ru;
-    if (languageMode === 'bilingual') return `${instruction.en} / ${instruction.ru}`;
-    return instruction.en;
-  };
-
-  const getExplanation = (line: BugLine) => {
-    if (languageMode === 'ru') return line.explanation.ru;
-    if (languageMode === 'bilingual') return `${line.explanation.en} (${line.explanation.ru})`;
-    return line.explanation.en;
+    if (selectedLines.length === 0 || disabled) return;
+    onAttemptSubmit(selectedLines);
   };
 
   return (
-    <div className="challenge-container">
-      <div className="challenge-header">
-        <h3>{getInstruction()}</h3>
-        <p className="touch-hint">Click or tap code lines to flag suspicious/dangerous lines.</p>
+    <div className="bughunt-challenge-workspace">
+      <div className="challenge-prompt-header">
+        <div className="prompt-title-row">
+          <Bug size={20} className="text-warning" />
+          <h3>{getText(challenge.title.en, challenge.title.ru)}</h3>
+        </div>
+        <p>{getText(challenge.prompt.en, challenge.prompt.ru)}</p>
       </div>
 
-      <div className="code-editor-box">
-        <div className="code-editor-header">
-          <span className="file-name">PaymentKey.java</span>
-          <span className="language-tag">Java 17</span>
+      {/* Code Viewer with Line Selection */}
+      <div className="bughunt-code-frame">
+        <div className="code-viewer-toolbar">
+          <span className="code-title">AccountPeriod.java (Click line to flag vulnerability)</span>
+          <span className="selected-lines-count">
+            Selected: {selectedLines.length > 0 ? `Lines ${selectedLines.sort((a, b) => a - b).join(', ')}` : 'None'}
+          </span>
         </div>
-        <div className="code-lines-container">
-          {codeLineArray.map((lineContent, idx) => {
-            const lineNum = idx + 1;
-            const isSelected = selectedLines.includes(lineNum);
-            const lineMeta = lines.find((l) => l.lineNumber === lineNum);
-            const isBugLine = lineMeta?.isBug;
 
-            let lineClass = 'code-line';
-            if (isSelected) lineClass += ' selected';
-            if (isSubmitted) {
-              if (isSelected && isBugLine) lineClass += ' correct-bug';
-              else if (isSelected && !isBugLine) lineClass += ' false-positive';
-              else if (!isSelected && isBugLine) lineClass += ' missed-bug';
-            }
+        <div className="code-scroll-pane">
+          <table className="bughunt-table">
+            <tbody>
+              {challenge.payload.lines.map((lineObj) => {
+                const lineNum = lineObj.lineNumber;
+                const isSelected = selectedLines.includes(lineNum);
 
-            return (
-              <div
-                key={lineNum}
-                className={lineClass}
-                onClick={() => toggleLine(lineNum)}
-              >
-                <span className="line-num">{lineNum}</span>
-                <span className="line-code">{lineContent || ' '}</span>
-                {isSelected && <span className="selected-indicator">FLAGGED</span>}
-              </div>
-            );
-          })}
+                return (
+                  <tr
+                    key={lineNum}
+                    className={`bughunt-tr ${isSelected ? 'selected' : ''}`}
+                    onClick={() => handleLineClick(lineNum)}
+                  >
+                    <td className="line-num-td">{lineNum}</td>
+                    <td className="code-td">
+                      <pre className="code-pre">{lineObj.code}</pre>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {isSubmitted && (
-        <div className={`feedback-box ${isCorrect ? 'feedback-success' : 'feedback-error'}`}>
-          <div className="feedback-content">
-            {isCorrect ? (
-              <CheckCircle size={24} className="icon-success" />
-            ) : (
-              <AlertOctagon size={24} className="icon-error" />
-            )}
-            <div>
-              <strong>{isCorrect ? 'Bug Identified!' : 'Bug Identification Incomplete'}</strong>
-              <p>Review the flagged lines below:</p>
-              <div className="line-explanations">
-                {lines
-                  .filter((l) => l.isBug)
-                  .map((l) => (
-                    <div key={l.lineNumber} className="explanation-item">
-                      <Info size={16} /> <strong>Line {l.lineNumber}:</strong> {getExplanation(l)}
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!isSubmitted && (
-        <div className="challenge-footer">
-          <button
-            onClick={handleSubmit}
-            disabled={selectedLines.length === 0}
-            className="btn-primary"
-          >
-            Submit Bug Analysis ({selectedLines.length} flagged)
+      {/* Selection Summary Bar */}
+      <div className="bughunt-summary-bar">
+        <span>Selected Vulnerabilities: {selectedLines.length} lines</span>
+        {selectedLines.length > 0 && (
+          <button type="button" className="btn-small-tertiary" onClick={handleClear} disabled={disabled}>
+            <Trash2 size={13} /> Clear Lines
           </button>
-        </div>
-      )}
+        )}
+      </div>
+
+      <ConfidenceSelector value={confidence} onChange={setConfidence} disabled={disabled} />
+
+      <div className="bughunt-submit-footer">
+        <button
+          type="button"
+          className="btn-primary-action large"
+          disabled={selectedLines.length === 0 || disabled}
+          onClick={handleSubmit}
+        >
+          Submit Bug Hunt Diagnosis
+        </button>
+      </div>
     </div>
   );
 };

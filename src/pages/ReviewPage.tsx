@@ -1,107 +1,96 @@
-import React, { useState } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db, updateConceptMastery } from '../db/database';
-import { useAppStore } from '../store/useAppStore';
-import { RotateCcw, CheckCircle2, ShieldCheck, Zap, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../db/database';
+import { ReviewItem } from '../types/domain';
+import { Breadcrumbs } from '../components/layout/Breadcrumbs';
+import { useAppStore } from '../store/useAppStore';
+import { RotateCcw, CheckCircle2, Play, AlertTriangle } from 'lucide-react';
 
 export const ReviewPage: React.FC = () => {
   const navigate = useNavigate();
-  const { addXP } = useAppStore();
-  const [activeReviewIdx, setActiveReviewIdx] = useState(0);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const { languageMode } = useAppStore();
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Live query due reviews where nextReviewTime is past
-  const dueConcepts = useLiveQuery(async () => {
-    const now = new Date().toISOString();
-    return db.mastery.where('nextReviewTime').below(now).toArray();
-  }, []) || [];
-
-  const currentConcept = dueConcepts[activeReviewIdx];
-
-  const handleReviewAnswer = async (correct: boolean) => {
-    if (!currentConcept) return;
-
-    setIsCorrect(correct);
-    setIsAnswered(true);
-
-    // Update Concept Mastery algorithm (calculates new review timestamp)
-    await updateConceptMastery([currentConcept.conceptId], correct, 'confident', 0);
-    await addXP(correct ? 15 : 5);
-  };
-
-  const handleNextReview = () => {
-    setIsAnswered(false);
-    setIsCorrect(null);
-    if (activeReviewIdx < dueConcepts.length - 1) {
-      setActiveReviewIdx((prev) => prev + 1);
+  useEffect(() => {
+    async function loadReviews() {
+      try {
+        const items = await db.reviewItems.toArray();
+        setReviews(items);
+      } catch (err) {
+        console.warn('Failed to load review items:', err);
+      } finally {
+        setLoading(false);
+      }
     }
-  };
+    loadReviews();
+  }, []);
+
+  const breadcrumbs = [
+    { label: languageMode === 'ru' ? 'Дашборд' : 'Dashboard', path: '/' },
+    { label: languageMode === 'ru' ? 'Интервальный Повтор' : 'Spaced Review' }
+  ];
 
   return (
-    <div className="review-page-container">
-      <div className="page-header">
-        <h1><RotateCcw size={28} /> Spaced Repetition Review Queue</h1>
-        <p className="subtext">
-          Local spaced repetition queue. Practicing concepts right before memory decay locks knowledge in long-term memory.
-        </p>
+    <div className="review-queue-page">
+      <Breadcrumbs items={breadcrumbs} />
+
+      <div className="page-header-banner">
+        <div className="header-icon-box">
+          <RotateCcw size={28} className="text-accent" />
+        </div>
+        <div>
+          <h1 className="page-heading">
+            {languageMode === 'ru' ? 'Очередь Интервального Повторения' : 'Spaced Repetition Review Queue'}
+          </h1>
+          <p className="page-subheading">
+            {languageMode === 'ru'
+              ? 'Алгоритм интервального повторения формирует очередь концепций для предотвращения кривой забывания.'
+              : 'Our spaced repetition algorithm queues weak concepts and confident mistake patterns to maximize retention for tier-1 interviews.'}
+          </p>
+        </div>
       </div>
 
-      {dueConcepts.length === 0 ? (
-        <div className="empty-review-box">
-          <CheckCircle2 size={48} className="icon-success" />
-          <h2>Review Queue All Clear!</h2>
-          <p>No concept reviews are due right now. You are up to date on your spaced repetition queue.</p>
-          <button onClick={() => navigate('/learn')} className="btn-primary">
-            Explore Active Missions <ArrowRight size={16} />
+      {loading ? (
+        <div className="loading-state-placeholder">Loading review queue...</div>
+      ) : reviews.length === 0 ? (
+        <div className="empty-queue-card">
+          <CheckCircle2 size={48} className="text-success" />
+          <h3>{languageMode === 'ru' ? 'Очередь Повторения Пуста!' : 'Your Review Queue is Clear!'}</h3>
+          <p>
+            {languageMode === 'ru'
+              ? 'Все изученные концепции находятся в хорошем состоянии памяти. Отличная работа!'
+              : 'All exposed concepts are currently well-retained. Continue practicing new missions to expand your domain mastery.'}
+          </p>
+          <button
+            type="button"
+            className="btn-primary-action"
+            onClick={() => navigate('/missions/protecting-bank-account-invariants')}
+          >
+            <Play size={16} />
+            <span>Practice Active Mission</span>
           </button>
         </div>
       ) : (
-        <div className="review-active-card">
-          <div className="review-progress-bar">
-            <span>Review {activeReviewIdx + 1} of {dueConcepts.length}</span>
-            <div className="progress-bar-bg">
-              <div
-                className="progress-bar-fill"
-                style={{ width: `${((activeReviewIdx + 1) / dueConcepts.length) * 100}%` }}
-              />
-            </div>
-          </div>
-
-          {currentConcept && (
-            <div className="review-prompt-box">
-              <div className="concept-badge">Concept: #{currentConcept.conceptId}</div>
-              <h3>Memory Retrieval Challenge</h3>
-              <p className="question-text">
-                Explain or verify: Why does mutating a key field in a HashMap cause <code>get(key)</code> to return <code>null</code> even if the entry remains in the table array?
-              </p>
-
-              {!isAnswered ? (
-                <div className="review-actions">
-                  <button onClick={() => handleReviewAnswer(true)} className="btn-success">
-                    <ShieldCheck size={18} /> I Remembered Correctly (+15 XP)
-                  </button>
-                  <button onClick={() => handleReviewAnswer(false)} className="btn-error">
-                    <Zap size={18} /> I Was Unsure / Failed (+5 XP)
-                  </button>
+        <div className="reviews-list-container">
+          {reviews.map((rev) => (
+            <div key={rev.id} className="review-item-card">
+              <div className="card-left">
+                <AlertTriangle size={20} className="text-warning" />
+                <div>
+                  <h4>Concept: {rev.conceptId}</h4>
+                  <span className="due-tag">Reason: {rev.reviewReason}</span>
                 </div>
-              ) : (
-                <div className={`feedback-box ${isCorrect ? 'feedback-success' : 'feedback-error'}`}>
-                  <h4>{isCorrect ? 'Mastery Score Boosted!' : 'Scheduled for 10-Min Re-Test'}</h4>
-                  <p>
-                    {isCorrect
-                      ? 'Great job! Your mastery score increased and the next review interval has been extended to 4-7 days.'
-                      : 'No worries. This concept has been flagged for quick re-testing in 10 minutes.'}
-                  </p>
-
-                  <button onClick={handleNextReview} className="btn-primary">
-                    Next Review Card <ArrowRight size={16} />
-                  </button>
-                </div>
-              )}
+              </div>
+              <button
+                type="button"
+                className="btn-small-primary"
+                onClick={() => navigate(`/missions/${rev.missionId}`)}
+              >
+                <Play size={14} /> Start Review
+              </button>
             </div>
-          )}
+          ))}
         </div>
       )}
     </div>

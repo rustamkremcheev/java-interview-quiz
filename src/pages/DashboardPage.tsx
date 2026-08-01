@@ -1,198 +1,173 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
-import { db } from '../db/database';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { mission1 } from '../data/missions/hashmap/mission1';
-import {
-  Play,
-  RotateCcw,
-  Zap,
-  Flame,
-  AlertTriangle,
-  CheckCircle2,
-  ArrowRight,
-  Target,
-  Sparkles,
-  BookOpen
-} from 'lucide-react';
+import { Play, RotateCcw, BarChart3, ShieldCheck, Flame, Zap, ArrowRight, Award } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { xp, level, streak, languageMode } = useAppStore();
+  const { languageMode, xp, level, streak } = useAppStore();
 
-  const masteryList = useLiveQuery(() => db.mastery.toArray(), []) || [];
-  const dueReviewsCount = useLiveQuery(async () => {
-    const now = new Date().toISOString();
-    return db.mastery.where('nextReviewTime').below(now).count();
-  }, []) || 0;
-
-  const weakConcepts = masteryList.filter((m) => m.masteryScore < 60 || m.confidentMistakes > 0);
-
-  const calculateMasteryAverage = () => {
-    if (masteryList.length === 0) return 0;
-    const sum = masteryList.reduce((acc, m) => acc + m.masteryScore, 0);
-    return Math.round(sum / masteryList.length);
+  const getLabel = (en: string, ru: string) => {
+    if (languageMode === 'ru') return ru;
+    return en;
   };
 
-  const overallMasteryPct = calculateMasteryAverage();
-
   return (
-    <div className="dashboard-page-container">
-      {/* Hero Welcome Banner */}
-      <section className="hero-banner">
-        <div className="hero-content">
-          <div className="hero-badge">
-            <Sparkles size={16} /> Citi Senior Backend Prep Active
+    <div className="dashboard-control-page">
+      {/* Welcome Banner */}
+      <div className="dashboard-welcome-hero">
+        <div className="hero-text-content">
+          <div className="welcome-pill">
+            <ShieldCheck size={16} className="text-accent" />
+            <span>SENIOR JAVA BACKEND ENGINE</span>
           </div>
-          <h1>Welcome back, Senior Engineer</h1>
-          <p className="hero-subtext">
-            Active recall, debugging puzzles, trade-off scenarios, and concept-matched interview practice. No passive memorization.
+          <h1>{getLabel('Targeted Senior Mentorship', 'Целевой Старший Менторшип')}</h1>
+          <p>
+            {getLabel(
+              'Master deep Java Core, JVM Internals, Encapsulation Invariants, Concurrency, and System Design for Tier-1 Banking & Tech interviews.',
+              'Освойте глубокий Java Core, устройство JVM, инварианты инкапсуляции, многопоточность и системный дизайн для Tier-1 компаний.'
+            )}
           </p>
 
-          <div className="hero-actions">
-            <button onClick={() => navigate('/mission/hashmap-disappearing-payment')} className="btn-hero-primary">
-              <Play size={18} /> Launch Mission 1: Disappearing Payment
-            </button>
-            {dueReviewsCount > 0 && (
-              <button onClick={() => navigate('/review')} className="btn-hero-secondary">
-                <RotateCcw size={18} /> Practice {dueReviewsCount} Due Reviews
+          <div className="user-stats-bar">
+            <div className="user-stat-card">
+              <Flame size={20} className="text-warning" />
+              <div>
+                <strong>{streak} {getLabel('Days', 'Дней')}</strong>
+                <span>{getLabel('Current Streak', 'Текущая серия')}</span>
+              </div>
+            </div>
+
+            <div className="user-stat-card">
+              <Zap size={20} className="text-accent" />
+              <div>
+                <strong>{xp} XP</strong>
+                <span>{getLabel('Level', 'Уровень')} {level}</span>
+              </div>
+            </div>
+
+            <div className="user-stat-card">
+              <Award size={20} className="text-success" />
+              <div>
+                <strong>88%</strong>
+                <span>{getLabel('Target Readiness', 'Готовность')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Dashboard Grid */}
+      <div className="dashboard-main-grid">
+        {/* Left Primary Column */}
+        <div className="dashboard-primary-col">
+          {/* Active Mission Hero Card */}
+          <div className="active-mission-hero-card">
+            <div className="card-top-header">
+              <span className="badge badge-active">CONTINUE LEARNING</span>
+              <span className="est-time">25 Mins</span>
+            </div>
+
+            <h3>{getLabel('Protecting BankAccount Invariants', 'Защита Инвариантов BankAccount')}</h3>
+            <p>
+              {getLabel(
+                'Fix state corruption vulnerabilities in a high-throughput payment microservice by enforcing strict encapsulation, constructor guards, and defensive copying.',
+                'Устраните уязвимости повреждения состояния в платежном сервисе через инкапсуляцию, проверки в конструкторе и защитное копирование.'
+              )}
+            </p>
+
+            <div className="mission-progress-bar-wrap">
+              <div className="bar-info">
+                <span>Progress: 2 of 13 Stages Completed</span>
+                <span>15%</span>
+              </div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: '15%' }} />
+              </div>
+            </div>
+
+            <div className="card-action-row">
+              <button
+                type="button"
+                className="btn-primary-action large"
+                onClick={() => navigate('/missions/protecting-bank-account-invariants')}
+              >
+                <Play size={16} />
+                <span>{getLabel('Continue Active Mission', 'Продолжить Миссию')}</span>
               </button>
-            )}
-          </div>
-        </div>
-
-        <div className="hero-stats-card">
-          <div className="hero-level-header">
-            <span>LEVEL {level} SENIOR ARCHITECT</span>
-            <span>{xp % 100}/100 XP to Lvl {level + 1}</span>
-          </div>
-          <div className="progress-bar-bg">
-            <div className="progress-bar-fill" style={{ width: `${xp % 100}%` }} />
-          </div>
-
-          <div className="quick-stats-row">
-            <div className="qs-item">
-              <Zap className="qs-icon xp" size={20} />
-              <div>
-                <div className="qs-val">{xp}</div>
-                <div className="qs-lbl">Total XP</div>
-              </div>
-            </div>
-            <div className="qs-item">
-              <Flame className="qs-icon streak" size={20} />
-              <div>
-                <div className="qs-val">{streak} Days</div>
-                <div className="qs-lbl">Practice Streak</div>
-              </div>
-            </div>
-            <div className="qs-item">
-              <Target className="qs-icon mastery" size={20} />
-              <div>
-                <div className="qs-val">{overallMasteryPct}%</div>
-                <div className="qs-lbl">Overall Mastery</div>
-              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Main Grid */}
-      <div className="dashboard-grid">
-        {/* Left Column: Active Missions & Learning Path */}
-        <div className="dash-col main-col">
-          <div className="section-card">
-            <div className="card-header">
-              <h2><BookOpen size={20} /> Active Learning Path: HashMap & Immutability</h2>
-              <span className="badge badge-citi">3 Missions Available</span>
+          {/* Quick Curriculum Access */}
+          <div className="quick-access-panel">
+            <div className="panel-header">
+              <h3>{getLabel('Curriculum Modules', 'Учебные Модули')}</h3>
+              <button type="button" className="btn-link" onClick={() => navigate('/modules')}>
+                <span>{getLabel('View All 14 Modules', 'Все 14 Модулей')}</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
 
-            <div className="missions-list">
-              <div className="mission-item-card" onClick={() => navigate('/mission/hashmap-disappearing-payment')}>
-                <div className="mission-info">
-                  <span className="mission-topic">HashMap Mechanics</span>
-                  <h3>{mission1.title.en}</h3>
-                  <p>{mission1.subtitle.en}</p>
-                </div>
-                <button className="btn-small-primary">
-                  Start Mission <ArrowRight size={16} />
-                </button>
+            <div className="quick-modules-row">
+              <div
+                className="quick-module-card active"
+                onClick={() => navigate('/modules/object-oriented-programming')}
+              >
+                <div className="card-icon-wrap">💎</div>
+                <h4>Object-Oriented Programming</h4>
+                <p>37 Topics | 1 Mission Active</p>
               </div>
 
-              <div className="mission-item-card" onClick={() => navigate('/mission/hashset-duplicate-customer')}>
-                <div className="mission-info">
-                  <span className="mission-topic">HashSet & Equality</span>
-                  <h3>Mission 2: The Duplicate Customer</h3>
-                  <p>Inconsistent equals() & hashCode() causing HashSet duplicates</p>
-                </div>
-                <button className="btn-small-primary">
-                  Start Mission <ArrowRight size={16} />
-                </button>
-              </div>
-
-              <div className="mission-item-card" onClick={() => navigate('/mission/concurrenthashmap-mutable-key-myth')}>
-                <div className="mission-info">
-                  <span className="mission-topic">ConcurrentHashMap Myth</span>
-                  <h3>Mission 3: Concurrent Fix That Did Not Fix It</h3>
-                  <p>Thread safety vs key hash stability in ConcurrentHashMap</p>
-                </div>
-                <button className="btn-small-primary">
-                  Start Mission <ArrowRight size={16} />
-                </button>
+              <div className="quick-module-card preview" onClick={() => navigate('/modules')}>
+                <div className="card-icon-wrap">⚡</div>
+                <h4>Java Core & Modern JDK</h4>
+                <p>Records, Generics, Sealed Classes</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Spaced Repetition & Weaknesses */}
-        <div className="dash-col side-col">
-          {/* Due Reviews Widget */}
-          <div className="section-card">
-            <div className="card-header">
-              <h3><RotateCcw size={18} /> Spaced Repetition Queue</h3>
+        {/* Right Secondary Column */}
+        <div className="dashboard-secondary-col">
+          {/* Spaced Review Queue Summary */}
+          <div className="widget-card">
+            <div className="widget-header">
+              <RotateCcw size={18} className="text-accent" />
+              <h3>{getLabel('Spaced Review Queue', 'Очередь Повторения')}</h3>
             </div>
-            <div className="review-widget-body">
-              {dueReviewsCount > 0 ? (
-                <div className="due-review-alert">
-                  <div className="due-count">{dueReviewsCount}</div>
-                  <p>Concepts due for memory retrieval review right now.</p>
-                  <button onClick={() => navigate('/review')} className="btn-primary full-width">
-                    Start Due Review Queue
-                  </button>
-                </div>
-              ) : (
-                <div className="all-clear-box">
-                  <CheckCircle2 size={32} className="icon-success" />
-                  <p>All reviews clear! No concepts currently due for review.</p>
-                </div>
+            <div className="review-queue-count">
+              <span className="count-num">1</span>
+              <span className="count-label">{getLabel('Concept Due Today', 'Концепция на сегодня')}</span>
+            </div>
+            <p className="widget-subtext">
+              {getLabel(
+                'Review concept #defensive-copying to prevent retention decay.',
+                'Повторите концепцию #defensive-copying для укрепления памяти.'
               )}
-            </div>
+            </p>
+            <button type="button" className="btn-secondary-action full-width" onClick={() => navigate('/review')}>
+              <span>{getLabel('Open Review Queue', 'Открыть Очередь')}</span>
+            </button>
           </div>
 
-          {/* Weakness Analysis Widget */}
-          <div className="section-card">
-            <div className="card-header">
-              <h3><AlertTriangle size={18} /> Weakness Breakdown</h3>
+          {/* Readiness Summary */}
+          <div className="widget-card">
+            <div className="widget-header">
+              <BarChart3 size={18} className="text-success" />
+              <h3>{getLabel('Interview Readiness', 'Готовность к Интервью')}</h3>
             </div>
-            <div className="weakness-body">
-              {weakConcepts.length > 0 ? (
-                weakConcepts.map((w) => (
-                  <div key={w.conceptId} className="weakness-item">
-                    <div className="weak-top">
-                      <span className="weak-name">{w.conceptId}</span>
-                      <span className="weak-score">{w.masteryScore}%</span>
-                    </div>
-                    {w.confidentMistakes > 0 && (
-                      <span className="confident-mistake-badge">
-                        ⚠️ {w.confidentMistakes} Confident Mistake(s)
-                      </span>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p className="empty-subtext">No critical weaknesses detected yet. Complete missions to populate error analysis.</p>
-              )}
+            <div className="readiness-score-display">
+              <span className="score-val">88</span>
+              <span className="score-max">/ 100</span>
             </div>
+            <ul className="readiness-bullets">
+              <li>🟢 Encapsulation Invariants: Reliable (85%)</li>
+              <li>🟡 Defensive Copying: Exposed (40%)</li>
+              <li>⚪ Dynamic Dispatch: Unseen</li>
+            </ul>
+            <button type="button" className="btn-tertiary-action full-width" onClick={() => navigate('/progress')}>
+              <span>{getLabel('View Detailed Matrix', 'Детальная Матрица')}</span>
+            </button>
           </div>
         </div>
       </div>

@@ -1,372 +1,667 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMissionById } from '../data/missions';
-import { useAppStore, LevelMode } from '../store/useAppStore';
-import { db, updateConceptMastery } from '../db/database';
-import { ConfidenceLevel } from '../types/user';
-
-// Stage Components
-import { SequencePuzzle } from '../components/challenges/SequencePuzzle';
-import { BugHuntChallenge } from '../components/challenges/BugHuntChallenge';
-import { FixBuilderChallenge } from '../components/challenges/FixBuilderChallenge';
-import { TradeOffChallenge } from '../components/challenges/TradeOffChallenge';
-import { InterviewAnswerChallenge } from '../components/challenges/InterviewAnswerChallenge';
-import { ConfidenceSelector } from '../components/challenges/ConfidenceSelector';
-import { HintBox } from '../components/challenges/HintBox';
-import { ReflectionPrompt } from '../components/challenges/ReflectionPrompt';
-import { MissionResults } from '../components/challenges/MissionResults';
-
-import { ArrowLeft, ArrowRight, Shield, Layers, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { getMissionBySlug } from '../data';
+import { OOP_DATA_PACKAGE } from '../data/modules/oop';
+import { useAppStore } from '../store/useAppStore';
+import { useMissionStore } from '../store/useMissionStore';
+import {
+  recordUserAttempt, updateConceptMastery, recordMistakeOccurrence,
+  saveMissionProgress, saveReflectionNote
+} from '../db/database';
+import { StageStepper } from '../components/workspace/StageStepper';
+import { KnowledgeSidebar } from '../components/workspace/KnowledgeSidebar';
+import { SourceContext } from '../components/workspace/SourceContext';
+import { CodeViewer } from '../components/workspace/CodeViewer';
+import { FeedbackPanel } from '../components/workspace/FeedbackPanel';
+import { GuidedPuzzle } from '../components/challenges/GuidedPuzzle';
+import { BugHuntChallengeView } from '../components/challenges/BugHuntChallenge';
+import { InterviewAnswerChallengeView } from '../components/challenges/InterviewAnswerChallenge';
+import { EvaluationResult, LocalizedText } from '../types/domain';
+import { ArrowLeft, BookOpen, Clock, Play, HelpCircle, Trophy, RotateCcw, CheckCircle2 } from 'lucide-react';
 
 export const MissionPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { missionSlug, id } = useParams<{ missionSlug?: string; id?: string }>();
   const navigate = useNavigate();
-  const { languageMode, confidence, setConfidence, levelMode, setLevelMode, addXP } = useAppStore();
+  const slug = missionSlug || id || 'protecting-bank-account-invariants';
 
-  const mission = getMissionById(id || '');
+  const mission = getMissionBySlug(slug) || OOP_DATA_PACKAGE.missions[0];
+  const { stages } = OOP_DATA_PACKAGE;
 
-  const [currentStageIdx, setCurrentStageIdx] = useState(0);
-  const [hintsUsedThisStage, setHintsUsedThisStage] = useState(0);
-  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
-  const [totalXpEarned, setTotalXpEarned] = useState(0);
-  const [stagePassed, setStagePassed] = useState<boolean | null>(null);
+  const { languageMode, addXP, toggleSidebar } = useAppStore();
+  const {
+    currentStageId, setCurrentStageId,
+    hypothesisText, setHypothesisText,
+    confidence,
+    hintsRevealedIds, revealHint,
+    reflectionText, setReflectionText
+  } = useMissionStore();
 
-  if (!mission) {
-    return (
-      <div className="error-page">
-        <h2>Mission Not Found</h2>
-        <button onClick={() => navigate('/learn')} className="btn-primary">
-          Back to Learn Catalog
-        </button>
-      </div>
-    );
-  }
+  const [completedStageIds, setCompletedStageIds] = useState<string[]>([]);
+  const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
 
-  const currentStage = mission.stages[currentStageIdx];
-  const isFirstStage = currentStageIdx === 0;
-  const isLastStage = currentStageIdx === mission.stages.length - 1;
+  // Theory Checkpoints Local State
+  const [checkpointAnswers, setCheckpointAnswers] = useState<Record<string, string>>({});
+  const [checkpointFeedback, setCheckpointFeedback] = useState<Record<string, { isCorrect: boolean; text: LocalizedText }>>({});
 
-  const handleStageComplete = async (isCorrect: boolean, xpReward: number = 20) => {
-    setStagePassed(isCorrect);
+  useEffect(() => {
+    if (!currentStageId && stages.length > 0) {
+      setCurrentStageId(stages[0].id);
+    }
+  }, [currentStageId, setCurrentStageId, stages]);
 
-    // Calculate XP after hint penalties
-    const hintPenalty = hintsUsedThisStage * 6;
-    const finalXp = Math.max(5, isCorrect ? xpReward - hintPenalty : 2);
-    setTotalXpEarned((prev) => prev + finalXp);
-    await addXP(finalXp);
-
-    // Log attempt to Dexie IndexedDB
-    await db.attempts.add({
-      missionId: mission.id,
-      stageId: currentStage.stageId,
-      challengeType: currentStage.type,
-      answer: { correct: isCorrect },
-      correct: isCorrect,
-      confidence,
-      hintsUsed: hintsUsedThisStage,
-      createdAt: new Date().toISOString()
-    });
-
-    // Update Concept Mastery
-    await updateConceptMastery(mission.concepts, isCorrect, confidence, hintsUsedThisStage);
+  const getText = (en: string, ru: string) => {
+    if (languageMode === 'ru') return ru;
+    return en;
   };
 
+  const currentStageIndex = stages.findIndex((s) => s.id === currentStageId);
+  const currentStage = stages[currentStageIndex] || stages[0];
+
   const handleNextStage = () => {
-    setStagePassed(null);
-    setHintsUsedThisStage(0);
-    if (currentStageIdx < mission.stages.length - 1) {
-      setCurrentStageIdx((prev) => prev + 1);
+    if (!completedStageIds.includes(currentStage.id)) {
+      setCompletedStageIds([...completedStageIds, currentStage.id]);
+    }
+    setEvaluation(null);
+    if (currentStageIndex < stages.length - 1) {
+      setCurrentStageId(stages[currentStageIndex + 1].id);
     }
   };
 
   const handlePrevStage = () => {
-    setStagePassed(null);
-    setHintsUsedThisStage(0);
-    if (currentStageIdx > 0) {
-      setCurrentStageIdx((prev) => prev - 1);
+    setEvaluation(null);
+    if (currentStageIndex > 0) {
+      setCurrentStageId(stages[currentStageIndex - 1].id);
     }
   };
 
-  const getText = (text?: { en: string; ru: string }) => {
-    if (!text) return '';
-    if (languageMode === 'ru') return text.ru;
-    if (languageMode === 'bilingual') return `${text.en}\n(${text.ru})`;
-    return text.en;
+  // Stage 3 Hypothesis Submission
+  const handleHypothesisSubmit = async () => {
+    if (!hypothesisText.trim()) return;
+
+    const evalRes: EvaluationResult = {
+      correctness: "CORRECT",
+      score: 1.0,
+      feedback: {
+        en: "Great initial diagnostic hypothesis! Public balance exposure and missing negative checks corrupt class invariants.",
+        ru: "Отличная первичная гипотеза! Открытый доступ к балансу и отсутствие проверок ломают инварианты."
+      },
+      matchedConceptIds: ["cpt_encapsulation"],
+      missingConceptIds: [],
+      detectedMistakePatternIds: []
+    };
+    setEvaluation(evalRes);
+    await addXP(25);
+  };
+
+  // Stage 5 Theory Checkpoint Selection
+  const handleCheckpointSelect = (checkpointId: string, optionId: string) => {
+    const chk = OOP_DATA_PACKAGE.theoryCheckpoints.find((c) => c.id === checkpointId);
+    if (!chk) return;
+    const opt = chk.options.find((o) => o.id === optionId);
+    if (!opt) return;
+
+    setCheckpointAnswers({ ...checkpointAnswers, [checkpointId]: optionId });
+    setCheckpointFeedback({
+      ...checkpointFeedback,
+      [checkpointId]: {
+        isCorrect: opt.isCorrect,
+        text: opt.feedback
+      }
+    });
+
+    if (!opt.isCorrect && opt.misconceptionId) {
+      recordMistakeOccurrence(opt.misconceptionId, confidence === 'CONFIDENT');
+    }
+  };
+
+  // Stage 7 Guided FixBuilder Submission
+  const handleGuidedSubmit = async (selectedOptionIds: string[]) => {
+    const correctOptions = OOP_DATA_PACKAGE.challenges[0].type === 'FIX_BUILDER'
+      ? (OOP_DATA_PACKAGE.challenges[0] as any).payload.options.filter((o: any) => o.isCorrect).map((o: any) => o.id)
+      : [];
+
+    const isFullyCorrect = correctOptions.every((id: string) => selectedOptionIds.includes(id)) &&
+      selectedOptionIds.length === correctOptions.length;
+
+    const evalRes: EvaluationResult = {
+      correctness: isFullyCorrect ? "CORRECT" : selectedOptionIds.length > 0 ? "PARTIALLY_CORRECT" : "INCORRECT",
+      score: isFullyCorrect ? 1.0 : 0.5,
+      feedback: isFullyCorrect
+        ? {
+            en: "Flawless solution! Private fields, constructor guards, and domain methods deposit()/withdraw() enforce state encapsulation.",
+            ru: "Идеальное решение! Приватные поля, проверки в конструкторе и доменные методы deposit()/withdraw() защищают состояние."
+          }
+        : {
+            en: "Partial match. Ensure you include private long cents fields, constructor validation, and validated deposit/withdraw methods.",
+            ru: "Частично верно. Убедитесь, что выбрали приватные поля long центов, проверки в конструкторе и методы deposit/withdraw."
+          },
+      matchedConceptIds: ["cpt_encapsulation", "cpt_invariants"],
+      missingConceptIds: [],
+      detectedMistakePatternIds: isFullyCorrect ? [] : ["err_setter_invariant_bypass"]
+    };
+
+    setEvaluation(evalRes);
+    await updateConceptMastery(["cpt_encapsulation", "cpt_invariants"], evalRes.correctness, confidence, hintsRevealedIds.length);
+    await recordUserAttempt({
+      userId: 'local-user',
+      challengeId: OOP_DATA_PACKAGE.challenges[0].id,
+      missionId: mission.id,
+      stageId: currentStage.id,
+      challengeType: OOP_DATA_PACKAGE.challenges[0].type,
+      answerPayloadJson: JSON.stringify(selectedOptionIds),
+      submittedAt: new Date().toISOString(),
+      durationMs: 120000,
+      confidence,
+      hintsUsedCount: hintsRevealedIds.length,
+      hintsUsedIds: hintsRevealedIds,
+      evaluation: evalRes,
+      xpAwarded: isFullyCorrect ? 100 : 50
+    });
+
+    if (isFullyCorrect) {
+      await addXP(100);
+    }
+  };
+
+  // Stage 9 Interview Answer Submission
+  const handleInterviewSubmit = async (responseText: string, matchedConceptIds: string[]) => {
+    const isGood = matchedConceptIds.length >= 2;
+
+    const evalRes: EvaluationResult = {
+      correctness: isGood ? "CORRECT" : "PARTIALLY_CORRECT",
+      score: isGood ? 1.0 : 0.6,
+      feedback: isGood
+        ? {
+            en: "Strong verbal answer! You correctly emphasized state invariant protection and replacing setters with explicit domain behaviors.",
+            ru: "Сильный устный ответ! Вы верно подчеркнули защиту инвариантов состояния и замену сеттеров на доменные методы."
+          }
+        : {
+            en: "Answer recorded. Review the model 3-tier speech script below to refine your elevator pitch and trade-offs delivery.",
+            ru: "Ответ записан. Изучите модель устного ответа ниже для улучшения Elevator Pitch и аргументации компромиссов."
+          },
+      matchedConceptIds,
+      missingConceptIds: [],
+      detectedMistakePatternIds: []
+    };
+
+    setEvaluation(evalRes);
+    await updateConceptMastery(["cpt_encapsulation", "cpt_access_modifiers"], evalRes.correctness, confidence, 0);
+    await addXP(100);
+  };
+
+  // Stage 10 Bug Hunt Submission
+  const handleBugHuntSubmit = async (selectedLines: number[]) => {
+    const isCorrect = selectedLines.includes(10) || selectedLines.includes(15);
+
+    const evalRes: EvaluationResult = {
+      correctness: isCorrect ? "CORRECT" : "INCORRECT",
+      score: isCorrect ? 1.0 : 0.0,
+      feedback: isCorrect
+        ? {
+            en: "Vulnerability identified! Lines 10 and 15 leak mutable Date references without defensive copying.",
+            ru: "Уязвимость найдена! Строки 10 и 15 приводят к утечке мутабельной ссылки Date без защитного копирования."
+          }
+        : {
+            en: "Incorrect line selected. Inspect where internal java.util.Date references are directly assigned or returned.",
+            ru: "Неверно выбранная строка. Посмотрите, где ссылки на java.util.Date напрямую присваиваются или возвращаются."
+          },
+      matchedConceptIds: ["cpt_defensive_copying"],
+      missingConceptIds: [],
+      detectedMistakePatternIds: isCorrect ? [] : ["err_mutable_reference_leak"]
+    };
+
+    setEvaluation(evalRes);
+    await updateConceptMastery(["cpt_defensive_copying"], evalRes.correctness, confidence, hintsRevealedIds.length);
+    if (!isCorrect) {
+      await recordMistakeOccurrence("err_mutable_reference_leak", confidence === 'CONFIDENT');
+    } else {
+      await addXP(100);
+    }
+  };
+
+  // Stage 13 Reflection Submission
+  const handleReflectionSubmit = async () => {
+    if (!reflectionText.trim()) return;
+    await saveReflectionNote(mission.id, reflectionText);
+    await saveMissionProgress({
+      userId: 'local-user',
+      missionId: mission.id,
+      state: "MASTERED",
+      currentStageId: currentStage.id,
+      completedStageIds: stages.map((s) => s.id),
+      startedAt: new Date().toISOString(),
+      lastActivityAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+      completionPercentage: 100,
+      bestScore: 100,
+      totalAttempts: 3
+    });
+    await addXP(50);
+    navigate('/progress');
   };
 
   return (
-    <div className="mission-page-container">
-      {/* Top Mission Control Bar */}
-      <header className="mission-control-bar">
-        <button onClick={() => navigate('/learn')} className="btn-exit-mission">
-          <ArrowLeft size={16} /> Exit Mission
-        </button>
-
-        <div className="mission-title-center">
-          <span className="mission-topic-tag">{getText(mission.topicTitle)}</span>
-          <h2>{getText(mission.title)}</h2>
+    <div className="mission-workspace-page">
+      {/* Workspace Navigation Header */}
+      <div className="mission-workspace-header">
+        <div className="header-left-group">
+          <button type="button" className="btn-exit-mission" onClick={() => navigate('/modules/object-oriented-programming/topics/encapsulation')}>
+            <ArrowLeft size={16} /> Exit Mission
+          </button>
+          <div className="mission-title-area">
+            <h2>{getText(mission.title.en, mission.title.ru)}</h2>
+            <span className="topic-badge">Topic 05: Encapsulation</span>
+          </div>
         </div>
 
-        {/* Level Selector */}
-        <div className="level-selector-pills">
-          <button
-            onClick={() => setLevelMode('guided')}
-            className={`lvl-pill ${levelMode === 'guided' ? 'active-guided' : ''}`}
-          >
-            Lvl 1: Guided
+        <div className="header-right-group">
+          <div className="xp-reward-tag">
+            <Trophy size={14} className="text-warning" />
+            <span>+250 XP</span>
+          </div>
+          <button type="button" className="btn-sidebar-trigger" onClick={() => toggleSidebar()}>
+            <BookOpen size={16} />
+            <span>Knowledge Sidebar</span>
           </button>
-          <button
-            onClick={() => setLevelMode('applied')}
-            className={`lvl-pill ${levelMode === 'applied' ? 'active-applied' : ''}`}
-          >
-            Lvl 2: Applied
-          </button>
-          <button
-            onClick={() => setLevelMode('interview')}
-            className={`lvl-pill ${levelMode === 'interview' ? 'active-interview' : ''}`}
-          >
-            Lvl 3: Interview
-          </button>
-        </div>
-      </header>
-
-      {/* Progress Bar (10 Stages) */}
-      <div className="stage-progress-header">
-        <div className="stage-info">
-          <span>Stage {currentStageIdx + 1} of {mission.stages.length}: <strong>{getText(currentStage.title)}</strong></span>
-          <span>{Math.round(((currentStageIdx + 1) / mission.stages.length) * 100)}% Complete</span>
-        </div>
-        <div className="progress-track">
-          {mission.stages.map((stg, idx) => (
-            <div
-              key={stg.stageId}
-              onClick={() => setCurrentStageIdx(idx)}
-              className={`track-segment ${idx === currentStageIdx ? 'active' : ''} ${idx < currentStageIdx ? 'completed' : ''}`}
-              title={`Stage ${idx + 1}: ${stg.type}`}
-            />
-          ))}
         </div>
       </div>
 
-      {/* Stage Body */}
-      <div className="stage-body-card">
-        {/* Render Stage based on Stage Type */}
+      {/* Stage Stepper Navigation Bar */}
+      <StageStepper
+        stages={stages}
+        currentStageId={currentStage.id}
+        completedStageIds={completedStageIds}
+        onSelectStage={(stgId) => setCurrentStageId(stgId)}
+      />
 
-        {/* 1. Scenario Introduction Stage */}
-        {currentStage.type === 'scenario' && (
-          <div className="stage-content scenario-stage">
-            <div className="stage-badge">
-              <Layers size={16} /> Production Scenario
+      {/* Main Workspace Active Stage Stage View */}
+      <div className="mission-stage-viewport">
+        {/* STAGE 1: MISSION INTRODUCTION */}
+        {currentStage.type === 'MISSION_INTRODUCTION' && (
+          <div className="stage-card intro-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 01</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
-            <h3>{getText(currentStage.content.scenarioTitle)}</h3>
-            <div className="story-box">
-              <p>{getText(currentStage.content.scenarioStory)}</p>
-            </div>
-            <div className="context-box">
-              <Shield size={18} />
-              <p>{getText(currentStage.content.scenarioContext)}</p>
+            <p className="scenario-story">{getText(mission.scenarioIntroduction.en, mission.scenarioIntroduction.ru)}</p>
+
+            <CodeViewer artifact={OOP_DATA_PACKAGE.codeArtifacts[0]} />
+
+            <SourceContext
+              classification="BOOK_DERIVED_EXERCISE"
+              sources={OOP_DATA_PACKAGE.sources}
+              sourceReferences={OOP_DATA_PACKAGE.sourceReferences}
+            />
+
+            <div className="stage-actions">
+              <button type="button" className="btn-primary-action" onClick={handleNextStage}>
+                <span>Proceed to Real Engineering Problem</span>
+              </button>
             </div>
           </div>
         )}
 
-        {/* 2. Concept Primer Stage */}
-        {currentStage.type === 'primer' && (
-          <div className="stage-content primer-stage">
-            <div className="stage-badge">
-              <HelpCircle size={16} /> Concept Primer
+        {/* STAGE 2: REAL ENGINEERING PROBLEM */}
+        {currentStage.type === 'REAL_ENGINEERING_PROBLEM' && (
+          <div className="stage-card problem-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 02</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
-            <h3>{getText(currentStage.content.primerTitle)}</h3>
-            <div className="primer-summary-box">
-              <p>{getText(currentStage.content.primerSummary)}</p>
+            <p className="problem-text">{getText(mission.engineeringProblem.en, mission.engineeringProblem.ru)}</p>
+
+            <CodeViewer artifact={OOP_DATA_PACKAGE.codeArtifacts[0]} />
+
+            <div className="stage-actions">
+              <button type="button" className="btn-primary-action" onClick={handleNextStage}>
+                <span>Proceed to Think Yourself Diagnostic</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STAGE 3: THINK YOURSELF */}
+        {currentStage.type === 'THINK_YOURSELF' && (
+          <div className="stage-card think-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 03</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+            <p>Formulate your initial diagnostic hypothesis: Why is public balance mutation dangerous, and which class invariant is unprotected?</p>
+
+            <textarea
+              className="hypothesis-textarea"
+              rows={4}
+              value={hypothesisText}
+              onChange={(e) => setHypothesisText(e.target.value)}
+              placeholder="Write your diagnostic hypothesis here..."
+            />
+
+            <div className="think-actions">
+              <button type="button" className="btn-secondary-action" onClick={handleNextStage}>
+                <HelpCircle size={16} /> I'm not sure (Skip to Theory)
+              </button>
+              <button
+                type="button"
+                className="btn-primary-action"
+                disabled={!hypothesisText.trim()}
+                onClick={handleHypothesisSubmit}
+              >
+                Submit Diagnostic Hypothesis
+              </button>
             </div>
 
-            {currentStage.content.primerDiagramSteps && (
-              <div className="primer-diagram">
-                {currentStage.content.primerDiagramSteps.map((step, idx) => (
-                  <div key={idx} className="diagram-step-box">
-                    <span className="step-badge">#0{idx + 1}</span>
-                    <strong>{getText(step.title)}</strong>
-                    <p>{getText(step.desc)}</p>
+            {evaluation && (
+              <FeedbackPanel
+                evaluation={evaluation}
+                onNextAction={handleNextStage}
+                nextActionLabel="Continue to Theory Stage"
+              />
+            )}
+          </div>
+        )}
+
+        {/* STAGE 4: NEED HELP */}
+        {currentStage.type === 'NEED_HELP' && (
+          <div className="stage-card help-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 04</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+            <p>This is a no-penalty bridge to transition into deep core theory and visual state mechanics.</p>
+
+            <div className="stage-actions">
+              <button type="button" className="btn-primary-action" onClick={handleNextStage}>
+                <span>Open Core Theory & Checkpoints</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STAGE 5: THEORY */}
+        {currentStage.type === 'THEORY' && (
+          <div className="stage-card theory-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 05</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+
+            {/* Theory Sections */}
+            <div className="theory-sections-container">
+              {OOP_DATA_PACKAGE.theoryArticles[0].sections.map((sec) => (
+                <div key={sec.id} className="theory-section-block">
+                  <h3>{getText(sec.title.en, sec.title.ru)}</h3>
+                  {sec.blocks.map((b) => (
+                    <p key={b.id} className="theory-p">{getText((b as any).content.en, (b as any).content.ru)}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* 3 Theory Checkpoints */}
+            <div className="theory-checkpoints-container">
+              <h3>Theory Checkpoints (3 Learning Checks)</h3>
+              {OOP_DATA_PACKAGE.theoryCheckpoints.map((chk, idx) => {
+                const feedback = checkpointFeedback[chk.id];
+
+                return (
+                  <div key={chk.id} className="checkpoint-card">
+                    <h4>Checkpoint {idx + 1}: {getText(chk.question.en, chk.question.ru)}</h4>
+                    <div className="options-stack">
+                      {chk.options.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          className={`checkpoint-option-btn ${checkpointAnswers[chk.id] === opt.id ? 'selected' : ''}`}
+                          onClick={() => handleCheckpointSelect(chk.id, opt.id)}
+                        >
+                          <span>{getText(opt.text.en, opt.text.ru)}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {feedback && (
+                      <div className={`checkpoint-feedback ${feedback.isCorrect ? 'correct' : 'incorrect'}`}>
+                        <span>{getText(feedback.text.en, feedback.text.ru)}</span>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 3. Guided Puzzle Stage */}
-        {currentStage.type === 'puzzle' && currentStage.content.puzzleItems && (
-          <div>
-            <ConfidenceSelector currentConfidence={confidence} onSelect={setConfidence} />
-            <HintBox
-              hints={currentStage.hints}
-              languageMode={languageMode}
-              onHintUsed={(cnt) => {
-                setHintsUsedThisStage(cnt);
-                setTotalHintsUsed((prev) => prev + 1);
-              }}
-            />
-            <SequencePuzzle
-              items={currentStage.content.puzzleItems}
-              instruction={currentStage.content.puzzleInstruction || { en: '', ru: '' }}
-              languageMode={languageMode}
-              onComplete={(correct) => handleStageComplete(correct, 20)}
-            />
-          </div>
-        )}
-
-        {/* 4. Bug Hunt Stage */}
-        {currentStage.type === 'bughunt' && currentStage.content.bugHuntLines && (
-          <div>
-            <ConfidenceSelector currentConfidence={confidence} onSelect={setConfidence} />
-            <HintBox
-              hints={currentStage.hints}
-              languageMode={languageMode}
-              onHintUsed={(cnt) => {
-                setHintsUsedThisStage(cnt);
-                setTotalHintsUsed((prev) => prev + 1);
-              }}
-            />
-            <BugHuntChallenge
-              instruction={currentStage.content.bugHuntInstruction || { en: '', ru: '' }}
-              code={currentStage.content.bugHuntCode || ''}
-              lines={currentStage.content.bugHuntLines}
-              languageMode={languageMode}
-              onComplete={(correct) => handleStageComplete(correct, 25)}
-            />
-          </div>
-        )}
-
-        {/* 5. Fix Builder Stage */}
-        {currentStage.type === 'fixbuilder' && currentStage.content.fixOptions && (
-          <div>
-            <ConfidenceSelector currentConfidence={confidence} onSelect={setConfidence} />
-            <HintBox
-              hints={currentStage.hints}
-              languageMode={languageMode}
-              onHintUsed={(cnt) => {
-                setHintsUsedThisStage(cnt);
-                setTotalHintsUsed((prev) => prev + 1);
-              }}
-            />
-            <FixBuilderChallenge
-              instruction={currentStage.content.fixBuilderInstruction || { en: '', ru: '' }}
-              options={currentStage.content.fixOptions}
-              languageMode={languageMode}
-              onComplete={(correct) => handleStageComplete(correct, 20)}
-            />
-          </div>
-        )}
-
-        {/* 6. Trade-Off Stage */}
-        {currentStage.type === 'tradeoff' && currentStage.content.tradeOffOptions && (
-          <div>
-            <ConfidenceSelector currentConfidence={confidence} onSelect={setConfidence} />
-            <TradeOffChallenge
-              question={currentStage.content.tradeOffQuestion || { en: '', ru: '' }}
-              options={currentStage.content.tradeOffOptions}
-              languageMode={languageMode}
-              onComplete={(correct) => handleStageComplete(correct, 25)}
-            />
-          </div>
-        )}
-
-        {/* 7. Interview Answer Stage */}
-        {currentStage.type === 'interview' && currentStage.content.expectedConcepts && (
-          <div>
-            <InterviewAnswerChallenge
-              question={currentStage.content.interviewQuestion || { en: '', ru: '' }}
-              expectedConcepts={currentStage.content.expectedConcepts}
-              languageMode={languageMode}
-              onComplete={(assessment) => {
-                const passed = assessment !== 'weak';
-                const reward = assessment === 'strong' ? 30 : 20;
-                handleStageComplete(passed, reward);
-              }}
-            />
-          </div>
-        )}
-
-        {/* 8. Reference Model Answer Stage */}
-        {currentStage.type === 'reference' && (
-          <div className="stage-content reference-stage">
-            <div className="stage-badge">
-              <CheckCircle2 size={16} /> Senior Interviewer Reference Answer
+                );
+              })}
             </div>
 
-            <div className="ref-short-answer">
-              <h4>Concise Interview-Ready Answer:</h4>
-              <p>{getText(currentStage.content.referenceShortAnswer)}</p>
+            <div className="stage-actions">
+              <button type="button" className="btn-primary-action" onClick={handleNextStage}>
+                <span>Proceed to Interactive Visualization</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STAGE 6: VISUALIZATION */}
+        {currentStage.type === 'VISUALIZATION' && (
+          <div className="stage-card visual-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 06</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
 
-            <div className="ref-detailed-answer">
-              <h4>Detailed Senior Breakdown:</h4>
-              <p>{getText(currentStage.content.referenceDetailedAnswer)}</p>
+            <div className="visualization-comparison-box">
+              <div className="visual-column broken">
+                <h4>🔴 Unprotected Direct Field Mutation</h4>
+                <div className="memory-flow-box">
+                  <code>account.balance = -500.0;</code>
+                  <p>Bypasses pre-condition guards ──► Corrupts Heap Memory State!</p>
+                </div>
+              </div>
+
+              <div className="visual-column protected">
+                <h4>🟢 Encapsulated Behavior Execution</h4>
+                <div className="memory-flow-box">
+                  <code>account.withdraw(50000);</code>
+                  <p>Validates amount & funds ──► Throws IllegalStateException!</p>
+                </div>
+              </div>
             </div>
 
-            {currentStage.content.commonMistake && (
-              <div className="ref-warning-box">
-                <strong>Common Candidate Mistake:</strong>
-                <p>{getText(currentStage.content.commonMistake)}</p>
-              </div>
-            )}
+            <div className="stage-actions">
+              <button type="button" className="btn-primary-action" onClick={handleNextStage}>
+                <span>Proceed to Guided FixBuilder Practice</span>
+              </button>
+            </div>
+          </div>
+        )}
 
-            {currentStage.content.followUpQuestion && (
-              <div className="ref-followup-box">
-                <h4>Interviewer Follow-Up Question:</h4>
-                <p className="followup-q">{getText(currentStage.content.followUpQuestion)}</p>
-                <strong>Model Follow-Up Answer:</strong>
-                <p className="followup-a">{getText(currentStage.content.followUpModelAnswer)}</p>
-              </div>
-            )}
+        {/* STAGE 7: INTERACTIVE PRACTICE */}
+        {currentStage.type === 'INTERACTIVE_PRACTICE' && (
+          <div className="stage-card practice-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 07</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
 
-            {currentStage.content.modelJavaCode && (
-              <div className="ref-code-box">
-                <h4>Production Reference Code:</h4>
-                <pre className="java-code-container">
-                  <code>{currentStage.content.modelJavaCode}</code>
-                </pre>
-              </div>
+            <GuidedPuzzle
+              challenge={OOP_DATA_PACKAGE.challenges[0] as any}
+              onAttemptSubmit={handleGuidedSubmit}
+            />
+
+            {evaluation && (
+              <FeedbackPanel
+                evaluation={evaluation}
+                onNextAction={handleNextStage}
+                nextActionLabel="Continue to Senior Interview Question"
+              />
             )}
           </div>
         )}
 
-        {/* 9. Reflection Stage */}
-        {currentStage.type === 'reflection' && (
-          <ReflectionPrompt
-            missionId={mission.id}
-            prompt={currentStage.content.reflectionPrompt || { en: '', ru: '' }}
-            languageMode={languageMode}
-            onComplete={() => handleStageComplete(true, 5)}
-          />
+        {/* STAGE 8: INTERVIEW QUESTION */}
+        {currentStage.type === 'INTERVIEW_QUESTION' && (
+          <div className="stage-card interview-q-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 08</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+            <p className="scenario-statement">
+              How do you explain the fundamental difference between encapsulation and data hiding to a developer who claims 'making fields private and adding getters/setters is encapsulation'?
+            </p>
+
+            <div className="stage-actions">
+              <button type="button" className="btn-primary-action" onClick={handleNextStage}>
+                <span>Proceed to Verbal Answer Formulation</span>
+              </button>
+            </div>
+          </div>
         )}
 
-        {/* 10. Mission Results Stage */}
-        {currentStage.type === 'results' && (
-          <MissionResults
-            mission={mission}
-            totalXpEarned={totalXpEarned}
-            hintsUsed={totalHintsUsed}
-          />
+        {/* STAGE 9: INTERVIEW ANSWER */}
+        {currentStage.type === 'INTERVIEW_ANSWER' && (
+          <div className="stage-card interview-a-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 09</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+
+            <InterviewAnswerChallengeView
+              challenge={OOP_DATA_PACKAGE.challenges[2] as any}
+              onAttemptSubmit={handleInterviewSubmit}
+              isSubmitted={!!evaluation}
+            />
+
+            {evaluation && (
+              <FeedbackPanel
+                evaluation={evaluation}
+                onNextAction={handleNextStage}
+                nextActionLabel="Continue to Applied Bug Hunt"
+              />
+            )}
+          </div>
+        )}
+
+        {/* STAGE 10: DEBUG COUNTER-EXAMPLE */}
+        {currentStage.type === 'DEBUG_COUNTER_EXAMPLE' && (
+          <div className="stage-card debug-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 10</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+
+            <BugHuntChallengeView
+              challenge={OOP_DATA_PACKAGE.challenges[1] as any}
+              onAttemptSubmit={handleBugHuntSubmit}
+            />
+
+            {evaluation && (
+              <FeedbackPanel
+                evaluation={evaluation}
+                onNextAction={handleNextStage}
+                nextActionLabel="Continue to Related Topics"
+              />
+            )}
+          </div>
+        )}
+
+        {/* STAGE 11: RELATED TOPICS */}
+        {currentStage.type === 'RELATED_TOPICS' && (
+          <div className="stage-card related-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 11</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+            <p>Explore lateral knowledge connections to reinforce concepts across the OOP module graph.</p>
+
+            <div className="related-nodes-grid">
+              <div className="node-card" onClick={() => navigate('/modules/object-oriented-programming/topics/access-modifiers')}>
+                <h4>Topic 06: Access Modifiers</h4>
+                <p>Private, protected, package-private visibility boundaries.</p>
+              </div>
+              <div className="node-card" onClick={() => navigate('/modules/object-oriented-programming/topics/coupling-and-cohesion')}>
+                <h4>Topic 18: Coupling and Cohesion</h4>
+                <p>High cohesion and low coupling in enterprise aggregates.</p>
+              </div>
+              <div className="node-card" onClick={() => navigate('/modules/object-oriented-programming/topics/immutability-defensive-copy')}>
+                <h4>Topic 22: Immutability & Defensive Copying</h4>
+                <p>Building bulletproof immutable domain entities & Records.</p>
+              </div>
+            </div>
+
+            <div className="stage-actions">
+              <button type="button" className="btn-primary-action" onClick={handleNextStage}>
+                <span>View Mission Results Summary</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STAGE 12: MISSION RESULTS */}
+        {currentStage.type === 'MISSION_RESULTS' && (
+          <div className="stage-card results-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 12</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+
+            <div className="results-summary-card">
+              <Trophy size={48} className="text-warning hero-trophy" />
+              <h3>Mission Completed!</h3>
+              <p>You have successfully protected state invariants for BankAccount.</p>
+
+              <div className="stats-metric-grid">
+                <div className="metric-box">
+                  <span className="metric-num">+250</span>
+                  <span className="metric-lbl">XP Earned</span>
+                </div>
+                <div className="metric-box">
+                  <span className="metric-num">100%</span>
+                  <span className="metric-lbl">Accuracy</span>
+                </div>
+                <div className="metric-box">
+                  <span className="metric-num">25m</span>
+                  <span className="metric-lbl">Time Spent</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="stage-actions">
+              <button type="button" className="btn-primary-action" onClick={handleNextStage}>
+                <span>Proceed to Engineering Reflection</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STAGE 13: REFLECTION */}
+        {currentStage.type === 'REFLECTION' && (
+          <div className="stage-card reflection-stage">
+            <div className="stage-header">
+              <span className="stage-num-badge">STAGE 13</span>
+              <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
+            </div>
+            <p>Write a 1-sentence engineering reflection on what production rule you will apply in your daily code:</p>
+
+            <textarea
+              className="reflection-textarea"
+              rows={4}
+              value={reflectionText}
+              onChange={(e) => setReflectionText(e.target.value)}
+              placeholder="e.g. I will replace arbitrary setters with validated domain methods and apply defensive copying to Date objects..."
+            />
+
+            <div className="stage-actions">
+              <button
+                type="button"
+                className="btn-primary-action large"
+                disabled={!reflectionText.trim()}
+                onClick={handleReflectionSubmit}
+              >
+                Save Reflection & View Progress Matrix
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Stage Footer Navigation */}
-      <footer className="stage-footer-nav">
-        <button onClick={handlePrevStage} disabled={isFirstStage} className="btn-secondary">
-          <ArrowLeft size={16} /> Previous Stage
-        </button>
-
-        <span className="stage-step-indicator">
-          Stage {currentStageIdx + 1} of {mission.stages.length}
-        </span>
-
-        {!isLastStage && (
-          <button onClick={handleNextStage} className="btn-primary">
-            Next Stage <ArrowRight size={16} />
-          </button>
-        )}
-      </footer>
+      <KnowledgeSidebar />
     </div>
   );
 };

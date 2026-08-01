@@ -1,23 +1,28 @@
 import { create } from 'zustand';
-import { LanguageMode } from '../types/mission';
-import { ConfidenceLevel } from '../types/user';
+import { LanguageMode, UserPreferences } from '../types/domain';
 import { db, initializeDatabaseDefaults } from '../db/database';
-
-export type LevelMode = 'guided' | 'applied' | 'interview';
 
 interface AppState {
   languageMode: LanguageMode;
   xp: number;
   level: number;
   streak: number;
-  confidence: ConfidenceLevel;
-  levelMode: LevelMode;
+  codeCommentsMode: "CLEAN" | "ANNOTATED";
+  timerEnabled: boolean;
+  reducedMotion: boolean;
+  sidebarOpen: boolean;
+  sidebarActiveTab: "THEORY" | "CONCEPTS" | "MISTAKES" | "TAGS" | "INTERVIEW_TIPS" | "REFERENCES";
+  sidebarSelectedTag: string | null;
   isInitialized: boolean;
 
   setLanguageMode: (mode: LanguageMode) => Promise<void>;
-  setConfidence: (confidence: ConfidenceLevel) => void;
-  setLevelMode: (mode: LevelMode) => void;
+  setCodeCommentsMode: (mode: "CLEAN" | "ANNOTATED") => Promise<void>;
+  setTimerEnabled: (enabled: boolean) => Promise<void>;
+  setReducedMotion: (enabled: boolean) => Promise<void>;
   addXP: (amount: number) => Promise<void>;
+  toggleSidebar: (open?: boolean) => void;
+  openSidebarWithTag: (tag: string) => void;
+  setSidebarActiveTab: (tab: AppState['sidebarActiveTab']) => void;
   initializeStore: () => Promise<void>;
 }
 
@@ -26,45 +31,79 @@ export const useAppStore = create<AppState>((set, get) => ({
   xp: 0,
   level: 1,
   streak: 1,
-  confidence: 'unsure',
-  levelMode: 'guided',
+  codeCommentsMode: 'ANNOTATED',
+  timerEnabled: false,
+  reducedMotion: false,
+  sidebarOpen: false,
+  sidebarActiveTab: 'THEORY',
+  sidebarSelectedTag: null,
   isInitialized: false,
 
   setLanguageMode: async (mode) => {
     set({ languageMode: mode });
-    const settings = await db.settings.get(1);
-    if (settings) {
-      await db.settings.update(1, { languageMode: mode });
+    try {
+      await db.userPreferences.update('local-user', { languageMode: mode });
+    } catch (err) {
+      console.warn('Failed to update language mode in Dexie:', err);
     }
   },
 
-  setConfidence: (confidence) => {
-    set({ confidence });
+  setCodeCommentsMode: async (mode) => {
+    set({ codeCommentsMode: mode });
+    try {
+      await db.userPreferences.update('local-user', { codeCommentsMode: mode });
+    } catch (err) {
+      console.warn('Failed to update code comments mode in Dexie:', err);
+    }
   },
 
-  setLevelMode: (mode) => {
-    set({ levelMode: mode });
+  setTimerEnabled: async (enabled) => {
+    set({ timerEnabled: enabled });
+    try {
+      await db.userPreferences.update('local-user', { timerEnabled: enabled });
+    } catch (err) {
+      console.warn('Failed to update timer setting in Dexie:', err);
+    }
+  },
+
+  setReducedMotion: async (enabled) => {
+    set({ reducedMotion: enabled });
+    try {
+      await db.userPreferences.update('local-user', { reducedMotion: enabled });
+    } catch (err) {
+      console.warn('Failed to update reduced motion in Dexie:', err);
+    }
   },
 
   addXP: async (amount) => {
     const currentXP = get().xp + amount;
-    // Calculate level: 100 XP per level
     const newLevel = Math.floor(currentXP / 100) + 1;
     set({ xp: currentXP, level: newLevel });
+  },
 
-    const progress = await db.userProgress.get(1);
-    if (progress) {
-      await db.userProgress.update(1, { xp: currentXP, level: newLevel });
-    }
+  toggleSidebar: (open) => {
+    set((state) => ({ sidebarOpen: open !== undefined ? open : !state.sidebarOpen }));
+  },
+
+  openSidebarWithTag: (tag) => {
+    set({
+      sidebarOpen: true,
+      sidebarActiveTab: 'TAGS',
+      sidebarSelectedTag: tag
+    });
+  },
+
+  setSidebarActiveTab: (tab) => {
+    set({ sidebarActiveTab: tab });
   },
 
   initializeStore: async () => {
-    const { settings, progress } = await initializeDatabaseDefaults();
+    const { preferences } = await initializeDatabaseDefaults();
     set({
-      languageMode: settings.languageMode,
-      xp: progress.xp,
-      level: progress.level,
-      streak: progress.streak,
+      languageMode: preferences.languageMode,
+      codeCommentsMode: preferences.codeCommentsMode,
+      timerEnabled: preferences.timerEnabled,
+      reducedMotion: preferences.reducedMotion,
       isInitialized: true
     });
   }

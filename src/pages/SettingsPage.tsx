@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
-import { LanguageMode } from '../types/mission';
-import { exportUserDataJSON, importUserDataJSON, db } from '../db/database';
-import { Settings, Download, Upload, Trash2, Globe, Sparkles, Check, AlertOctagon } from 'lucide-react';
+import { exportUserDataJSON, importUserDataJSON, resetUserData } from '../db/database';
+import { ConfirmDialog } from '../components/workspace/ConfirmDialog';
+import { Breadcrumbs } from '../components/layout/Breadcrumbs';
+import { Settings, Globe, Eye, Clock, Download, Upload, RotateCcw, ShieldAlert, Check } from 'lucide-react';
+import { LanguageMode } from '../types/domain';
 
 export const SettingsPage: React.FC = () => {
-  const { languageMode, setLanguageMode } = useAppStore();
+  const {
+    languageMode, setLanguageMode,
+    codeCommentsMode, setCodeCommentsMode,
+    timerEnabled, setTimerEnabled,
+    reducedMotion, setReducedMotion
+  } = useAppStore();
+
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [importStatus, setImportStatus] = useState<string | null>(null);
-  const [showResetModal, setShowResetModal] = useState(false);
 
   const handleExport = async () => {
     const jsonStr = await exportUserDataJSON();
@@ -15,7 +23,7 @@ export const SettingsPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `java-mission-control-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `java-senior-prep-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -23,117 +31,199 @@ export const SettingsPage: React.FC = () => {
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async (event) => {
       const content = event.target?.result as string;
-      const success = await importUserDataJSON(content);
-      if (success) {
-        setImportStatus('Progress imported successfully! Refreshing...');
-        setTimeout(() => window.location.reload(), 1200);
+      const ok = await importUserDataJSON(content);
+      if (ok) {
+        setImportStatus('Progress imported successfully! Please reload.');
       } else {
-        setImportStatus('Failed to import JSON: Invalid format.');
+        setImportStatus('Import failed. Invalid JSON format.');
       }
     };
     reader.readAsText(file);
   };
 
-  const handleResetData = async () => {
-    await db.delete();
-    await db.open();
-    setShowResetModal(false);
+  const handleConfirmReset = async () => {
+    await resetUserData();
+    setResetDialogOpen(false);
     window.location.reload();
   };
 
+  const breadcrumbs = [
+    { label: languageMode === 'ru' ? 'Дашборд' : 'Dashboard', path: '/' },
+    { label: languageMode === 'ru' ? 'Настройки' : 'System Settings' }
+  ];
+
   return (
-    <div className="settings-page-container">
-      <div className="page-header">
-        <h1><Settings size={28} /> Preferences & Data Control</h1>
-        <p className="subtext">Configure language modes, accessibility, and manage local-first progress storage.</p>
+    <div className="system-settings-page">
+      <Breadcrumbs items={breadcrumbs} />
+
+      <div className="page-header-banner">
+        <div className="header-icon-box">
+          <Settings size={28} className="text-accent" />
+        </div>
+        <div>
+          <h1 className="page-heading">
+            {languageMode === 'ru' ? 'Системные Настройки и Данные' : 'System Settings & Data Management'}
+          </h1>
+          <p className="page-subheading">
+            Configure language preferences, accessibility, code comment modes, and local IndexedDB backup export/import.
+          </p>
+        </div>
       </div>
 
-      <div className="settings-grid">
-        {/* Language & UI Settings */}
-        <div className="section-card">
-          <h3><Globe size={20} /> Language & Localization</h3>
-          <div className="setting-row">
-            <div>
-              <strong>Interface & Mission Language</strong>
-              <p>Choose your preferred language format for scenarios, questions, and model explanations.</p>
-            </div>
-            <select
-              value={languageMode}
-              onChange={(e) => setLanguageMode(e.target.value as LanguageMode)}
-              className="setting-select"
-            >
-              <option value="en">English (EN)</option>
-              <option value="ru">Русский (RU)</option>
-              <option value="bilingual">Bilingual (EN / RU)</option>
-            </select>
+      <div className="settings-cards-grid">
+        {/* Preference Settings Card */}
+        <div className="settings-panel-card">
+          <h3>
+            <Globe size={18} className="text-accent" />
+            <span>Localization & Language Mode</span>
+          </h3>
+          <p className="setting-desc">
+            Choose your preferred language. Java code, bytecode, and API identifiers remain untranslated across all modes.
+          </p>
+
+          <div className="setting-option-group">
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="lang"
+                checked={languageMode === 'en'}
+                onChange={() => setLanguageMode('en')}
+              />
+              <span>English (Default)</span>
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="lang"
+                checked={languageMode === 'ru'}
+                onChange={() => setLanguageMode('ru')}
+              />
+              <span>Russian (Русский)</span>
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="lang"
+                checked={languageMode === 'bilingual'}
+                onChange={() => setLanguageMode('bilingual')}
+              />
+              <span>Bilingual Mode (EN / RU)</span>
+            </label>
           </div>
         </div>
 
-        {/* Data Persistence Settings */}
-        <div className="section-card">
-          <h3><Sparkles size={20} /> Local Progress Data Management</h3>
+        {/* Display & Workspace Settings */}
+        <div className="settings-panel-card">
+          <h3>
+            <Eye size={18} className="text-accent" />
+            <span>Code Viewer & Accessibility</span>
+          </h3>
 
-          <div className="setting-row">
+          <div className="toggle-setting-row">
             <div>
-              <strong>Export Progress Backup (JSON)</strong>
-              <p>Download your complete attempt logs, concept mastery, and reflection notes to a local JSON file.</p>
+              <strong>Code Comments Display Mode</strong>
+              <p>Toggle between Clean Production Code and Annotated Learning Code.</p>
             </div>
-            <button onClick={handleExport} className="btn-secondary">
-              <Download size={16} /> Export JSON
+            <button
+              type="button"
+              className={`btn-toggle ${codeCommentsMode === 'ANNOTATED' ? 'active' : ''}`}
+              onClick={() => setCodeCommentsMode(codeCommentsMode === 'ANNOTATED' ? 'CLEAN' : 'ANNOTATED')}
+            >
+              {codeCommentsMode}
             </button>
           </div>
 
-          <div className="setting-row">
+          <div className="toggle-setting-row">
             <div>
-              <strong>Import Progress Backup</strong>
-              <p>Restore progress from a previously exported JSON file.</p>
+              <strong>Practice Timer</strong>
+              <p>Show optional timer in Interview Verbal stage (Disabled by default to reduce anxiety).</p>
             </div>
-            <label className="btn-secondary file-upload-label">
-              <Upload size={16} /> Select Backup JSON
+            <button
+              type="button"
+              className={`btn-toggle ${timerEnabled ? 'active' : ''}`}
+              onClick={() => setTimerEnabled(!timerEnabled)}
+            >
+              {timerEnabled ? 'ENABLED' : 'DISABLED'}
+            </button>
+          </div>
+
+          <div className="toggle-setting-row">
+            <div>
+              <strong>Reduced Motion</strong>
+              <p>Minimize UI animations and transition effects for accessibility.</p>
+            </div>
+            <button
+              type="button"
+              className={`btn-toggle ${reducedMotion ? 'active' : ''}`}
+              onClick={() => setReducedMotion(!reducedMotion)}
+            >
+              {reducedMotion ? 'ENABLED' : 'DISABLED'}
+            </button>
+          </div>
+        </div>
+
+        {/* Data Persistence & Export/Import */}
+        <div className="settings-panel-card">
+          <h3>
+            <Download size={18} className="text-accent" />
+            <span>Local Progress Backup (JSON)</span>
+          </h3>
+          <p className="setting-desc">
+            Export or import your local IndexedDB user attempts, mastery metrics, and reflection notes as a JSON file.
+          </p>
+
+          <div className="data-action-buttons">
+            <button type="button" className="btn-secondary-action" onClick={handleExport}>
+              <Download size={16} /> Export Progress JSON
+            </button>
+
+            <label className="btn-secondary-action input-file-btn">
+              <Upload size={16} /> Import Progress JSON
               <input type="file" accept=".json" onChange={handleImportFile} hidden />
             </label>
           </div>
 
           {importStatus && (
-            <div className="status-msg">
-              <Check size={16} /> {importStatus}
+            <div className="import-status-msg">
+              <Check size={14} className="text-success" />
+              <span>{importStatus}</span>
             </div>
           )}
+        </div>
 
-          <div className="setting-row danger-zone">
-            <div>
-              <strong className="text-danger">Reset All Local Progress</strong>
-              <p>Permanently delete all attempt history, XP, streaks, and concept mastery from IndexedDB.</p>
-            </div>
-            <button onClick={() => setShowResetModal(true)} className="btn-danger">
-              <Trash2 size={16} /> Reset Progress
-            </button>
-          </div>
+        {/* Danger Zone: Reset Progress */}
+        <div className="settings-panel-card danger-card">
+          <h3>
+            <ShieldAlert size={18} className="text-danger" />
+            <span>Danger Zone: Reset All Progress</span>
+          </h3>
+          <p className="setting-desc">
+            Wipe all local user attempts, concept mastery scores, spaced reviews, and reflection notes.
+          </p>
+
+          <button
+            type="button"
+            className="btn-danger-action"
+            onClick={() => setResetDialogOpen(true)}
+          >
+            <RotateCcw size={16} /> Reset All Progress Data
+          </button>
         </div>
       </div>
 
-      {/* Reset Confirmation Modal */}
-      {showResetModal && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <AlertOctagon size={36} className="icon-error" />
-            <h3>Reset All Progress?</h3>
-            <p>This action cannot be undone. All offline IndexedDB data will be cleared.</p>
-            <div className="modal-actions">
-              <button onClick={() => setShowResetModal(false)} className="btn-secondary">
-                Cancel
-              </button>
-              <button onClick={handleResetData} className="btn-danger">
-                Confirm Reset
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Glassmorphic Confirm Dialog with Typed RESET Confirmation */}
+      <ConfirmDialog
+        isOpen={resetDialogOpen}
+        title="Confirm Full Progress Reset"
+        description="Are you absolutely sure you want to reset all practice attempts, concept mastery scores, and reflection notes? This action cannot be undone."
+        requiredTypedText="RESET"
+        confirmButtonLabel="Wipe All Progress"
+        onConfirm={handleConfirmReset}
+        onCancel={() => setResetDialogOpen(false)}
+      />
     </div>
   );
 };

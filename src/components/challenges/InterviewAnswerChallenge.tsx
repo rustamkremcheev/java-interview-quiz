@@ -1,178 +1,165 @@
-import React, { useState, useEffect } from 'react';
-import { ExpectedConcept, LocalizedText, LanguageMode } from '../../types/mission';
-import { Timer, CheckCircle, AlertTriangle, XCircle, Send, Award } from 'lucide-react';
+import React, { useState } from 'react';
+import { InterviewAnswerChallenge } from '../../types/domain';
+import { useAppStore } from '../../store/useAppStore';
+import { ConfidenceSelector } from '../workspace/ConfidenceSelector';
+import { MessageSquare, Clock, CheckCircle2, AlertTriangle, ArrowRight, Lock } from 'lucide-react';
 
 interface InterviewAnswerChallengeProps {
-  question: LocalizedText;
-  expectedConcepts: ExpectedConcept[];
-  languageMode: LanguageMode;
-  onComplete: (assessment: 'weak' | 'acceptable' | 'strong', conceptResults: Record<string, boolean>) => void;
+  challenge: InterviewAnswerChallenge;
+  onAttemptSubmit: (responseText: string, matchedConceptIds: string[]) => void;
+  isSubmitted?: boolean;
 }
 
-export const InterviewAnswerChallenge: React.FC<InterviewAnswerChallengeProps> = ({
-  question,
-  expectedConcepts,
-  languageMode,
-  onComplete
+export const InterviewAnswerChallengeView: React.FC<InterviewAnswerChallengeProps> = ({
+  challenge,
+  onAttemptSubmit,
+  isSubmitted = false
 }) => {
-  const [answerText, setAnswerText] = useState('');
-  const [timeLeft, setTimeLeft] = useState(90);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [selfAssessment, setSelfAssessment] = useState<'weak' | 'acceptable' | 'strong' | null>(null);
+  const { languageMode, timerEnabled } = useAppStore();
+  const [responseText, setResponseText] = useState('');
+  const [confidence, setConfidence] = useState<'CONFIDENT' | 'UNSURE' | 'GUESSING'>('UNSURE');
+  const [timerSeconds, setTimerSeconds] = useState(0);
 
-  // 90-second countdown timer
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isTimerRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setIsTimerRunning(false);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isTimerRunning, timeLeft]);
-
-  const toggleTimer = () => {
-    setIsTimerRunning(!isTimerRunning);
+  const getText = (en: string, ru: string) => {
+    if (languageMode === 'ru') return ru;
+    return en;
   };
 
-  const resetTimer = () => {
-    setIsTimerRunning(false);
-    setTimeLeft(90);
+  const payload = challenge.payload;
+  const wordCount = responseText.trim().split(/\s+/).filter(Boolean).length;
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (isSubmitted) return;
+    setResponseText(e.target.value);
   };
 
-  // Local concept keyword evaluator
-  const evaluateConcepts = () => {
-    const textLower = answerText.toLowerCase();
-    const results: Record<string, { matched: boolean; hits: string[] }> = {};
+  const handleSubmit = () => {
+    if (!responseText.trim() || isSubmitted) return;
 
-    expectedConcepts.forEach((concept) => {
-      const hits = concept.keywords.filter((kw) => textLower.includes(kw.toLowerCase()));
-      results[concept.id] = {
-        matched: hits.length > 0,
-        hits
-      };
+    // Perform deterministic concept matching
+    const matchedConceptIds: string[] = [];
+    const lowerText = responseText.toLowerCase();
+
+    payload.expectedConcepts.forEach((ec) => {
+      const hasKeyword = ec.keywords.some((kw) => lowerText.includes(kw.toLowerCase()));
+      if (hasKeyword) {
+        matchedConceptIds.push(ec.id);
+      }
     });
 
-    return results;
-  };
-
-  const conceptEvaluation = isSubmitted ? evaluateConcepts() : {};
-
-  const handleSubmitAnswer = () => {
-    if (!answerText.trim()) return;
-    setIsTimerRunning(false);
-    setIsSubmitted(true);
-  };
-
-  const handleConfirmAssessment = (level: 'weak' | 'acceptable' | 'strong') => {
-    setSelfAssessment(level);
-    const booleanMap: Record<string, boolean> = {};
-    Object.keys(conceptEvaluation).forEach((k) => {
-      booleanMap[k] = conceptEvaluation[k].matched;
-    });
-    onComplete(level, booleanMap);
-  };
-
-  const getText = (text: LocalizedText) => {
-    if (languageMode === 'ru') return text.ru;
-    if (languageMode === 'bilingual') return `${text.en}\n(${text.ru})`;
-    return text.en;
+    onAttemptSubmit(responseText, matchedConceptIds);
   };
 
   return (
-    <div className="challenge-container">
-      <div className="challenge-header">
-        <div className="interview-top-bar">
-          <span className="badge badge-citi">Level 3: Senior Interview</span>
-          <div className="timer-widget">
-            <Timer size={18} className={timeLeft <= 15 ? 'timer-danger' : ''} />
-            <span className="timer-text">{timeLeft}s</span>
-            <button onClick={toggleTimer} className="btn-small-ghost" disabled={isSubmitted}>
-              {isTimerRunning ? 'Pause' : 'Start Timer'}
-            </button>
-            <button onClick={resetTimer} className="btn-small-ghost" disabled={isSubmitted}>
-              Reset
-            </button>
+    <div className="interview-answer-workspace">
+      <div className="challenge-prompt-header">
+        <div className="prompt-title-row">
+          <MessageSquare size={20} className="text-accent" />
+          <h3>{getText(challenge.title.en, challenge.title.ru)}</h3>
+        </div>
+        <p className="interview-question-text">{getText(challenge.prompt.en, challenge.prompt.ru)}</p>
+      </div>
+
+      {/* Answer Input Area */}
+      <div className="response-textarea-box">
+        <div className="textarea-toolbar">
+          <span className="eval-method-tag">Evaluation Method: Deterministic Concept Matching</span>
+          <div className="metrics-group">
+            <span className="word-count-tag">{wordCount} words</span>
+            {timerEnabled && (
+              <span className="timer-tag">
+                <Clock size={13} /> {Math.floor(timerSeconds / 60)}:{(timerSeconds % 60).toString().padStart(2, '0')}
+              </span>
+            )}
           </div>
         </div>
 
-        <h3 className="interview-prompt">{getText(question)}</h3>
+        <textarea
+          className="interview-response-textarea"
+          rows={7}
+          disabled={isSubmitted}
+          value={responseText}
+          onChange={handleTextChange}
+          placeholder="Formulate your structured answer here (Elevator Pitch + Mechanics + Trade-offs)..."
+        />
       </div>
 
       {!isSubmitted ? (
-        <div className="interview-input-box">
-          <textarea
-            value={answerText}
-            onChange={(e) => setAnswerText(e.target.value)}
-            placeholder="Type your structured senior engineering response here... Mention root cause, HashMap mechanics, and recommended fixes."
-            rows={7}
-            className="interview-textarea"
-          />
-          <div className="textarea-footer">
-            <span className="char-count">{answerText.length} chars | ~{answerText.split(/\s+/).filter(Boolean).length} words</span>
+        <>
+          <ConfidenceSelector value={confidence} onChange={setConfidence} disabled={isSubmitted} />
+
+          <div className="answer-lock-notice">
+            <Lock size={14} className="text-secondary" />
+            <span>Answer Locking Active: Model speech scripts and trade-offs remain hidden until attempt submission.</span>
+          </div>
+
+          <div className="submit-action-footer">
             <button
-              onClick={handleSubmitAnswer}
-              disabled={!answerText.trim()}
-              className="btn-primary"
+              type="button"
+              className="btn-primary-action large"
+              disabled={!responseText.trim()}
+              onClick={handleSubmit}
             >
-              Submit Answer for Concept Analysis <Send size={16} />
+              Submit Interview Answer for Evaluation
             </button>
           </div>
-        </div>
+        </>
       ) : (
-        <div className="interview-results-box">
-          <h4><Award size={20} /> Concept Match & Self-Assessment</h4>
-          <p className="subtext">Our local concept engine scanned your response for key interview concepts:</p>
-
-          <div className="concept-checklist">
-            {expectedConcepts.map((concept) => {
-              const evalRes = conceptEvaluation[concept.id];
-              const isMatched = evalRes?.matched;
-
-              return (
-                <div key={concept.id} className={`concept-item ${isMatched ? 'matched' : 'missing'}`}>
-                  <div className="concept-status">
-                    {isMatched ? (
-                      <CheckCircle size={18} className="icon-success" />
-                    ) : (
-                      <XCircle size={18} className="icon-error" />
-                    )}
-                    <span className="concept-label">{getText(concept.label)}</span>
-                  </div>
-                  {isMatched && evalRes.hits.length > 0 && (
-                    <span className="matched-keywords">Detected: "{evalRes.hits.join('", "')}"</span>
-                  )}
-                </div>
-              );
-            })}
+        /* Post-Submission Evaluation & Model Speech Script Display */
+        <div className="post-submission-evaluation-view">
+          <div className="eval-heading-row">
+            <CheckCircle2 size={20} className="text-success" />
+            <h4>Evaluation & Model Speech Delivery Script</h4>
           </div>
 
-          <div className="self-assessment-section">
-            <h5>Self-Assess Your Interview Answer:</h5>
-            <div className="assessment-buttons">
-              <button
-                onClick={() => handleConfirmAssessment('weak')}
-                className={`btn-assess btn-weak ${selfAssessment === 'weak' ? 'active' : ''}`}
-              >
-                <AlertTriangle size={18} /> Weak (Missed core concepts)
-              </button>
-              <button
-                onClick={() => handleConfirmAssessment('acceptable')}
-                className={`btn-assess btn-acceptable ${selfAssessment === 'acceptable' ? 'active' : ''}`}
-              >
-                <CheckCircle size={18} /> Acceptable (Covered main points)
-              </button>
-              <button
-                onClick={() => handleConfirmAssessment('strong')}
-                className={`btn-assess btn-strong ${selfAssessment === 'strong' ? 'active' : ''}`}
-              >
-                <Award size={18} /> Strong (Senior pitch quality)
-              </button>
+          {/* Concept Coverage Analysis */}
+          <div className="concept-coverage-analysis">
+            <h5>Concept Coverage Analysis:</h5>
+            <div className="concepts-evaluation-list">
+              {payload.expectedConcepts.map((ec) => {
+                const lowerText = responseText.toLowerCase();
+                const matched = ec.keywords.some((kw) => lowerText.includes(kw.toLowerCase()));
+
+                return (
+                  <div key={ec.id} className={`eval-concept-row ${matched ? 'matched' : 'missing'}`}>
+                    {matched ? (
+                      <CheckCircle2 size={16} className="text-success" />
+                    ) : (
+                      <AlertTriangle size={16} className="text-warning" />
+                    )}
+                    <span className="concept-label">{getText(ec.label.en, ec.label.ru)}</span>
+                    <span className="concept-status-tag">{matched ? 'MATCHED IN ANSWER' : 'MISSING FROM ANSWER'}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3-Tier Speech Script Model */}
+          <div className="speech-script-section">
+            <div className="script-card">
+              <h5>1. Elevator Pitch (30 seconds)</h5>
+              <p>{getText(payload.modelAnswer30s.en, payload.modelAnswer30s.ru)}</p>
+            </div>
+
+            <div className="script-card">
+              <h5>2. Deep Technical Mechanics (60 seconds)</h5>
+              <p>{getText(payload.modelAnswerDetailed.en, payload.modelAnswerDetailed.ru)}</p>
+            </div>
+
+            <div className="script-card">
+              <h5>3. Production Trade-offs (30 seconds)</h5>
+              <p>{getText(payload.modelAnswerTradeOffs.en, payload.modelAnswerTradeOffs.ru)}</p>
+            </div>
+          </div>
+
+          {/* Follow-up Question Scenario */}
+          <div className="followup-question-box">
+            <h5>Senior Interviewer Follow-Up Scenario:</h5>
+            <p className="followup-text">{getText(payload.followUpQuestionText.en, payload.followUpQuestionText.ru)}</p>
+            <div className="followup-model-answer">
+              <strong>Model Follow-up Answer:</strong>
+              <p>{getText(payload.followUpModelAnswerText.en, payload.followUpModelAnswerText.ru)}</p>
             </div>
           </div>
         </div>

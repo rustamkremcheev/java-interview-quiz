@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LocalizedText, LanguageMode } from '../../types/mission';
+import { LocalizedText, LanguageMode } from '../../types/domain';
 import { db } from '../../db/database';
 import { Save, CheckCircle } from 'lucide-react';
 
@@ -26,8 +26,9 @@ export const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
     }
 
     await db.reflectionNotes.add({
+      userId: 'local-user',
       missionId,
-      note: noteText.trim(),
+      responseText: noteText.trim(),
       createdAt: new Date().toISOString()
     });
 

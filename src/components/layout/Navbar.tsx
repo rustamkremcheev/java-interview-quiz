@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
-import { LanguageMode } from '../../types/mission';
+import { LanguageMode } from '../../types/domain';
 import { db } from '../../db/database';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Shield, Zap, Flame, Compass, BookOpen, Clock, BarChart3, Settings } from 'lucide-react';
@@ -9,10 +9,8 @@ import { Shield, Zap, Flame, Compass, BookOpen, Clock, BarChart3, Settings } fro
 export const Navbar: React.FC = () => {
   const { languageMode, setLanguageMode, xp, level, streak } = useAppStore();
 
-  // Query live due reviews from IndexedDB
   const dueReviewsCount = useLiveQuery(async () => {
-    const now = new Date().toISOString();
-    return db.mastery.where('nextReviewTime').below(now).count();
+    return db.reviewItems.where('status').equals('DUE').count();
   }, []) || 0;
 
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -36,8 +34,8 @@ export const Navbar: React.FC = () => {
           <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Compass size={18} /> Dashboard
           </NavLink>
-          <NavLink to="/learn" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <BookOpen size={18} /> Learn
+          <NavLink to="/modules" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <BookOpen size={18} /> Modules
           </NavLink>
           <NavLink to="/review" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Clock size={18} /> Review
