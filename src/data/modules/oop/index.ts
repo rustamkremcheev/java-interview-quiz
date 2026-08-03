@@ -114,6 +114,62 @@ export * from './missions/oopAntiPatterns/hints';
 export * from './missions/oopAntiPatterns/sources';
 export * from './missions/oopAntiPatterns/mistakePatterns';
 
+export * from './missions/abstraction/mission';
+export * from './missions/abstraction/theory';
+export * from './missions/abstraction/challenges';
+export * from './missions/abstraction/codeArtifacts';
+export * from './missions/abstraction/hints';
+export * from './missions/abstraction/sources';
+export * from './missions/abstraction/mistakePatterns';
+
+export * from './missions/abstractClasses/mission';
+export * from './missions/abstractClasses/theory';
+export * from './missions/abstractClasses/challenges';
+export * from './missions/abstractClasses/codeArtifacts';
+export * from './missions/abstractClasses/hints';
+export * from './missions/abstractClasses/sources';
+export * from './missions/abstractClasses/mistakePatterns';
+
+export * from './missions/inheritance/mission';
+export * from './missions/inheritance/theory';
+export * from './missions/inheritance/challenges';
+export * from './missions/inheritance/codeArtifacts';
+export * from './missions/inheritance/hints';
+export * from './missions/inheritance/sources';
+export * from './missions/inheritance/mistakePatterns';
+
+export * from './missions/polymorphism/mission';
+export * from './missions/polymorphism/theory';
+export * from './missions/polymorphism/challenges';
+export * from './missions/polymorphism/codeArtifacts';
+export * from './missions/polymorphism/hints';
+export * from './missions/polymorphism/sources';
+export * from './missions/polymorphism/mistakePatterns';
+
+export * from './missions/upcastingDowncasting/mission';
+export * from './missions/upcastingDowncasting/theory';
+export * from './missions/upcastingDowncasting/challenges';
+export * from './missions/upcastingDowncasting/codeArtifacts';
+export * from './missions/upcastingDowncasting/hints';
+export * from './missions/upcastingDowncasting/sources';
+export * from './missions/upcastingDowncasting/mistakePatterns';
+
+export * from './missions/couplingCohesion/mission';
+export * from './missions/couplingCohesion/theory';
+export * from './missions/couplingCohesion/challenges';
+export * from './missions/couplingCohesion/codeArtifacts';
+export * from './missions/couplingCohesion/hints';
+export * from './missions/couplingCohesion/sources';
+export * from './missions/couplingCohesion/mistakePatterns';
+
+export * from './missions/domainModeling/mission';
+export * from './missions/domainModeling/theory';
+export * from './missions/domainModeling/challenges';
+export * from './missions/domainModeling/codeArtifacts';
+export * from './missions/domainModeling/hints';
+export * from './missions/domainModeling/sources';
+export * from './missions/domainModeling/mistakePatterns';
+
 import { OOP_TOPICS } from './topics';
 import { OOP_CONCEPTS, OOP_TAGS } from './concepts';
 import { BANK_ACCOUNT_MISSION, BANK_ACCOUNT_MISSION_STAGES } from './missions/bankAccountInvariants/mission';
@@ -228,6 +284,62 @@ import { HINTS_ANTI_PATTERNS } from './missions/oopAntiPatterns/hints';
 import { SOURCES_ANTI_PATTERNS, SOURCE_REFERENCES_ANTI_PATTERNS } from './missions/oopAntiPatterns/sources';
 import { MISTAKE_PATTERNS_ANTI_PATTERNS } from './missions/oopAntiPatterns/mistakePatterns';
 
+import { ABSTRACTION_MISSION, ABSTRACTION_MISSION_STAGES } from './missions/abstraction/mission';
+import { THEORY_ARTICLE_ABSTRACTION, THEORY_CHECKPOINTS_ABSTRACTION } from './missions/abstraction/theory';
+import { ALL_ABSTRACTION_CHALLENGES } from './missions/abstraction/challenges';
+import { CODE_ARTIFACTS_ABSTRACTION } from './missions/abstraction/codeArtifacts';
+import { HINTS_ABSTRACTION } from './missions/abstraction/hints';
+import { SOURCES_ABSTRACTION, SOURCE_REFERENCES_ABSTRACTION } from './missions/abstraction/sources';
+import { MISTAKE_PATTERNS_ABSTRACTION } from './missions/abstraction/mistakePatterns';
+
+import { ABSTRACT_CLASSES_MISSION, ABSTRACT_CLASSES_MISSION_STAGES } from './missions/abstractClasses/mission';
+import { THEORY_ARTICLE_ABSTRACT_CLASSES, THEORY_CHECKPOINTS_ABSTRACT_CLASSES } from './missions/abstractClasses/theory';
+import { ALL_ABSTRACT_CLASSES_CHALLENGES } from './missions/abstractClasses/challenges';
+import { CODE_ARTIFACTS_ABSTRACT_CLASSES } from './missions/abstractClasses/codeArtifacts';
+import { HINTS_ABSTRACT_CLASSES } from './missions/abstractClasses/hints';
+import { SOURCES_ABSTRACT_CLASSES, SOURCE_REFERENCES_ABSTRACT_CLASSES } from './missions/abstractClasses/sources';
+import { MISTAKE_PATTERNS_ABSTRACT_CLASSES } from './missions/abstractClasses/mistakePatterns';
+
+import { INHERITANCE_MISSION, INHERITANCE_MISSION_STAGES } from './missions/inheritance/mission';
+import { THEORY_ARTICLE_INHERITANCE, THEORY_CHECKPOINTS_INHERITANCE } from './missions/inheritance/theory';
+import { ALL_INHERITANCE_CHALLENGES } from './missions/inheritance/challenges';
+import { CODE_ARTIFACTS_INHERITANCE } from './missions/inheritance/codeArtifacts';
+import { HINTS_INHERITANCE } from './missions/inheritance/hints';
+import { SOURCES_INHERITANCE, SOURCE_REFERENCES_INHERITANCE } from './missions/inheritance/sources';
+import { MISTAKE_PATTERNS_INHERITANCE } from './missions/inheritance/mistakePatterns';
+
+import { POLYMORPHISM_MISSION, POLYMORPHISM_MISSION_STAGES } from './missions/polymorphism/mission';
+import { THEORY_ARTICLE_POLYMORPHISM, THEORY_CHECKPOINTS_POLYMORPHISM } from './missions/polymorphism/theory';
+import { ALL_POLYMORPHISM_CHALLENGES } from './missions/polymorphism/challenges';
+import { CODE_ARTIFACTS_POLYMORPHISM } from './missions/polymorphism/codeArtifacts';
+import { HINTS_POLYMORPHISM } from './missions/polymorphism/hints';
+import { SOURCES_POLYMORPHISM, SOURCE_REFERENCES_POLYMORPHISM } from './missions/polymorphism/sources';
+import { MISTAKE_PATTERNS_POLYMORPHISM } from './missions/polymorphism/mistakePatterns';
+
+import { UPCASTING_DOWNCASTING_MISSION, UPCASTING_DOWNCASTING_MISSION_STAGES } from './missions/upcastingDowncasting/mission';
+import { THEORY_ARTICLE_UPCASTING_DOWNCASTING, THEORY_CHECKPOINTS_UPCASTING_DOWNCASTING } from './missions/upcastingDowncasting/theory';
+import { ALL_UPCASTING_DOWNCASTING_CHALLENGES } from './missions/upcastingDowncasting/challenges';
+import { CODE_ARTIFACTS_UPCASTING_DOWNCASTING } from './missions/upcastingDowncasting/codeArtifacts';
+import { HINTS_UPCASTING_DOWNCASTING } from './missions/upcastingDowncasting/hints';
+import { SOURCES_UPCASTING_DOWNCASTING, SOURCE_REFERENCES_UPCASTING_DOWNCASTING } from './missions/upcastingDowncasting/sources';
+import { MISTAKE_PATTERNS_UPCASTING_DOWNCASTING } from './missions/upcastingDowncasting/mistakePatterns';
+
+import { COUPLING_COHESION_MISSION, COUPLING_COHESION_MISSION_STAGES } from './missions/couplingCohesion/mission';
+import { THEORY_ARTICLE_COUPLING_COHESION, THEORY_CHECKPOINTS_COUPLING_COHESION } from './missions/couplingCohesion/theory';
+import { ALL_COUPLING_COHESION_CHALLENGES } from './missions/couplingCohesion/challenges';
+import { CODE_ARTIFACTS_COUPLING_COHESION } from './missions/couplingCohesion/codeArtifacts';
+import { HINTS_COUPLING_COHESION } from './missions/couplingCohesion/hints';
+import { SOURCES_COUPLING_COHESION, SOURCE_REFERENCES_COUPLING_COHESION } from './missions/couplingCohesion/sources';
+import { MISTAKE_PATTERNS_COUPLING_COHESION } from './missions/couplingCohesion/mistakePatterns';
+
+import { DOMAIN_MODELING_MISSION, DOMAIN_MODELING_MISSION_STAGES } from './missions/domainModeling/mission';
+import { THEORY_ARTICLE_DOMAIN_MODELING, THEORY_CHECKPOINTS_DOMAIN_MODELING } from './missions/domainModeling/theory';
+import { ALL_DOMAIN_MODELING_CHALLENGES } from './missions/domainModeling/challenges';
+import { CODE_ARTIFACTS_DOMAIN_MODELING } from './missions/domainModeling/codeArtifacts';
+import { HINTS_DOMAIN_MODELING } from './missions/domainModeling/hints';
+import { SOURCES_DOMAIN_MODELING, SOURCE_REFERENCES_DOMAIN_MODELING } from './missions/domainModeling/sources';
+import { MISTAKE_PATTERNS_DOMAIN_MODELING } from './missions/domainModeling/mistakePatterns';
+
 import { MODULES_REGISTRY } from '../registry';
 
 export const OOP_MODULE: Module = MODULES_REGISTRY.find((m) => m.id === "mod_oop")!;
@@ -251,7 +363,14 @@ export const OOP_DATA_PACKAGE = {
     DEPENDENCY_INJECTION_MISSION,
     STRATEGY_PATTERN_MISSION,
     FACTORY_PATTERN_MISSION,
-    OOP_ANTI_PATTERNS_MISSION
+    OOP_ANTI_PATTERNS_MISSION,
+    ABSTRACTION_MISSION,
+    ABSTRACT_CLASSES_MISSION,
+    INHERITANCE_MISSION,
+    POLYMORPHISM_MISSION,
+    UPCASTING_DOWNCASTING_MISSION,
+    COUPLING_COHESION_MISSION,
+    DOMAIN_MODELING_MISSION
   ],
   stages: [
     ...BANK_ACCOUNT_MISSION_STAGES,
@@ -267,7 +386,14 @@ export const OOP_DATA_PACKAGE = {
     ...DEPENDENCY_INJECTION_MISSION_STAGES,
     ...STRATEGY_PATTERN_MISSION_STAGES,
     ...FACTORY_PATTERN_MISSION_STAGES,
-    ...OOP_ANTI_PATTERNS_MISSION_STAGES
+    ...OOP_ANTI_PATTERNS_MISSION_STAGES,
+    ...ABSTRACTION_MISSION_STAGES,
+    ...ABSTRACT_CLASSES_MISSION_STAGES,
+    ...INHERITANCE_MISSION_STAGES,
+    ...POLYMORPHISM_MISSION_STAGES,
+    ...UPCASTING_DOWNCASTING_MISSION_STAGES,
+    ...COUPLING_COHESION_MISSION_STAGES,
+    ...DOMAIN_MODELING_MISSION_STAGES
   ],
   theoryArticles: [
     THEORY_ARTICLE_BANK_ACCOUNT,
@@ -283,7 +409,14 @@ export const OOP_DATA_PACKAGE = {
     THEORY_ARTICLE_DEPENDENCY_INJECTION,
     THEORY_ARTICLE_STRATEGY,
     THEORY_ARTICLE_FACTORY,
-    THEORY_ARTICLE_ANTI_PATTERNS
+    THEORY_ARTICLE_ANTI_PATTERNS,
+    THEORY_ARTICLE_ABSTRACTION,
+    THEORY_ARTICLE_ABSTRACT_CLASSES,
+    THEORY_ARTICLE_INHERITANCE,
+    THEORY_ARTICLE_POLYMORPHISM,
+    THEORY_ARTICLE_UPCASTING_DOWNCASTING,
+    THEORY_ARTICLE_COUPLING_COHESION,
+    THEORY_ARTICLE_DOMAIN_MODELING
   ],
   theoryCheckpoints: [
     ...THEORY_CHECKPOINTS_BANK_ACCOUNT,
@@ -299,7 +432,14 @@ export const OOP_DATA_PACKAGE = {
     ...THEORY_CHECKPOINTS_DEPENDENCY_INJECTION,
     ...THEORY_CHECKPOINTS_STRATEGY,
     ...THEORY_CHECKPOINTS_FACTORY,
-    ...THEORY_CHECKPOINTS_ANTI_PATTERNS
+    ...THEORY_CHECKPOINTS_ANTI_PATTERNS,
+    ...THEORY_CHECKPOINTS_ABSTRACTION,
+    ...THEORY_CHECKPOINTS_ABSTRACT_CLASSES,
+    ...THEORY_CHECKPOINTS_INHERITANCE,
+    ...THEORY_CHECKPOINTS_POLYMORPHISM,
+    ...THEORY_CHECKPOINTS_UPCASTING_DOWNCASTING,
+    ...THEORY_CHECKPOINTS_COUPLING_COHESION,
+    ...THEORY_CHECKPOINTS_DOMAIN_MODELING
   ],
   challenges: [
     ...ALL_BANK_ACCOUNT_CHALLENGES,
@@ -315,7 +455,14 @@ export const OOP_DATA_PACKAGE = {
     ...ALL_DEPENDENCY_INJECTION_CHALLENGES,
     ...ALL_STRATEGY_CHALLENGES,
     ...ALL_FACTORY_CHALLENGES,
-    ...ALL_ANTI_PATTERNS_CHALLENGES
+    ...ALL_ANTI_PATTERNS_CHALLENGES,
+    ...ALL_ABSTRACTION_CHALLENGES,
+    ...ALL_ABSTRACT_CLASSES_CHALLENGES,
+    ...ALL_INHERITANCE_CHALLENGES,
+    ...ALL_POLYMORPHISM_CHALLENGES,
+    ...ALL_UPCASTING_DOWNCASTING_CHALLENGES,
+    ...ALL_COUPLING_COHESION_CHALLENGES,
+    ...ALL_DOMAIN_MODELING_CHALLENGES
   ],
   codeArtifacts: [
     ...CODE_ARTIFACTS_BANK_ACCOUNT,
@@ -331,7 +478,14 @@ export const OOP_DATA_PACKAGE = {
     ...CODE_ARTIFACTS_DEPENDENCY_INJECTION,
     ...CODE_ARTIFACTS_STRATEGY,
     ...CODE_ARTIFACTS_FACTORY,
-    ...CODE_ARTIFACTS_ANTI_PATTERNS
+    ...CODE_ARTIFACTS_ANTI_PATTERNS,
+    ...CODE_ARTIFACTS_ABSTRACTION,
+    ...CODE_ARTIFACTS_ABSTRACT_CLASSES,
+    ...CODE_ARTIFACTS_INHERITANCE,
+    ...CODE_ARTIFACTS_POLYMORPHISM,
+    ...CODE_ARTIFACTS_UPCASTING_DOWNCASTING,
+    ...CODE_ARTIFACTS_COUPLING_COHESION,
+    ...CODE_ARTIFACTS_DOMAIN_MODELING
   ],
   hints: [
     ...HINTS_BANK_ACCOUNT,
@@ -347,7 +501,14 @@ export const OOP_DATA_PACKAGE = {
     ...HINTS_DEPENDENCY_INJECTION,
     ...HINTS_STRATEGY,
     ...HINTS_FACTORY,
-    ...HINTS_ANTI_PATTERNS
+    ...HINTS_ANTI_PATTERNS,
+    ...HINTS_ABSTRACTION,
+    ...HINTS_ABSTRACT_CLASSES,
+    ...HINTS_INHERITANCE,
+    ...HINTS_POLYMORPHISM,
+    ...HINTS_UPCASTING_DOWNCASTING,
+    ...HINTS_COUPLING_COHESION,
+    ...HINTS_DOMAIN_MODELING
   ],
   sources: [
     ...SOURCES_BANK_ACCOUNT,
@@ -363,7 +524,14 @@ export const OOP_DATA_PACKAGE = {
     ...SOURCES_DEPENDENCY_INJECTION,
     ...SOURCES_STRATEGY,
     ...SOURCES_FACTORY,
-    ...SOURCES_ANTI_PATTERNS
+    ...SOURCES_ANTI_PATTERNS,
+    ...SOURCES_ABSTRACTION,
+    ...SOURCES_ABSTRACT_CLASSES,
+    ...SOURCES_INHERITANCE,
+    ...SOURCES_POLYMORPHISM,
+    ...SOURCES_UPCASTING_DOWNCASTING,
+    ...SOURCES_COUPLING_COHESION,
+    ...SOURCES_DOMAIN_MODELING
   ],
   sourceReferences: [
     ...SOURCE_REFERENCES_BANK_ACCOUNT,
@@ -379,7 +547,14 @@ export const OOP_DATA_PACKAGE = {
     ...SOURCE_REFERENCES_DEPENDENCY_INJECTION,
     ...SOURCE_REFERENCES_STRATEGY,
     ...SOURCE_REFERENCES_FACTORY,
-    ...SOURCE_REFERENCES_ANTI_PATTERNS
+    ...SOURCE_REFERENCES_ANTI_PATTERNS,
+    ...SOURCE_REFERENCES_ABSTRACTION,
+    ...SOURCE_REFERENCES_ABSTRACT_CLASSES,
+    ...SOURCE_REFERENCES_INHERITANCE,
+    ...SOURCE_REFERENCES_POLYMORPHISM,
+    ...SOURCE_REFERENCES_UPCASTING_DOWNCASTING,
+    ...SOURCE_REFERENCES_COUPLING_COHESION,
+    ...SOURCE_REFERENCES_DOMAIN_MODELING
   ],
   mistakePatterns: [
     ...MISTAKE_PATTERNS_BANK_ACCOUNT,
@@ -395,6 +570,13 @@ export const OOP_DATA_PACKAGE = {
     ...MISTAKE_PATTERNS_DEPENDENCY_INJECTION,
     ...MISTAKE_PATTERNS_STRATEGY,
     ...MISTAKE_PATTERNS_FACTORY,
-    ...MISTAKE_PATTERNS_ANTI_PATTERNS
+    ...MISTAKE_PATTERNS_ANTI_PATTERNS,
+    ...MISTAKE_PATTERNS_ABSTRACTION,
+    ...MISTAKE_PATTERNS_ABSTRACT_CLASSES,
+    ...MISTAKE_PATTERNS_INHERITANCE,
+    ...MISTAKE_PATTERNS_POLYMORPHISM,
+    ...MISTAKE_PATTERNS_UPCASTING_DOWNCASTING,
+    ...MISTAKE_PATTERNS_COUPLING_COHESION,
+    ...MISTAKE_PATTERNS_DOMAIN_MODELING
   ]
 };

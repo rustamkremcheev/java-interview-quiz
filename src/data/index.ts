@@ -15,7 +15,14 @@ import {
   DEPENDENCY_INJECTION_MISSION,
   STRATEGY_PATTERN_MISSION,
   FACTORY_PATTERN_MISSION,
-  OOP_ANTI_PATTERNS_MISSION
+  OOP_ANTI_PATTERNS_MISSION,
+  ABSTRACTION_MISSION,
+  ABSTRACT_CLASSES_MISSION,
+  INHERITANCE_MISSION,
+  POLYMORPHISM_MISSION,
+  UPCASTING_DOWNCASTING_MISSION,
+  COUPLING_COHESION_MISSION,
+  DOMAIN_MODELING_MISSION
 } from './modules/oop';
 import { Module, Topic, Mission } from '../types/domain';
 
@@ -38,7 +45,14 @@ export const ALL_MISSIONS: readonly Mission[] = [
   DEPENDENCY_INJECTION_MISSION,
   STRATEGY_PATTERN_MISSION,
   FACTORY_PATTERN_MISSION,
-  OOP_ANTI_PATTERNS_MISSION
+  OOP_ANTI_PATTERNS_MISSION,
+  ABSTRACTION_MISSION,
+  ABSTRACT_CLASSES_MISSION,
+  INHERITANCE_MISSION,
+  POLYMORPHISM_MISSION,
+  UPCASTING_DOWNCASTING_MISSION,
+  COUPLING_COHESION_MISSION,
+  DOMAIN_MODELING_MISSION
 ];
 
 export function getModuleBySlug(slug: string): Module | undefined {
@@ -67,11 +81,17 @@ export function getMissionsForTopic(topicIdOrSlug: string): Mission[] {
 
 const TOPIC_MISSION_ASSIGNMENTS: Record<string, string> = {
   top_oop_05: 'mis_bank_account_invariants',
+  top_oop_07: 'mis_abstraction',
+  top_oop_08: 'mis_abstract_classes',
   top_oop_09: 'mis_interface_default_methods',
+  top_oop_10: 'mis_inheritance',
+  top_oop_11: 'mis_polymorphism',
   top_oop_12: 'mis_dynamic_dispatch',
+  top_oop_13: 'mis_upcasting_downcasting',
   top_oop_14: 'mis_method_overloading',
   top_oop_15: 'mis_method_overriding_covariant',
   top_oop_16: 'mis_composition_over_inheritance',
+  top_oop_18: 'mis_coupling_cohesion',
   top_oop_20: 'mis_equals_hashcode_contract',
   top_oop_22: 'mis_immutability_defensive_copy',
   top_oop_23: 'mis_liskov_substitution_principle',
@@ -79,7 +99,8 @@ const TOPIC_MISSION_ASSIGNMENTS: Record<string, string> = {
   top_oop_25: 'mis_object_creation_builder',
   top_oop_26: 'mis_strategy_pattern',
   top_oop_27: 'mis_factory_pattern',
-  top_oop_32: 'mis_oop_anti_patterns'
+  top_oop_32: 'mis_oop_anti_patterns',
+  top_oop_33: 'mis_domain_modeling'
 };
 
 export function validateDataIntegrity(): { isValid: boolean; errors: string[] } {

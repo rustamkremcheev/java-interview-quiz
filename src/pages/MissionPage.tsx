@@ -57,33 +57,39 @@ export const MissionPage: React.FC = () => {
   const currentStageIndex = stages.findIndex((s) => s.id === currentStageId);
   const currentStage = stages[currentStageIndex] || stages[0] || OOP_DATA_PACKAGE.stages[0];
 
-  // Dynamic entity resolution scoped strictly to the active mission
+  // Dynamic entity resolution scoped strictly to the active mission — no cross-mission fallbacks
   const theoryStage = stages.find((s) => s.type === 'THEORY') as { theoryArticleId?: string } | undefined;
-  const theoryArticle = OOP_DATA_PACKAGE.theoryArticles.find((a) => a.id === (currentStage as any)?.theoryArticleId) ||
-    OOP_DATA_PACKAGE.theoryArticles.find((a) => a.id === theoryStage?.theoryArticleId) ||
-    OOP_DATA_PACKAGE.theoryArticles.find((a) => a.topicIds.includes(mission.primaryTopicId)) ||
-    OOP_DATA_PACKAGE.theoryArticles[0];
+  const theoryArticleId = (currentStage as any)?.theoryArticleId || theoryStage?.theoryArticleId;
+  const theoryArticle = OOP_DATA_PACKAGE.theoryArticles.find((a) => a.id === theoryArticleId);
 
-  const theoryCheckpoints = OOP_DATA_PACKAGE.theoryCheckpoints.filter((c) => c.theoryArticleId === theoryArticle?.id);
+  const theoryCheckpoints = theoryArticle
+    ? OOP_DATA_PACKAGE.theoryCheckpoints.filter((c) => c.theoryArticleId === theoryArticle.id)
+    : [];
 
-  const fixBuilderChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'FIX_BUILDER') ||
-    OOP_DATA_PACKAGE.challenges[0];
-
-  const bugHuntChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'BUG_HUNT') ||
-    OOP_DATA_PACKAGE.challenges[1];
-
-  const interviewAnswerChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'INTERVIEW_ANSWER') ||
-    OOP_DATA_PACKAGE.challenges[2];
+  const fixBuilderChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'FIX_BUILDER');
+  const bugHuntChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'BUG_HUNT');
+  const interviewAnswerChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'INTERVIEW_ANSWER');
 
   const missionBrokenArtifactId =
     (fixBuilderChallenge as any)?.payload?.baseCodeArtifactId as string | undefined;
   const codeArtifact = OOP_DATA_PACKAGE.codeArtifacts.find((a) => a.id === (currentStage as any)?.codeArtifactId) ||
-    OOP_DATA_PACKAGE.codeArtifacts.find((a) => a.id === missionBrokenArtifactId) ||
-    OOP_DATA_PACKAGE.codeArtifacts[0];
+    OOP_DATA_PACKAGE.codeArtifacts.find((a) => a.id === missionBrokenArtifactId);
 
   const missionSourceIds = new Set(theoryArticle?.sourceIds ?? []);
   const missionSources = OOP_DATA_PACKAGE.sources.filter((s) => missionSourceIds.has(s.id));
   const missionSourceReferences = OOP_DATA_PACKAGE.sourceReferences.filter((r) => missionSourceIds.has(r.sourceId));
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (!theoryArticle && currentStage?.type === 'THEORY') {
+      console.error(`[MissionPage] Missing theory article for mission ${mission.id}`);
+    }
+    if (!fixBuilderChallenge || !bugHuntChallenge || !interviewAnswerChallenge) {
+      console.error(`[MissionPage] Missing challenge(s) for mission ${mission.id}`);
+    }
+    if (!codeArtifact && (currentStage?.type === 'MISSION_INTRODUCTION' || currentStage?.type === 'REAL_ENGINEERING_PROBLEM')) {
+      console.error(`[MissionPage] Missing code artifact for mission ${mission.id}`);
+    }
+  }
 
   const primaryTopic = ALL_TOPICS.find((t) => t.id === mission.primaryTopicId);
   const relatedTopics = [mission.primaryTopicId, ...mission.secondaryTopicIds]
@@ -206,9 +212,65 @@ export const MissionPage: React.FC = () => {
       fixedTitle: 'Rich Aggregate + Ports',
       fixedCode: 'order.place(paymentPort); order.reserveInventory(inv)',
       fixedDesc: 'Tell Don\'t Ask ──► cohesive Order + segregated Inventory/Payment ports!'
+    },
+    mis_abstraction: {
+      brokenTitle: 'Leaky Stripe Types in Orchestrator',
+      brokenCode: 'orchestrator.charge(new StripeChargeRequest(...))',
+      brokenDesc: 'Vendor SDK types leak into PaymentOrchestrator ──► BankTransfer switch rewrites core flow!',
+      fixedTitle: 'PaymentGateway Boundary',
+      fixedCode: 'gateway.charge(new PaymentIntent(...))',
+      fixedDesc: 'StripeGatewayAdapter / BankTransferGateway hide vendors ──► stable business intent!'
+    },
+    mis_abstract_classes: {
+      brokenTitle: 'Subclass Bypasses Audit Hook',
+      brokenCode: 'WireSettlementProcessor.settle() overrides template',
+      brokenDesc: 'Overrides settle() skipping audit ──► missing regulatory trail!',
+      fixedTitle: 'final settle() + Protected Hooks',
+      fixedCode: 'final settle() { validate; authorize; capture; audit; }',
+      fixedDesc: 'Subclasses only implement authorize/capture ──► lifecycle enforced!'
+    },
+    mis_inheritance: {
+      brokenTitle: 'Fragile BaseRegulatoryReport Change',
+      brokenCode: 'protected headerVersion mutated in base',
+      brokenDesc: 'Base protected semantics change ──► Liquidity/Risk/Capital reports silently wrong!',
+      fixedTitle: 'Documented Extension Contract',
+      fixedCode: 'sealed hooks / composed ReportAssembler',
+      fixedDesc: 'Constructor order + protected coupling made explicit ──► no silent filing corruption!'
+    },
+    mis_polymorphism: {
+      brokenTitle: 'Growing instanceof Pipeline',
+      brokenCode: 'if (t instanceof CardTransaction) ...',
+      brokenDesc: 'Type switch in TransactionPipeline ──► InstantTransaction forgotten → FAILED!',
+      fixedTitle: 'Polymorphic process()',
+      fixedCode: 'transaction.process(pipelineContext)',
+      fixedDesc: 'New types extend contract ──► no central type switch edits!'
+    },
+    mis_upcasting_downcasting: {
+      brokenTitle: 'Unsafe Downcast on FraudEvent',
+      brokenCode: 'CardFraudEvent c = (CardFraudEvent) event;',
+      brokenDesc: 'ACH event arrives ──► ClassCastException at 02:00!',
+      fixedTitle: 'Pattern Match or Polymorphism',
+      fixedCode: 'if (event instanceof CardFraudEvent c) ... / event.extractEvidence()',
+      fixedDesc: 'Safe Java 17 pattern matching or subtype methods ──► no blind casts!'
+    },
+    mis_coupling_cohesion: {
+      brokenTitle: 'Change Amplification Monolith',
+      brokenCode: 'ReconciliationService: validate+DB+PDF+alert+retry',
+      brokenDesc: 'Slack alert change retests JDBC and PDF ──► high coupling, low cohesion!',
+      fixedTitle: 'Cohesive Collaborators',
+      fixedCode: 'Validator / LedgerRepository / Reporter / AlertPublisher',
+      fixedDesc: 'Thin coordinator + interfaces ──► change isolation & testability!'
+    },
+    mis_domain_modeling: {
+      brokenTitle: 'Primitive Obsession LoanApplication',
+      brokenCode: 'String status; boolean approved; double amount',
+      brokenDesc: 'Illegal states representable (approved + REJECTED) ──► silent lending bugs!',
+      fixedTitle: 'Value Objects + Invariants',
+      fixedCode: 'LoanMoney / LoanStatus / CreditDecision / ApprovalPolicy',
+      fixedDesc: 'Typed transitions ──► illegal states unrepresentable!'
     }
   };
-  const viz = missionVisualizations[mission.id] || missionVisualizations.mis_bank_account_invariants;
+  const viz = missionVisualizations[mission.id];
 
   const handleNextStage = () => {
     if (!completedStageIds.includes(currentStage.id)) {
@@ -262,9 +324,8 @@ export const MissionPage: React.FC = () => {
 
   // Stage 7 Guided FixBuilder Submission
   const handleGuidedSubmit = async (selectedOptionIds: string[]) => {
-    const correctOptions = fixBuilderChallenge.type === 'FIX_BUILDER'
-      ? (fixBuilderChallenge as any).payload.options.filter((o: any) => o.isCorrect).map((o: any) => o.id)
-      : [];
+    if (!fixBuilderChallenge || fixBuilderChallenge.type !== 'FIX_BUILDER') return;
+    const correctOptions = (fixBuilderChallenge as any).payload.options.filter((o: any) => o.isCorrect).map((o: any) => o.id);
 
     const isFullyCorrect = correctOptions.every((optId: string) => selectedOptionIds.includes(optId)) &&
       selectedOptionIds.length === correctOptions.length;
@@ -311,6 +372,7 @@ export const MissionPage: React.FC = () => {
 
   // Stage 9 Interview Answer Submission
   const handleInterviewSubmit = async (responseText: string, matchedConceptIds: string[]) => {
+    if (!interviewAnswerChallenge) return;
     const isGood = matchedConceptIds.length >= 2;
 
     const evalRes: EvaluationResult = {
@@ -337,7 +399,14 @@ export const MissionPage: React.FC = () => {
 
   // Stage 10 Bug Hunt Submission
   const handleBugHuntSubmit = async (selectedLines: number[]) => {
-    const targetLines = (bugHuntChallenge as any).payload?.targetLines || [11, 24, 25, 39];
+    if (!bugHuntChallenge) return;
+    const targetLines = (bugHuntChallenge as any).payload?.targetLines;
+    if (!Array.isArray(targetLines) || targetLines.length === 0) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`[MissionPage] BUG_HUNT ${bugHuntChallenge.id} missing targetLines`);
+      }
+      return;
+    }
     const isCorrect = selectedLines.some((line) => targetLines.includes(line));
 
     const evalRes: EvaluationResult = {
@@ -354,14 +423,12 @@ export const MissionPage: React.FC = () => {
           },
       matchedConceptIds: mission.requiredConceptIds,
       missingConceptIds: [],
-      detectedMistakePatternIds: isCorrect ? [] : ["err_mutable_key_hash_decay"]
+      detectedMistakePatternIds: []
     };
 
     setEvaluation(evalRes);
     await updateConceptMastery(mission.requiredConceptIds, evalRes.correctness, confidence, hintsRevealedIds.length);
-    if (!isCorrect) {
-      await recordMistakeOccurrence("err_mutable_key_hash_decay", confidence === 'CONFIDENT');
-    } else {
+    if (isCorrect) {
       await addXP(100);
     }
   };
@@ -434,12 +501,14 @@ export const MissionPage: React.FC = () => {
             </div>
             <p className="scenario-story">{getText(mission.scenarioIntroduction.en, mission.scenarioIntroduction.ru)}</p>
 
-            <CodeViewer artifact={codeArtifact} />
+            {codeArtifact ? <CodeViewer artifact={codeArtifact} /> : (
+              <p className="dev-missing-content">Missing mission code artifact (check FIX_BUILDER baseCodeArtifactId).</p>
+            )}
 
             <SourceContext
-              classification="REAL_INTERVIEW_REPORT"
-              sources={missionSources.length > 0 ? missionSources : OOP_DATA_PACKAGE.sources}
-              sourceReferences={missionSourceReferences.length > 0 ? missionSourceReferences : OOP_DATA_PACKAGE.sourceReferences}
+              classification="CURATED_INTERVIEW_BANK"
+              sources={missionSources}
+              sourceReferences={missionSourceReferences}
             />
 
             <div className="stage-actions">
@@ -459,7 +528,9 @@ export const MissionPage: React.FC = () => {
             </div>
             <p className="problem-text">{getText(mission.engineeringProblem.en, mission.engineeringProblem.ru)}</p>
 
-            <CodeViewer artifact={codeArtifact} />
+            {codeArtifact ? <CodeViewer artifact={codeArtifact} /> : (
+              <p className="dev-missing-content">Missing mission code artifact (check FIX_BUILDER baseCodeArtifactId).</p>
+            )}
 
             <div className="stage-actions">
               <button type="button" className="btn-primary-action" onClick={handleNextStage}>
@@ -537,7 +608,10 @@ export const MissionPage: React.FC = () => {
 
             {/* Theory Sections */}
             <div className="theory-sections-container">
-              {theoryArticle.sections.map((sec) => (
+              {!theoryArticle && (
+                <p className="dev-missing-content">Missing theory article for this mission (check THEORY stage theoryArticleId).</p>
+              )}
+              {theoryArticle?.sections.map((sec) => (
                 <div key={sec.id} className="theory-section-block">
                   <h3>{getText(sec.title.en, sec.title.ru)}</h3>
                   {sec.blocks.map((b) => (
@@ -595,23 +669,27 @@ export const MissionPage: React.FC = () => {
               <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
 
-            <div className="visualization-comparison-box">
-              <div className="visual-column broken">
-                <h4>🔴 {viz.brokenTitle}</h4>
-                <div className="memory-flow-box">
-                  <code>{viz.brokenCode}</code>
-                  <p>{viz.brokenDesc}</p>
+            {viz ? (
+              <div className="visualization-comparison-box">
+                <div className="visual-column broken">
+                  <h4>🔴 {viz.brokenTitle}</h4>
+                  <div className="memory-flow-box">
+                    <code>{viz.brokenCode}</code>
+                    <p>{viz.brokenDesc}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="visual-column protected">
-                <h4>🟢 {viz.fixedTitle}</h4>
-                <div className="memory-flow-box">
-                  <code>{viz.fixedCode}</code>
-                  <p>{viz.fixedDesc}</p>
+                <div className="visual-column protected">
+                  <h4>🟢 {viz.fixedTitle}</h4>
+                  <div className="memory-flow-box">
+                    <code>{viz.fixedCode}</code>
+                    <p>{viz.fixedDesc}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <p className="dev-missing-content">Missing visualization mapping for mission {mission.id}.</p>
+            )}
 
             <div className="stage-actions">
               <button type="button" className="btn-primary-action" onClick={handleNextStage}>
@@ -629,10 +707,14 @@ export const MissionPage: React.FC = () => {
               <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
 
-            <GuidedPuzzle
-              challenge={fixBuilderChallenge as any}
-              onAttemptSubmit={handleGuidedSubmit}
-            />
+            {fixBuilderChallenge ? (
+              <GuidedPuzzle
+                challenge={fixBuilderChallenge as any}
+                onAttemptSubmit={handleGuidedSubmit}
+              />
+            ) : (
+              <p className="dev-missing-content">Missing FIX_BUILDER challenge for mission {mission.id}.</p>
+            )}
 
             {evaluation && (
               <FeedbackPanel
@@ -652,10 +734,12 @@ export const MissionPage: React.FC = () => {
               <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
             <p className="scenario-statement">
-              {getText(
-                (interviewAnswerChallenge as any).payload?.questionStatement?.en || (interviewAnswerChallenge as any).prompt.en,
-                (interviewAnswerChallenge as any).payload?.questionStatement?.ru || (interviewAnswerChallenge as any).prompt.ru
-              )}
+              {interviewAnswerChallenge
+                ? getText(
+                    (interviewAnswerChallenge as any).payload?.questionStatement?.en || (interviewAnswerChallenge as any).prompt.en,
+                    (interviewAnswerChallenge as any).payload?.questionStatement?.ru || (interviewAnswerChallenge as any).prompt.ru
+                  )
+                : `Missing INTERVIEW_ANSWER challenge for mission ${mission.id}.`}
             </p>
 
             <div className="stage-actions">
@@ -674,11 +758,15 @@ export const MissionPage: React.FC = () => {
               <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
 
-            <InterviewAnswerChallengeView
-              challenge={interviewAnswerChallenge as any}
-              onAttemptSubmit={handleInterviewSubmit}
-              isSubmitted={!!evaluation}
-            />
+            {interviewAnswerChallenge ? (
+              <InterviewAnswerChallengeView
+                challenge={interviewAnswerChallenge as any}
+                onAttemptSubmit={handleInterviewSubmit}
+                isSubmitted={!!evaluation}
+              />
+            ) : (
+              <p className="dev-missing-content">Missing INTERVIEW_ANSWER challenge for mission {mission.id}.</p>
+            )}
 
             {evaluation && (
               <FeedbackPanel
@@ -698,10 +786,14 @@ export const MissionPage: React.FC = () => {
               <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
 
-            <BugHuntChallengeView
-              challenge={bugHuntChallenge as any}
-              onAttemptSubmit={handleBugHuntSubmit}
-            />
+            {bugHuntChallenge ? (
+              <BugHuntChallengeView
+                challenge={bugHuntChallenge as any}
+                onAttemptSubmit={handleBugHuntSubmit}
+              />
+            ) : (
+              <p className="dev-missing-content">Missing BUG_HUNT challenge for mission {mission.id}.</p>
+            )}
 
             {evaluation && (
               <FeedbackPanel

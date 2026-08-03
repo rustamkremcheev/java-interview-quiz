@@ -437,6 +437,36 @@ export const OOP_CONCEPTS: readonly Concept[] = [
     prerequisiteConceptIds: ["cpt_strategy_pattern"]
   },
   {
+    id: "cpt_abstraction",
+    slug: "abstraction",
+    title: {
+      en: "Interface Abstraction Boundaries",
+      ru: "Границы Абстракции через Интерфейсы"
+    },
+    summary: {
+      en: "Hiding implementation complexity behind a stable interface contract so clients depend on behavior, not on vendor SDK types or concrete adapters.",
+      ru: "Сокрытие сложности реализации за стабильным контрактом интерфейса, чтобы клиенты зависели от поведения, а не от типов SDK вендора или конкретных адаптеров."
+    },
+    topicIds: ["top_oop_07", "top_oop_09"],
+    canonicalTag: "#abstraction",
+    prerequisiteConceptIds: ["cpt_interface_contracts"]
+  },
+  {
+    id: "cpt_leaky_abstraction",
+    slug: "leaky-abstraction",
+    title: {
+      en: "Leaky Abstraction",
+      ru: "Дырявая Абстракция"
+    },
+    summary: {
+      en: "When an abstraction claims to hide details but vendor-specific types, exceptions, or APIs still leak into clients — forcing rewrites when implementations change.",
+      ru: "Когда абстракция обещает скрыть детали, но vendor-specific типы, исключения или API всё равно протекают в клиенты — вынуждая переписывать код при смене реализации."
+    },
+    topicIds: ["top_oop_07", "top_oop_09", "top_oop_24"],
+    canonicalTag: "#leaky-abstraction",
+    prerequisiteConceptIds: ["cpt_abstraction"]
+  },
+  {
     id: "cpt_anemic_domain_model",
     slug: "anemic-domain-model",
     title: {
@@ -480,6 +510,186 @@ export const OOP_CONCEPTS: readonly Concept[] = [
     topicIds: ["top_oop_32", "top_oop_18"],
     canonicalTag: "#feature-envy",
     prerequisiteConceptIds: ["cpt_anemic_domain_model"]
+  },
+  {
+    id: "cpt_abstract_class",
+    slug: "abstract-class",
+    title: {
+      en: "Abstract Classes & Partial Implementation",
+      ru: "Абстрактные Классы и Частичная Реализация"
+    },
+    summary: {
+      en: "Incomplete classes that hold shared state, constructors, and concrete/protected methods while forcing subclasses to implement abstract hooks — preferred over interfaces when inheritance of state and a controlled extension contract are required.",
+      ru: "Неполные классы с общим состоянием, конструкторами и concrete/protected методами, заставляющие подклассы реализовать abstract hooks — предпочтительнее интерфейсов, когда нужны наследуемое состояние и контролируемый контракт расширения."
+    },
+    topicIds: ["top_oop_08", "top_oop_07", "top_oop_10"],
+    canonicalTag: "#abstract-class",
+    prerequisiteConceptIds: ["cpt_access_modifiers"]
+  },
+  {
+    id: "cpt_template_hooks",
+    slug: "template-hooks",
+    title: {
+      en: "Protected Template Hooks & Final Skeleton",
+      ru: "Protected Template Hooks и Final-Скелет"
+    },
+    summary: {
+      en: "Making the algorithm skeleton final so subclasses customize only documented protected/abstract step hooks — never by overriding the public entry point and skipping mandatory steps.",
+      ru: "Скелет алгоритма делают final, а подклассы кастомизируют только документированные protected/abstract хуки шагов — никогда не переопределяя публичную точку входа и не пропуская обязательные шаги."
+    },
+    topicIds: ["top_oop_08", "top_oop_29"],
+    canonicalTag: "#template-hooks",
+    prerequisiteConceptIds: ["cpt_abstract_class"]
+  },
+  {
+    id: "cpt_inheritance",
+    slug: "inheritance",
+    title: {
+      en: "Class Inheritance & IS-A Hierarchies",
+      ru: "Наследование Классов и Иерархии IS-A"
+    },
+    summary: {
+      en: "Creating subtypes via extends so subclasses inherit state and behavior, forming an IS-A relationship with constructor chaining and protected coupling risks.",
+      ru: "Создание подтипов через extends, когда подклассы наследуют состояние и поведение, образуя отношение IS-A с цепочкой конструкторов и рисками protected-связности."
+    },
+    topicIds: ["top_oop_10", "top_oop_08"],
+    canonicalTag: "#inheritance",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_inherited_state",
+    slug: "inherited-state",
+    title: {
+      en: "Inherited State & Protected Member Coupling",
+      ru: "Унаследованное Состояние и Связность Protected-Членов"
+    },
+    summary: {
+      en: "Subclass dependence on superclass fields and protected methods whose initialization order and semantics can change silently across releases.",
+      ru: "Зависимость подкласса от полей суперкласса и protected-методов, чей порядок инициализации и семантика могут тихо меняться между релизами."
+    },
+    topicIds: ["top_oop_10", "top_oop_06"],
+    canonicalTag: "#inherited-state",
+    prerequisiteConceptIds: ["cpt_inheritance"]
+  },
+  {
+    id: "cpt_polymorphism",
+    slug: "polymorphism",
+    title: {
+      en: "Subtype Polymorphism & Substitutable Behavior",
+      ru: "Полиморфизм Подтипов и Подставляемое Поведение"
+    },
+    summary: {
+      en: "Clients depend on a common Transaction (or handler) contract; concrete subtypes supply type-specific process() behavior via substitutable overrides — without the caller inspecting runtime type.",
+      ru: "Клиенты зависят от общего контракта Transaction (или handler); конкретные подтипы дают type-specific process() через подставляемые overrides — без проверки runtime-типа вызывающим кодом."
+    },
+    topicIds: ["top_oop_11", "top_oop_10"],
+    canonicalTag: "#polymorphism",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_type_switch_smell",
+    slug: "type-switch-smell",
+    title: {
+      en: "Type Switch / instanceof Chain Smell",
+      ru: "Smell: Type Switch / Цепочка instanceof"
+    },
+    summary: {
+      en: "Growing instanceof / switch-on-type chains in a pipeline that must be edited for every new subtype — a design smell replaced by polymorphic process(), visitor accept(handler), or a closed handler registry.",
+      ru: "Растущие цепочки instanceof / switch-по-типу в pipeline, которые правят при каждом новом подтипе — design smell, заменяемый полиморфным process(), visitor accept(handler) или закрытым handler registry."
+    },
+    topicIds: ["top_oop_11", "top_oop_26"],
+    canonicalTag: "#type-switch-smell",
+    prerequisiteConceptIds: ["cpt_polymorphism"]
+  },
+  {
+    id: "cpt_coupling",
+    slug: "coupling",
+    title: {
+      en: "Coupling & Change Amplification",
+      ru: "Coupling и Усиление Изменений"
+    },
+    summary: {
+      en: "Degree of interdependence between modules — measured by how a change in one forces edits, recompilation, and retests of others. Prefer low coupling via narrow interfaces so alert-channel swaps do not drag DB or PDF paths into the blast radius.",
+      ru: "Степень взаимозависимости модулей — измеряется тем, насколько изменение одного вынуждает правки, перекомпиляцию и ретест других. Предпочитайте низкий coupling через узкие интерфейсы, чтобы смена канала алертов не тащила в blast radius пути DB и PDF."
+    },
+    topicIds: ["top_oop_18", "top_oop_23"],
+    canonicalTag: "#coupling",
+    prerequisiteConceptIds: ["cpt_interface_contracts"]
+  },
+  {
+    id: "cpt_cohesion",
+    slug: "cohesion",
+    title: {
+      en: "Cohesion & Single Reason to Change",
+      ru: "Cohesion и Единая Причина для Изменения"
+    },
+    summary: {
+      en: "How closely a module's responsibilities belong together. High functional cohesion means one focused job (validate, persist, report, alert); low cohesion packs unrelated concerns into one class and amplifies every local change.",
+      ru: "Насколько обязанности модуля принадлежат друг другу. Высокая функциональная cohesion — одна сфокусированная задача (validate, persist, report, alert); низкая cohesion смешивает несвязанные concerns в одном классе и усиливает каждое локальное изменение."
+    },
+    topicIds: ["top_oop_18", "top_oop_05"],
+    canonicalTag: "#cohesion",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_domain_modeling",
+    slug: "domain-modeling",
+    title: {
+      en: "Make Illegal States Unrepresentable",
+      ru: "Делать Нелегальные Состояния Непредставимыми"
+    },
+    summary: {
+      en: "Model domain entities so type system and behavior methods reject impossible combinations (e.g. approved=true with REJECTED) — value objects, enums/sealed status, and aggregate-boundary transitions instead of free-form primitives.",
+      ru: "Моделировать доменные сущности так, чтобы система типов и методы поведения отвергали невозможные комбинации (например approved=true при REJECTED) — value objects, enums/sealed status и переходы на границе агрегата вместо свободных примитивов."
+    },
+    topicIds: ["top_oop_33", "top_oop_05", "top_oop_32"],
+    canonicalTag: "#domain-modeling",
+    prerequisiteConceptIds: ["cpt_invariants", "cpt_encapsulation"]
+  },
+  {
+    id: "cpt_value_objects",
+    slug: "value-objects",
+    title: {
+      en: "Value Objects & Primitive Obsession",
+      ru: "Value Objects и Primitive Obsession"
+    },
+    summary: {
+      en: "Replace String/double/boolean bags with immutable, self-validating value objects (ApplicantId, LoanMoney) defined by attributes and equality — curing Primitive Obsession that lets illegal domain states compile.",
+      ru: "Заменять мешки String/double/boolean неизменяемыми самовалидирующими value objects (ApplicantId, LoanMoney), определяемыми атрибутами и равенством — лечение Primitive Obsession, при котором нелегальные доменные состояния компилируются."
+    },
+    topicIds: ["top_oop_33", "top_oop_22", "top_oop_05"],
+    canonicalTag: "#value-objects",
+    prerequisiteConceptIds: ["cpt_domain_modeling", "cpt_immutability"]
+  },
+  {
+    id: "cpt_upcasting",
+    slug: "upcasting",
+    title: {
+      en: "Upcasting to Supertype References",
+      ru: "Upcasting к Ссылкам Супертипа"
+    },
+    summary: {
+      en: "Widening a subtype reference to a supertype (CardFraudEvent → FraudEvent) — always compile-time safe because every subtype IS-A the supertype, with no runtime cast check required.",
+      ru: "Расширение ссылки подтипа до супертипа (CardFraudEvent → FraudEvent) — всегда безопасно на этапе компиляции, потому что каждый подтип IS-A супертип, без runtime-проверки cast."
+    },
+    topicIds: ["top_oop_13", "top_oop_11"],
+    canonicalTag: "#upcasting",
+    prerequisiteConceptIds: ["cpt_inheritance"]
+  },
+  {
+    id: "cpt_downcasting",
+    slug: "downcasting",
+    title: {
+      en: "Downcasting & ClassCastException Safety",
+      ru: "Downcasting и Безопасность ClassCastException"
+    },
+    summary: {
+      en: "Narrowing a supertype reference back to a subtype (FraudEvent → CardFraudEvent) with a runtime check — blind casts throw ClassCastException; prefer pattern matching instanceof or polymorphic methods that eliminate casts.",
+      ru: "Сужение ссылки супертипа обратно к подтипу (FraudEvent → CardFraudEvent) с runtime-проверкой — слепые cast'ы бросают ClassCastException; предпочитайте pattern matching instanceof или полиморфные методы без cast'ов."
+    },
+    topicIds: ["top_oop_13", "top_oop_11"],
+    canonicalTag: "#downcasting",
+    prerequisiteConceptIds: ["cpt_upcasting"]
   }
 ];
 
@@ -660,6 +870,20 @@ export const OOP_TAGS: readonly Tag[] = [
     category: "OOP"
   },
   {
+    id: "tag_abstraction",
+    slug: "abstraction",
+    displayName: { en: "#abstraction", ru: "#абстракция" },
+    canonicalConceptId: "cpt_abstraction",
+    category: "OOP"
+  },
+  {
+    id: "tag_leaky_abstraction",
+    slug: "leaky-abstraction",
+    displayName: { en: "#leaky-abstraction", ru: "#дырявая-абстракция" },
+    canonicalConceptId: "cpt_leaky_abstraction",
+    category: "OOP"
+  },
+  {
     id: "tag_anemic_model",
     slug: "anemic-model",
     displayName: { en: "#anemic-model", ru: "#анемичная-модель" },
@@ -678,6 +902,90 @@ export const OOP_TAGS: readonly Tag[] = [
     slug: "feature-envy",
     displayName: { en: "#feature-envy", ru: "#feature-envy" },
     canonicalConceptId: "cpt_feature_envy",
+    category: "OOP"
+  },
+  {
+    id: "tag_abstract_class",
+    slug: "abstract-class",
+    displayName: { en: "#abstract-class", ru: "#абстрактный-класс" },
+    canonicalConceptId: "cpt_abstract_class",
+    category: "OOP"
+  },
+  {
+    id: "tag_template_hooks",
+    slug: "template-hooks",
+    displayName: { en: "#template-hooks", ru: "#template-hooks" },
+    canonicalConceptId: "cpt_template_hooks",
+    category: "OOP"
+  },
+  {
+    id: "tag_inheritance",
+    slug: "inheritance",
+    displayName: { en: "#inheritance", ru: "#наследование" },
+    canonicalConceptId: "cpt_inheritance",
+    category: "OOP"
+  },
+  {
+    id: "tag_inherited_state",
+    slug: "inherited-state",
+    displayName: { en: "#inherited-state", ru: "#унаследованное-состояние" },
+    canonicalConceptId: "cpt_inherited_state",
+    category: "OOP"
+  },
+  {
+    id: "tag_polymorphism",
+    slug: "polymorphism",
+    displayName: { en: "#polymorphism", ru: "#полиморфизм" },
+    canonicalConceptId: "cpt_polymorphism",
+    category: "OOP"
+  },
+  {
+    id: "tag_type_switch_smell",
+    slug: "type-switch-smell",
+    displayName: { en: "#type-switch-smell", ru: "#type-switch-smell" },
+    canonicalConceptId: "cpt_type_switch_smell",
+    category: "OOP"
+  },
+  {
+    id: "tag_coupling",
+    slug: "coupling",
+    displayName: { en: "#coupling", ru: "#coupling" },
+    canonicalConceptId: "cpt_coupling",
+    category: "OOP"
+  },
+  {
+    id: "tag_cohesion",
+    slug: "cohesion",
+    displayName: { en: "#cohesion", ru: "#cohesion" },
+    canonicalConceptId: "cpt_cohesion",
+    category: "OOP"
+  },
+  {
+    id: "tag_domain_modeling",
+    slug: "domain-modeling",
+    displayName: { en: "#domain-modeling", ru: "#доменное-моделирование" },
+    canonicalConceptId: "cpt_domain_modeling",
+    category: "OOP"
+  },
+  {
+    id: "tag_value_objects",
+    slug: "value-objects",
+    displayName: { en: "#value-objects", ru: "#value-objects" },
+    canonicalConceptId: "cpt_value_objects",
+    category: "OOP"
+  },
+  {
+    id: "tag_upcasting",
+    slug: "upcasting",
+    displayName: { en: "#upcasting", ru: "#upcasting" },
+    canonicalConceptId: "cpt_upcasting",
+    category: "OOP"
+  },
+  {
+    id: "tag_downcasting",
+    slug: "downcasting",
+    displayName: { en: "#downcasting", ru: "#downcasting" },
+    canonicalConceptId: "cpt_downcasting",
     category: "OOP"
   }
 ];
