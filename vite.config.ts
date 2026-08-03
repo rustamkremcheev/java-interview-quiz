@@ -10,6 +10,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      workbox: {
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024
+      },
       manifest: {
         name: 'Java Mission Control',
         short_name: 'JavaMC',

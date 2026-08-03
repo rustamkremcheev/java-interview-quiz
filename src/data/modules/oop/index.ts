@@ -170,6 +170,62 @@ export * from './missions/domainModeling/hints';
 export * from './missions/domainModeling/sources';
 export * from './missions/domainModeling/mistakePatterns';
 
+export * from './missions/classesObjects/mission';
+export * from './missions/classesObjects/theory';
+export * from './missions/classesObjects/challenges';
+export * from './missions/classesObjects/codeArtifacts';
+export * from './missions/classesObjects/hints';
+export * from './missions/classesObjects/sources';
+export * from './missions/classesObjects/mistakePatterns';
+
+export * from './missions/stateBehaviorIdentity/mission';
+export * from './missions/stateBehaviorIdentity/theory';
+export * from './missions/stateBehaviorIdentity/challenges';
+export * from './missions/stateBehaviorIdentity/codeArtifacts';
+export * from './missions/stateBehaviorIdentity/hints';
+export * from './missions/stateBehaviorIdentity/sources';
+export * from './missions/stateBehaviorIdentity/mistakePatterns';
+
+export * from './missions/constructorsInitialization/mission';
+export * from './missions/constructorsInitialization/theory';
+export * from './missions/constructorsInitialization/challenges';
+export * from './missions/constructorsInitialization/codeArtifacts';
+export * from './missions/constructorsInitialization/hints';
+export * from './missions/constructorsInitialization/sources';
+export * from './missions/constructorsInitialization/mistakePatterns';
+
+export * from './missions/accessModifiers/mission';
+export * from './missions/accessModifiers/theory';
+export * from './missions/accessModifiers/challenges';
+export * from './missions/accessModifiers/codeArtifacts';
+export * from './missions/accessModifiers/hints';
+export * from './missions/accessModifiers/sources';
+export * from './missions/accessModifiers/mistakePatterns';
+
+export * from './missions/associationAggregationComposition/mission';
+export * from './missions/associationAggregationComposition/theory';
+export * from './missions/associationAggregationComposition/challenges';
+export * from './missions/associationAggregationComposition/codeArtifacts';
+export * from './missions/associationAggregationComposition/hints';
+export * from './missions/associationAggregationComposition/sources';
+export * from './missions/associationAggregationComposition/mistakePatterns';
+
+export * from './missions/objectClassContracts/mission';
+export * from './missions/objectClassContracts/theory';
+export * from './missions/objectClassContracts/challenges';
+export * from './missions/objectClassContracts/codeArtifacts';
+export * from './missions/objectClassContracts/hints';
+export * from './missions/objectClassContracts/sources';
+export * from './missions/objectClassContracts/mistakePatterns';
+
+export * from './missions/toStringSafeLogging/mission';
+export * from './missions/toStringSafeLogging/theory';
+export * from './missions/toStringSafeLogging/challenges';
+export * from './missions/toStringSafeLogging/codeArtifacts';
+export * from './missions/toStringSafeLogging/hints';
+export * from './missions/toStringSafeLogging/sources';
+export * from './missions/toStringSafeLogging/mistakePatterns';
+
 import { OOP_TOPICS } from './topics';
 import { OOP_CONCEPTS, OOP_TAGS } from './concepts';
 import { BANK_ACCOUNT_MISSION, BANK_ACCOUNT_MISSION_STAGES } from './missions/bankAccountInvariants/mission';
@@ -340,6 +396,62 @@ import { HINTS_DOMAIN_MODELING } from './missions/domainModeling/hints';
 import { SOURCES_DOMAIN_MODELING, SOURCE_REFERENCES_DOMAIN_MODELING } from './missions/domainModeling/sources';
 import { MISTAKE_PATTERNS_DOMAIN_MODELING } from './missions/domainModeling/mistakePatterns';
 
+import { CLASSES_OBJECTS_MISSION, CLASSES_OBJECTS_MISSION_STAGES } from './missions/classesObjects/mission';
+import { THEORY_ARTICLE_CLASSES_OBJECTS, THEORY_CHECKPOINTS_CLASSES_OBJECTS } from './missions/classesObjects/theory';
+import { ALL_CLASSES_OBJECTS_CHALLENGES } from './missions/classesObjects/challenges';
+import { CODE_ARTIFACTS_CLASSES_OBJECTS } from './missions/classesObjects/codeArtifacts';
+import { HINTS_CLASSES_OBJECTS } from './missions/classesObjects/hints';
+import { SOURCES_CLASSES_OBJECTS, SOURCE_REFERENCES_CLASSES_OBJECTS } from './missions/classesObjects/sources';
+import { MISTAKE_PATTERNS_CLASSES_OBJECTS } from './missions/classesObjects/mistakePatterns';
+
+import { STATE_BEHAVIOR_IDENTITY_MISSION, STATE_BEHAVIOR_IDENTITY_MISSION_STAGES } from './missions/stateBehaviorIdentity/mission';
+import { THEORY_ARTICLE_STATE_BEHAVIOR_IDENTITY, THEORY_CHECKPOINTS_STATE_BEHAVIOR_IDENTITY } from './missions/stateBehaviorIdentity/theory';
+import { ALL_STATE_BEHAVIOR_IDENTITY_CHALLENGES } from './missions/stateBehaviorIdentity/challenges';
+import { CODE_ARTIFACTS_STATE_BEHAVIOR_IDENTITY } from './missions/stateBehaviorIdentity/codeArtifacts';
+import { HINTS_STATE_BEHAVIOR_IDENTITY } from './missions/stateBehaviorIdentity/hints';
+import { SOURCES_STATE_BEHAVIOR_IDENTITY, SOURCE_REFERENCES_STATE_BEHAVIOR_IDENTITY } from './missions/stateBehaviorIdentity/sources';
+import { MISTAKE_PATTERNS_STATE_BEHAVIOR_IDENTITY } from './missions/stateBehaviorIdentity/mistakePatterns';
+
+import { CONSTRUCTORS_INITIALIZATION_MISSION, CONSTRUCTORS_INITIALIZATION_MISSION_STAGES } from './missions/constructorsInitialization/mission';
+import { THEORY_ARTICLE_CONSTRUCTORS_INITIALIZATION, THEORY_CHECKPOINTS_CONSTRUCTORS_INITIALIZATION } from './missions/constructorsInitialization/theory';
+import { ALL_CONSTRUCTORS_INITIALIZATION_CHALLENGES } from './missions/constructorsInitialization/challenges';
+import { CODE_ARTIFACTS_CONSTRUCTORS_INITIALIZATION } from './missions/constructorsInitialization/codeArtifacts';
+import { HINTS_CONSTRUCTORS_INITIALIZATION } from './missions/constructorsInitialization/hints';
+import { SOURCES_CONSTRUCTORS_INITIALIZATION, SOURCE_REFERENCES_CONSTRUCTORS_INITIALIZATION } from './missions/constructorsInitialization/sources';
+import { MISTAKE_PATTERNS_CONSTRUCTORS_INITIALIZATION } from './missions/constructorsInitialization/mistakePatterns';
+
+import { ACCESS_MODIFIERS_MISSION, ACCESS_MODIFIERS_MISSION_STAGES } from './missions/accessModifiers/mission';
+import { THEORY_ARTICLE_ACCESS_MODIFIERS, THEORY_CHECKPOINTS_ACCESS_MODIFIERS } from './missions/accessModifiers/theory';
+import { ALL_ACCESS_MODIFIERS_CHALLENGES } from './missions/accessModifiers/challenges';
+import { CODE_ARTIFACTS_ACCESS_MODIFIERS } from './missions/accessModifiers/codeArtifacts';
+import { HINTS_ACCESS_MODIFIERS } from './missions/accessModifiers/hints';
+import { SOURCES_ACCESS_MODIFIERS, SOURCE_REFERENCES_ACCESS_MODIFIERS } from './missions/accessModifiers/sources';
+import { MISTAKE_PATTERNS_ACCESS_MODIFIERS } from './missions/accessModifiers/mistakePatterns';
+
+import { ASSOCIATION_AGGREGATION_COMPOSITION_MISSION, ASSOCIATION_AGGREGATION_COMPOSITION_MISSION_STAGES } from './missions/associationAggregationComposition/mission';
+import { THEORY_ARTICLE_ASSOCIATION_AGGREGATION_COMPOSITION, THEORY_CHECKPOINTS_ASSOCIATION_AGGREGATION_COMPOSITION } from './missions/associationAggregationComposition/theory';
+import { ALL_ASSOCIATION_AGGREGATION_COMPOSITION_CHALLENGES } from './missions/associationAggregationComposition/challenges';
+import { CODE_ARTIFACTS_ASSOCIATION_AGGREGATION_COMPOSITION } from './missions/associationAggregationComposition/codeArtifacts';
+import { HINTS_ASSOCIATION_AGGREGATION_COMPOSITION } from './missions/associationAggregationComposition/hints';
+import { SOURCES_ASSOCIATION_AGGREGATION_COMPOSITION, SOURCE_REFERENCES_ASSOCIATION_AGGREGATION_COMPOSITION } from './missions/associationAggregationComposition/sources';
+import { MISTAKE_PATTERNS_ASSOCIATION_AGGREGATION_COMPOSITION } from './missions/associationAggregationComposition/mistakePatterns';
+
+import { OBJECT_CLASS_CONTRACTS_MISSION, OBJECT_CLASS_CONTRACTS_MISSION_STAGES } from './missions/objectClassContracts/mission';
+import { THEORY_ARTICLE_OBJECT_CLASS_CONTRACTS, THEORY_CHECKPOINTS_OBJECT_CLASS_CONTRACTS } from './missions/objectClassContracts/theory';
+import { ALL_OBJECT_CLASS_CONTRACTS_CHALLENGES } from './missions/objectClassContracts/challenges';
+import { CODE_ARTIFACTS_OBJECT_CLASS_CONTRACTS } from './missions/objectClassContracts/codeArtifacts';
+import { HINTS_OBJECT_CLASS_CONTRACTS } from './missions/objectClassContracts/hints';
+import { SOURCES_OBJECT_CLASS_CONTRACTS, SOURCE_REFERENCES_OBJECT_CLASS_CONTRACTS } from './missions/objectClassContracts/sources';
+import { MISTAKE_PATTERNS_OBJECT_CLASS_CONTRACTS } from './missions/objectClassContracts/mistakePatterns';
+
+import { TOSTRING_SAFE_LOGGING_MISSION, TOSTRING_SAFE_LOGGING_MISSION_STAGES } from './missions/toStringSafeLogging/mission';
+import { THEORY_ARTICLE_TOSTRING_SAFE_LOGGING, THEORY_CHECKPOINTS_TOSTRING_SAFE_LOGGING } from './missions/toStringSafeLogging/theory';
+import { ALL_TOSTRING_SAFE_LOGGING_CHALLENGES } from './missions/toStringSafeLogging/challenges';
+import { CODE_ARTIFACTS_TOSTRING_SAFE_LOGGING } from './missions/toStringSafeLogging/codeArtifacts';
+import { HINTS_TOSTRING_SAFE_LOGGING } from './missions/toStringSafeLogging/hints';
+import { SOURCES_TOSTRING_SAFE_LOGGING, SOURCE_REFERENCES_TOSTRING_SAFE_LOGGING } from './missions/toStringSafeLogging/sources';
+import { MISTAKE_PATTERNS_TOSTRING_SAFE_LOGGING } from './missions/toStringSafeLogging/mistakePatterns';
+
 import { MODULES_REGISTRY } from '../registry';
 
 export const OOP_MODULE: Module = MODULES_REGISTRY.find((m) => m.id === "mod_oop")!;
@@ -370,7 +482,14 @@ export const OOP_DATA_PACKAGE = {
     POLYMORPHISM_MISSION,
     UPCASTING_DOWNCASTING_MISSION,
     COUPLING_COHESION_MISSION,
-    DOMAIN_MODELING_MISSION
+    DOMAIN_MODELING_MISSION,
+    CLASSES_OBJECTS_MISSION,
+    STATE_BEHAVIOR_IDENTITY_MISSION,
+    CONSTRUCTORS_INITIALIZATION_MISSION,
+    ACCESS_MODIFIERS_MISSION,
+    ASSOCIATION_AGGREGATION_COMPOSITION_MISSION,
+    OBJECT_CLASS_CONTRACTS_MISSION,
+    TOSTRING_SAFE_LOGGING_MISSION
   ],
   stages: [
     ...BANK_ACCOUNT_MISSION_STAGES,
@@ -393,7 +512,14 @@ export const OOP_DATA_PACKAGE = {
     ...POLYMORPHISM_MISSION_STAGES,
     ...UPCASTING_DOWNCASTING_MISSION_STAGES,
     ...COUPLING_COHESION_MISSION_STAGES,
-    ...DOMAIN_MODELING_MISSION_STAGES
+    ...DOMAIN_MODELING_MISSION_STAGES,
+    ...CLASSES_OBJECTS_MISSION_STAGES,
+    ...STATE_BEHAVIOR_IDENTITY_MISSION_STAGES,
+    ...CONSTRUCTORS_INITIALIZATION_MISSION_STAGES,
+    ...ACCESS_MODIFIERS_MISSION_STAGES,
+    ...ASSOCIATION_AGGREGATION_COMPOSITION_MISSION_STAGES,
+    ...OBJECT_CLASS_CONTRACTS_MISSION_STAGES,
+    ...TOSTRING_SAFE_LOGGING_MISSION_STAGES
   ],
   theoryArticles: [
     THEORY_ARTICLE_BANK_ACCOUNT,
@@ -416,7 +542,14 @@ export const OOP_DATA_PACKAGE = {
     THEORY_ARTICLE_POLYMORPHISM,
     THEORY_ARTICLE_UPCASTING_DOWNCASTING,
     THEORY_ARTICLE_COUPLING_COHESION,
-    THEORY_ARTICLE_DOMAIN_MODELING
+    THEORY_ARTICLE_DOMAIN_MODELING,
+    THEORY_ARTICLE_CLASSES_OBJECTS,
+    THEORY_ARTICLE_STATE_BEHAVIOR_IDENTITY,
+    THEORY_ARTICLE_CONSTRUCTORS_INITIALIZATION,
+    THEORY_ARTICLE_ACCESS_MODIFIERS,
+    THEORY_ARTICLE_ASSOCIATION_AGGREGATION_COMPOSITION,
+    THEORY_ARTICLE_OBJECT_CLASS_CONTRACTS,
+    THEORY_ARTICLE_TOSTRING_SAFE_LOGGING
   ],
   theoryCheckpoints: [
     ...THEORY_CHECKPOINTS_BANK_ACCOUNT,
@@ -439,7 +572,14 @@ export const OOP_DATA_PACKAGE = {
     ...THEORY_CHECKPOINTS_POLYMORPHISM,
     ...THEORY_CHECKPOINTS_UPCASTING_DOWNCASTING,
     ...THEORY_CHECKPOINTS_COUPLING_COHESION,
-    ...THEORY_CHECKPOINTS_DOMAIN_MODELING
+    ...THEORY_CHECKPOINTS_DOMAIN_MODELING,
+    ...THEORY_CHECKPOINTS_CLASSES_OBJECTS,
+    ...THEORY_CHECKPOINTS_STATE_BEHAVIOR_IDENTITY,
+    ...THEORY_CHECKPOINTS_CONSTRUCTORS_INITIALIZATION,
+    ...THEORY_CHECKPOINTS_ACCESS_MODIFIERS,
+    ...THEORY_CHECKPOINTS_ASSOCIATION_AGGREGATION_COMPOSITION,
+    ...THEORY_CHECKPOINTS_OBJECT_CLASS_CONTRACTS,
+    ...THEORY_CHECKPOINTS_TOSTRING_SAFE_LOGGING
   ],
   challenges: [
     ...ALL_BANK_ACCOUNT_CHALLENGES,
@@ -462,7 +602,14 @@ export const OOP_DATA_PACKAGE = {
     ...ALL_POLYMORPHISM_CHALLENGES,
     ...ALL_UPCASTING_DOWNCASTING_CHALLENGES,
     ...ALL_COUPLING_COHESION_CHALLENGES,
-    ...ALL_DOMAIN_MODELING_CHALLENGES
+    ...ALL_DOMAIN_MODELING_CHALLENGES,
+    ...ALL_CLASSES_OBJECTS_CHALLENGES,
+    ...ALL_STATE_BEHAVIOR_IDENTITY_CHALLENGES,
+    ...ALL_CONSTRUCTORS_INITIALIZATION_CHALLENGES,
+    ...ALL_ACCESS_MODIFIERS_CHALLENGES,
+    ...ALL_ASSOCIATION_AGGREGATION_COMPOSITION_CHALLENGES,
+    ...ALL_OBJECT_CLASS_CONTRACTS_CHALLENGES,
+    ...ALL_TOSTRING_SAFE_LOGGING_CHALLENGES
   ],
   codeArtifacts: [
     ...CODE_ARTIFACTS_BANK_ACCOUNT,
@@ -485,7 +632,14 @@ export const OOP_DATA_PACKAGE = {
     ...CODE_ARTIFACTS_POLYMORPHISM,
     ...CODE_ARTIFACTS_UPCASTING_DOWNCASTING,
     ...CODE_ARTIFACTS_COUPLING_COHESION,
-    ...CODE_ARTIFACTS_DOMAIN_MODELING
+    ...CODE_ARTIFACTS_DOMAIN_MODELING,
+    ...CODE_ARTIFACTS_CLASSES_OBJECTS,
+    ...CODE_ARTIFACTS_STATE_BEHAVIOR_IDENTITY,
+    ...CODE_ARTIFACTS_CONSTRUCTORS_INITIALIZATION,
+    ...CODE_ARTIFACTS_ACCESS_MODIFIERS,
+    ...CODE_ARTIFACTS_ASSOCIATION_AGGREGATION_COMPOSITION,
+    ...CODE_ARTIFACTS_OBJECT_CLASS_CONTRACTS,
+    ...CODE_ARTIFACTS_TOSTRING_SAFE_LOGGING
   ],
   hints: [
     ...HINTS_BANK_ACCOUNT,
@@ -508,7 +662,14 @@ export const OOP_DATA_PACKAGE = {
     ...HINTS_POLYMORPHISM,
     ...HINTS_UPCASTING_DOWNCASTING,
     ...HINTS_COUPLING_COHESION,
-    ...HINTS_DOMAIN_MODELING
+    ...HINTS_DOMAIN_MODELING,
+    ...HINTS_CLASSES_OBJECTS,
+    ...HINTS_STATE_BEHAVIOR_IDENTITY,
+    ...HINTS_CONSTRUCTORS_INITIALIZATION,
+    ...HINTS_ACCESS_MODIFIERS,
+    ...HINTS_ASSOCIATION_AGGREGATION_COMPOSITION,
+    ...HINTS_OBJECT_CLASS_CONTRACTS,
+    ...HINTS_TOSTRING_SAFE_LOGGING
   ],
   sources: [
     ...SOURCES_BANK_ACCOUNT,
@@ -531,7 +692,14 @@ export const OOP_DATA_PACKAGE = {
     ...SOURCES_POLYMORPHISM,
     ...SOURCES_UPCASTING_DOWNCASTING,
     ...SOURCES_COUPLING_COHESION,
-    ...SOURCES_DOMAIN_MODELING
+    ...SOURCES_DOMAIN_MODELING,
+    ...SOURCES_CLASSES_OBJECTS,
+    ...SOURCES_STATE_BEHAVIOR_IDENTITY,
+    ...SOURCES_CONSTRUCTORS_INITIALIZATION,
+    ...SOURCES_ACCESS_MODIFIERS,
+    ...SOURCES_ASSOCIATION_AGGREGATION_COMPOSITION,
+    ...SOURCES_OBJECT_CLASS_CONTRACTS,
+    ...SOURCES_TOSTRING_SAFE_LOGGING
   ],
   sourceReferences: [
     ...SOURCE_REFERENCES_BANK_ACCOUNT,
@@ -554,7 +722,14 @@ export const OOP_DATA_PACKAGE = {
     ...SOURCE_REFERENCES_POLYMORPHISM,
     ...SOURCE_REFERENCES_UPCASTING_DOWNCASTING,
     ...SOURCE_REFERENCES_COUPLING_COHESION,
-    ...SOURCE_REFERENCES_DOMAIN_MODELING
+    ...SOURCE_REFERENCES_DOMAIN_MODELING,
+    ...SOURCE_REFERENCES_CLASSES_OBJECTS,
+    ...SOURCE_REFERENCES_STATE_BEHAVIOR_IDENTITY,
+    ...SOURCE_REFERENCES_CONSTRUCTORS_INITIALIZATION,
+    ...SOURCE_REFERENCES_ACCESS_MODIFIERS,
+    ...SOURCE_REFERENCES_ASSOCIATION_AGGREGATION_COMPOSITION,
+    ...SOURCE_REFERENCES_OBJECT_CLASS_CONTRACTS,
+    ...SOURCE_REFERENCES_TOSTRING_SAFE_LOGGING
   ],
   mistakePatterns: [
     ...MISTAKE_PATTERNS_BANK_ACCOUNT,
@@ -577,6 +752,13 @@ export const OOP_DATA_PACKAGE = {
     ...MISTAKE_PATTERNS_POLYMORPHISM,
     ...MISTAKE_PATTERNS_UPCASTING_DOWNCASTING,
     ...MISTAKE_PATTERNS_COUPLING_COHESION,
-    ...MISTAKE_PATTERNS_DOMAIN_MODELING
+    ...MISTAKE_PATTERNS_DOMAIN_MODELING,
+    ...MISTAKE_PATTERNS_CLASSES_OBJECTS,
+    ...MISTAKE_PATTERNS_STATE_BEHAVIOR_IDENTITY,
+    ...MISTAKE_PATTERNS_CONSTRUCTORS_INITIALIZATION,
+    ...MISTAKE_PATTERNS_ACCESS_MODIFIERS,
+    ...MISTAKE_PATTERNS_ASSOCIATION_AGGREGATION_COMPOSITION,
+    ...MISTAKE_PATTERNS_OBJECT_CLASS_CONTRACTS,
+    ...MISTAKE_PATTERNS_TOSTRING_SAFE_LOGGING
   ]
 };

@@ -268,6 +268,62 @@ export const MissionPage: React.FC = () => {
       fixedTitle: 'Value Objects + Invariants',
       fixedCode: 'LoanMoney / LoanStatus / CreditDecision / ApprovalPolicy',
       fixedDesc: 'Typed transitions ──► illegal states unrepresentable!'
+    },
+    mis_classes_objects: {
+      brokenTitle: 'Shared Draft Alias',
+      brokenCode: 'batch.add(draft); // same ref N times',
+      brokenDesc: 'One PaymentInstruction mutated per CSV row ──► all batch slots show last values!',
+      fixedTitle: 'Independent Instances',
+      fixedCode: 'factory.fromCsvRow(row); batch.add(instruction)',
+      fixedDesc: 'New object per row ──► distinct references & audit-safe identity!'
+    },
+    mis_state_behavior_identity: {
+      brokenTitle: 'Value-Only Transfer Confusion',
+      brokenCode: 'if (a.amount==b.amount) skip;',
+      brokenDesc: 'Distinct TransferIds treated interchangeable ──► lost operations!',
+      fixedTitle: 'Identity + Transitions',
+      fixedCode: 'TransferId identity; submit()/approve()',
+      fixedDesc: 'Business identity + behavior-guarded state ──► no false duplicates!'
+    },
+    mis_constructors_initialization: {
+      brokenTitle: 'This Escapes Mid-Construction',
+      brokenCode: 'registry.register(this); // in ctor',
+      brokenDesc: 'Observers see null counterparty / defaults ──► half-initialized trade!',
+      fixedTitle: 'Safe Publication After Init',
+      fixedCode: 'build fully → then register(trade)',
+      fixedDesc: 'No this-escape; invariants complete before publish!'
+    },
+    mis_access_modifiers: {
+      brokenTitle: 'Public Internal Ledger Hooks',
+      brokenCode: 'public void postRaw(...); protected forceReconcile()',
+      brokenDesc: 'Foreign packages bypass InternalPostingPolicy ──► unaudited posts!',
+      fixedTitle: 'Minimal Visibility API',
+      fixedCode: 'private internals; public JournalPostingFacade',
+      fixedDesc: 'Package boundary sealed ──► policy + audit enforced!'
+    },
+    mis_association_aggregation_composition: {
+      brokenTitle: 'Wrong Ownership Graph',
+      brokenCode: 'portfolio.delete() → instruments.clear()',
+      brokenDesc: 'Shared MarketInstrument/PricingFeed destroyed ──► orphaned books!',
+      fixedTitle: 'Lifecycle Ownership',
+      fixedCode: 'compose Holdings; associate Instruments',
+      fixedDesc: 'Holdings die with Portfolio; shared refs survive!'
+    },
+    mis_object_class_contracts: {
+      brokenTitle: 'Object Contract Misuse',
+      brokenCode: 'default toString; fragile clone(); getClass()',
+      brokenDesc: 'Audit dedupe/logs/snapshots break ──► Object methods mishandled!',
+      fixedTitle: 'Deliberate Object Overrides',
+      fixedCode: 'careful equals/hashCode/toString; no clone/finalize',
+      fixedDesc: 'Object as foundation contracts ──► not accidental defaults!'
+    },
+    mis_tostring_safe_logging: {
+      brokenTitle: 'PII in toString → Logs',
+      brokenCode: 'logger.info("req=" + request)',
+      brokenDesc: 'Name, account, gov-id, token in centralized logs ──► breach!',
+      fixedTitle: 'Redacted Diagnostics',
+      fixedCode: 'RedactionPolicy + structured safe fields',
+      fixedDesc: 'toString for humans without secrets ──► observability + security!'
     }
   };
   const viz = missionVisualizations[mission.id];
@@ -400,10 +456,16 @@ export const MissionPage: React.FC = () => {
   // Stage 10 Bug Hunt Submission
   const handleBugHuntSubmit = async (selectedLines: number[]) => {
     if (!bugHuntChallenge) return;
-    const targetLines = (bugHuntChallenge as any).payload?.targetLines;
-    if (!Array.isArray(targetLines) || targetLines.length === 0) {
+    const payload = (bugHuntChallenge as any).payload;
+    const fromFlags = Array.isArray(payload?.lines)
+      ? payload.lines.filter((l: any) => l.isBug).map((l: any) => l.lineNumber as number)
+      : [];
+    const targetLines = Array.isArray(payload?.targetLines) && payload.targetLines.length > 0
+      ? payload.targetLines as number[]
+      : fromFlags;
+    if (targetLines.length === 0) {
       if (process.env.NODE_ENV !== 'production') {
-        console.error(`[MissionPage] BUG_HUNT ${bugHuntChallenge.id} missing targetLines`);
+        console.error(`[MissionPage] BUG_HUNT ${bugHuntChallenge.id} has no isBug lines or targetLines`);
       }
       return;
     }
@@ -414,12 +476,12 @@ export const MissionPage: React.FC = () => {
       score: isCorrect ? 1.0 : 0.0,
       feedback: isCorrect
         ? {
-            en: "Vulnerability identified! You located the line(s) causing state invariant decay.",
-            ru: "Уязвимость найдена! Вы нашли строку(и), вызывающую распад инвариантов состояния."
+            en: "Vulnerability identified! You located the defective line(s) for this mission.",
+            ru: "Уязвимость найдена! Вы нашли дефектную строку(и) для этой миссии."
           }
         : {
-            en: "Incorrect line selected. Inspect where key fields or mutable state are modified.",
-            ru: "Неверно выбранная строка. Посмотрите, где изменяются поля ключа или мутабельное состояние."
+            en: "Incorrect line selected. Re-read the production failure mode for this mission and flag the root-cause line(s).",
+            ru: "Неверно выбранная строка. Перечитайте продакшн-сбой этой миссии и отметьте строку(и) первопричины."
           },
       matchedConceptIds: mission.requiredConceptIds,
       missingConceptIds: [],

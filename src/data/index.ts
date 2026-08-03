@@ -22,7 +22,14 @@ import {
   POLYMORPHISM_MISSION,
   UPCASTING_DOWNCASTING_MISSION,
   COUPLING_COHESION_MISSION,
-  DOMAIN_MODELING_MISSION
+  DOMAIN_MODELING_MISSION,
+  CLASSES_OBJECTS_MISSION,
+  STATE_BEHAVIOR_IDENTITY_MISSION,
+  CONSTRUCTORS_INITIALIZATION_MISSION,
+  ACCESS_MODIFIERS_MISSION,
+  ASSOCIATION_AGGREGATION_COMPOSITION_MISSION,
+  OBJECT_CLASS_CONTRACTS_MISSION,
+  TOSTRING_SAFE_LOGGING_MISSION
 } from './modules/oop';
 import { Module, Topic, Mission } from '../types/domain';
 
@@ -52,7 +59,14 @@ export const ALL_MISSIONS: readonly Mission[] = [
   POLYMORPHISM_MISSION,
   UPCASTING_DOWNCASTING_MISSION,
   COUPLING_COHESION_MISSION,
-  DOMAIN_MODELING_MISSION
+  DOMAIN_MODELING_MISSION,
+  CLASSES_OBJECTS_MISSION,
+  STATE_BEHAVIOR_IDENTITY_MISSION,
+  CONSTRUCTORS_INITIALIZATION_MISSION,
+  ACCESS_MODIFIERS_MISSION,
+  ASSOCIATION_AGGREGATION_COMPOSITION_MISSION,
+  OBJECT_CLASS_CONTRACTS_MISSION,
+  TOSTRING_SAFE_LOGGING_MISSION
 ];
 
 export function getModuleBySlug(slug: string): Module | undefined {
@@ -80,7 +94,11 @@ export function getMissionsForTopic(topicIdOrSlug: string): Mission[] {
 }
 
 const TOPIC_MISSION_ASSIGNMENTS: Record<string, string> = {
+  top_oop_02: 'mis_classes_objects',
+  top_oop_03: 'mis_state_behavior_identity',
+  top_oop_04: 'mis_constructors_initialization',
   top_oop_05: 'mis_bank_account_invariants',
+  top_oop_06: 'mis_access_modifiers',
   top_oop_07: 'mis_abstraction',
   top_oop_08: 'mis_abstract_classes',
   top_oop_09: 'mis_interface_default_methods',
@@ -91,8 +109,11 @@ const TOPIC_MISSION_ASSIGNMENTS: Record<string, string> = {
   top_oop_14: 'mis_method_overloading',
   top_oop_15: 'mis_method_overriding_covariant',
   top_oop_16: 'mis_composition_over_inheritance',
+  top_oop_17: 'mis_association_aggregation_composition',
   top_oop_18: 'mis_coupling_cohesion',
+  top_oop_19: 'mis_object_class_contracts',
   top_oop_20: 'mis_equals_hashcode_contract',
+  top_oop_21: 'mis_tostring_safe_logging',
   top_oop_22: 'mis_immutability_defensive_copy',
   top_oop_23: 'mis_liskov_substitution_principle',
   top_oop_24: 'mis_dependency_injection',

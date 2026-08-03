@@ -690,6 +690,306 @@ export const OOP_CONCEPTS: readonly Concept[] = [
     topicIds: ["top_oop_13", "top_oop_11"],
     canonicalTag: "#downcasting",
     prerequisiteConceptIds: ["cpt_upcasting"]
+  },
+  {
+    id: "cpt_class_vs_object",
+    slug: "class-vs-object",
+    title: {
+      en: "Class vs Object",
+      ru: "Class vs Object"
+    },
+    summary: {
+      en: "A class is the blueprint; an object is a distinct runtime heap instance created from that blueprint.",
+      ru: "Класс — чертёж; объект — отдельный runtime-экземпляр в куче, созданный по этому чертежу."
+    },
+    topicIds: ["top_oop_02"],
+    canonicalTag: "#class-vs-object",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_object_reference",
+    slug: "object-reference",
+    title: {
+      en: "Object References & Aliasing",
+      ru: "Ссылки на Объекты и Aliasing"
+    },
+    summary: {
+      en: "Java variables hold references; multiple variables can alias one mutable object so mutations are visible everywhere.",
+      ru: "Переменные Java хранят ссылки; несколько переменных могут алиасить один мутабельный объект, поэтому мутации видны везде."
+    },
+    topicIds: ["top_oop_02"],
+    canonicalTag: "#object-reference",
+    prerequisiteConceptIds: ["cpt_class_vs_object"]
+  },
+  {
+    id: "cpt_independent_instances",
+    slug: "independent-instances",
+    title: {
+      en: "Independent Instances per Business Record",
+      ru: "Независимые Экземпляры на Бизнес-Запись"
+    },
+    summary: {
+      en: "Each business record needs its own heap instance (or immutable value) — reusing one draft across a collection corrupts history.",
+      ru: "Каждой бизнес-записи нужен свой экземпляр в куче (или immutable value) — переиспользование одного draft в коллекции портит историю."
+    },
+    topicIds: ["top_oop_02"],
+    canonicalTag: "#independent-instances",
+    prerequisiteConceptIds: ["cpt_object_reference"]
+  },
+  {
+    id: "cpt_object_state",
+    slug: "object-state",
+    title: {
+      en: "Object State",
+      ru: "Состояние Объекта"
+    },
+    summary: {
+      en: "State is the data an object currently holds (fields) — it can change over time without changing identity.",
+      ru: "State — данные, которые объект сейчас хранит (поля); они могут меняться со временем без смены identity."
+    },
+    topicIds: ["top_oop_03"],
+    canonicalTag: "#object-state",
+    prerequisiteConceptIds: ["cpt_class_vs_object"]
+  },
+  {
+    id: "cpt_object_behavior",
+    slug: "object-behavior",
+    title: {
+      en: "Object Behavior",
+      ru: "Поведение Объекта"
+    },
+    summary: {
+      en: "Behavior is how an object changes or exposes state through methods — prefer transition methods over public setters for domain entities.",
+      ru: "Behavior — как объект меняет или отдаёт state через методы; для доменных сущностей предпочитайте transition-методы публичным setter'ам."
+    },
+    topicIds: ["top_oop_03"],
+    canonicalTag: "#object-behavior",
+    prerequisiteConceptIds: ["cpt_object_state"]
+  },
+  {
+    id: "cpt_object_identity",
+    slug: "object-identity",
+    title: {
+      en: "Object Identity",
+      ru: "Идентичность Объекта"
+    },
+    summary: {
+      en: "Identity distinguishes one entity from another across state changes — e.g. TransferId — and is not the same as equal field values.",
+      ru: "Identity отличает одну сущность от другой при смене state — например TransferId — и не равна совпадению значений полей."
+    },
+    topicIds: ["top_oop_03"],
+    canonicalTag: "#object-identity",
+    prerequisiteConceptIds: ["cpt_object_state"]
+  },
+  {
+    id: "cpt_constructor_init_order",
+    slug: "constructor-init-order",
+    title: {
+      en: "Constructor Initialization Order",
+      ru: "Порядок Инициализации Конструктора"
+    },
+    summary: {
+      en: "JLS construction order: superclass constructors, then field initializers, then constructor body — observers must not see half-built instances.",
+      ru: "Порядок конструирования по JLS: конструкторы суперкласса, затем инициализаторы полей, затем тело конструктора — наблюдатели не должны видеть полусобранные экземпляры."
+    },
+    topicIds: ["top_oop_04"],
+    canonicalTag: "#constructor-init-order",
+    prerequisiteConceptIds: ["cpt_class_vs_object"]
+  },
+  {
+    id: "cpt_this_escape",
+    slug: "this-escape",
+    title: {
+      en: "This-Escape During Construction",
+      ru: "This-Escape во Время Конструирования"
+    },
+    summary: {
+      en: "Publishing this from a constructor (registry, listener, overridable call) lets other code observe an incompletely initialized object.",
+      ru: "Публикация this из конструктора (registry, listener, переопределяемый вызов) позволяет другому коду увидеть не до конца инициализированный объект."
+    },
+    topicIds: ["top_oop_04"],
+    canonicalTag: "#this-escape",
+    prerequisiteConceptIds: ["cpt_constructor_init_order"]
+  },
+  {
+    id: "cpt_safe_construction",
+    slug: "safe-construction",
+    title: {
+      en: "Safe Construction Patterns",
+      ru: "Паттерны Безопасного Конструирования"
+    },
+    summary: {
+      en: "Finish field assignment and validation before publishing; use factories; avoid overridable methods from constructors.",
+      ru: "Завершайте присвоение полей и валидацию до публикации; используйте factory; избегайте переопределяемых методов из конструкторов."
+    },
+    topicIds: ["top_oop_04"],
+    canonicalTag: "#safe-construction",
+    prerequisiteConceptIds: ["cpt_this_escape"]
+  },
+  {
+    id: "cpt_package_private",
+    slug: "package-private",
+    title: {
+      en: "Package-Private Accessibility",
+      ru: "Package-Private Доступность"
+    },
+    summary: {
+      en: "Default (no modifier) access limits members to the same package — the enforceable boundary for co-located internals.",
+      ru: "Доступ по умолчанию (без модификатора) ограничивает члены тем же пакетом — enforceable граница для соседних internals."
+    },
+    topicIds: ["top_oop_06"],
+    canonicalTag: "#package-private",
+    prerequisiteConceptIds: ["cpt_access_modifiers"]
+  },
+  {
+    id: "cpt_protected_coupling",
+    slug: "protected-coupling",
+    title: {
+      en: "Protected Coupling Across Packages",
+      ru: "Protected Coupling Между Пакетами"
+    },
+    summary: {
+      en: "protected lets foreign-package subclasses call internals — a second public API that often bypasses package policy facades.",
+      ru: "protected позволяет subclasses из чужих пакетов вызывать internals — второй public API, часто обходящий package policy facades."
+    },
+    topicIds: ["top_oop_06"],
+    canonicalTag: "#protected-coupling",
+    prerequisiteConceptIds: ["cpt_access_modifiers"]
+  },
+  {
+    id: "cpt_association",
+    slug: "association",
+    title: {
+      en: "Association Relationships",
+      ru: "Связи Association"
+    },
+    summary: {
+      en: "Association is a navigable relationship without ownership — deleting one end does not destroy the other.",
+      ru: "Association — навигируемая связь без ownership: удаление одного конца не уничтожает другой."
+    },
+    topicIds: ["top_oop_17"],
+    canonicalTag: "#association",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_aggregation",
+    slug: "aggregation",
+    title: {
+      en: "Aggregation Relationships",
+      ru: "Связи Aggregation"
+    },
+    summary: {
+      en: "Aggregation is a whole-part relationship where parts can outlive the whole and may be shared.",
+      ru: "Aggregation — связь целое-часть, где части могут переживать целое и могут быть shared."
+    },
+    topicIds: ["top_oop_17"],
+    canonicalTag: "#aggregation",
+    prerequisiteConceptIds: ["cpt_association"]
+  },
+  {
+    id: "cpt_composition_ownership",
+    slug: "composition-ownership",
+    title: {
+      en: "Composition Ownership",
+      ru: "Ownership в Composition"
+    },
+    summary: {
+      en: "Composition means exclusive ownership: when the whole is deleted, owned parts are deleted; do not compose shared catalogs or feeds.",
+      ru: "Composition означает исключительное владение: при удалении целого удаляются owned-части; не компонуйте shared-каталоги или feeds."
+    },
+    topicIds: ["top_oop_17"],
+    canonicalTag: "#composition-ownership",
+    prerequisiteConceptIds: ["cpt_aggregation"]
+  },
+  {
+    id: "cpt_java_lang_object",
+    slug: "java-lang-object",
+    title: {
+      en: "java.lang.Object Contracts Overview",
+      ru: "Обзор Контрактов java.lang.Object"
+    },
+    summary: {
+      en: "Object defines equals, hashCode, toString, clone, and related contracts every domain type inherits — misuse shows up in audits and collections.",
+      ru: "Object определяет equals, hashCode, toString, clone и связанные контракты, которые наследует каждый доменный тип — misuse проявляется в аудите и коллекциях."
+    },
+    topicIds: ["top_oop_19"],
+    canonicalTag: "#java-lang-object",
+    prerequisiteConceptIds: ["cpt_class_vs_object"]
+  },
+  {
+    id: "cpt_getclass_vs_instanceof",
+    slug: "getclass-vs-instanceof",
+    title: {
+      en: "getClass() vs instanceof",
+      ru: "getClass() vs instanceof"
+    },
+    summary: {
+      en: "getClass() equality rejects subclasses; instanceof allows them — choose deliberately for type checks and equals designs.",
+      ru: "Равенство getClass() отвергает subclasses; instanceof их допускает — выбирайте осознанно для type checks и equals."
+    },
+    topicIds: ["top_oop_19"],
+    canonicalTag: "#getclass-vs-instanceof",
+    prerequisiteConceptIds: ["cpt_java_lang_object"]
+  },
+  {
+    id: "cpt_clone_pitfalls",
+    slug: "clone-pitfalls",
+    title: {
+      en: "Object.clone() Pitfalls",
+      ru: "Ловушки Object.clone()"
+    },
+    summary: {
+      en: "Clone is fragile (Cloneable, shallow copies, checked exceptions); prefer copy constructors or factories for domain types.",
+      ru: "Clone хрупок (Cloneable, shallow copies, checked exceptions); для доменных типов предпочитайте copy constructors или factory."
+    },
+    topicIds: ["top_oop_19"],
+    canonicalTag: "#clone-pitfalls",
+    prerequisiteConceptIds: ["cpt_java_lang_object"]
+  },
+  {
+    id: "cpt_tostring_diagnostics",
+    slug: "tostring-diagnostics",
+    title: {
+      en: "toString() for Diagnostics",
+      ru: "toString() для Диагностики"
+    },
+    summary: {
+      en: "toString should aid debugging with safe identifiers — never dump secrets or full PII into logs via default stringification.",
+      ru: "toString должен помогать отладке безопасными идентификаторами — никогда не сбрасывайте секреты или полный PII в логи через stringification."
+    },
+    topicIds: ["top_oop_21"],
+    canonicalTag: "#tostring-diagnostics",
+    prerequisiteConceptIds: ["cpt_java_lang_object"]
+  },
+  {
+    id: "cpt_pii_redaction",
+    slug: "pii-redaction",
+    title: {
+      en: "PII Redaction in Object Representations",
+      ru: "Редактирование PII в Представлениях Объекта"
+    },
+    summary: {
+      en: "Redact or omit personally identifiable and secret fields from toString and log payloads using an explicit redaction policy.",
+      ru: "Редактируйте или опускайте персональные и секретные поля в toString и log payloads по явной redaction policy."
+    },
+    topicIds: ["top_oop_21"],
+    canonicalTag: "#pii-redaction",
+    prerequisiteConceptIds: ["cpt_tostring_diagnostics"]
+  },
+  {
+    id: "cpt_logging_parameterization",
+    slug: "logging-parameterization",
+    title: {
+      en: "Parameterized Logging",
+      ru: "Параметризованное Логирование"
+    },
+    summary: {
+      en: "Prefer logger.info(\"msg {}\", id) over string concatenation of whole objects so sensitive toString is not eagerly built into centralized logs.",
+      ru: "Предпочитайте logger.info(\"msg {}\", id) конкатенации целых объектов, чтобы чувствительный toString не попадал жадно в централизованные логи."
+    },
+    topicIds: ["top_oop_21"],
+    canonicalTag: "#logging-parameterization",
+    prerequisiteConceptIds: ["cpt_pii_redaction"]
   }
 ];
 
@@ -986,6 +1286,146 @@ export const OOP_TAGS: readonly Tag[] = [
     slug: "downcasting",
     displayName: { en: "#downcasting", ru: "#downcasting" },
     canonicalConceptId: "cpt_downcasting",
+    category: "OOP"
+  },
+  {
+    id: "tag_class_vs_object",
+    slug: "class-vs-object",
+    displayName: { en: "#class-vs-object", ru: "#class-vs-object" },
+    canonicalConceptId: "cpt_class_vs_object",
+    category: "OOP"
+  },
+  {
+    id: "tag_object_reference",
+    slug: "object-reference",
+    displayName: { en: "#object-reference", ru: "#object-reference" },
+    canonicalConceptId: "cpt_object_reference",
+    category: "OOP"
+  },
+  {
+    id: "tag_independent_instances",
+    slug: "independent-instances",
+    displayName: { en: "#independent-instances", ru: "#independent-instances" },
+    canonicalConceptId: "cpt_independent_instances",
+    category: "OOP"
+  },
+  {
+    id: "tag_object_state",
+    slug: "object-state",
+    displayName: { en: "#object-state", ru: "#object-state" },
+    canonicalConceptId: "cpt_object_state",
+    category: "OOP"
+  },
+  {
+    id: "tag_object_behavior",
+    slug: "object-behavior",
+    displayName: { en: "#object-behavior", ru: "#object-behavior" },
+    canonicalConceptId: "cpt_object_behavior",
+    category: "OOP"
+  },
+  {
+    id: "tag_object_identity",
+    slug: "object-identity",
+    displayName: { en: "#object-identity", ru: "#object-identity" },
+    canonicalConceptId: "cpt_object_identity",
+    category: "OOP"
+  },
+  {
+    id: "tag_constructor_init_order",
+    slug: "constructor-init-order",
+    displayName: { en: "#constructor-init-order", ru: "#constructor-init-order" },
+    canonicalConceptId: "cpt_constructor_init_order",
+    category: "OOP"
+  },
+  {
+    id: "tag_this_escape",
+    slug: "this-escape",
+    displayName: { en: "#this-escape", ru: "#this-escape" },
+    canonicalConceptId: "cpt_this_escape",
+    category: "OOP"
+  },
+  {
+    id: "tag_safe_construction",
+    slug: "safe-construction",
+    displayName: { en: "#safe-construction", ru: "#safe-construction" },
+    canonicalConceptId: "cpt_safe_construction",
+    category: "OOP"
+  },
+  {
+    id: "tag_package_private",
+    slug: "package-private",
+    displayName: { en: "#package-private", ru: "#package-private" },
+    canonicalConceptId: "cpt_package_private",
+    category: "OOP"
+  },
+  {
+    id: "tag_protected_coupling",
+    slug: "protected-coupling",
+    displayName: { en: "#protected-coupling", ru: "#protected-coupling" },
+    canonicalConceptId: "cpt_protected_coupling",
+    category: "OOP"
+  },
+  {
+    id: "tag_association",
+    slug: "association",
+    displayName: { en: "#association", ru: "#association" },
+    canonicalConceptId: "cpt_association",
+    category: "OOP"
+  },
+  {
+    id: "tag_aggregation",
+    slug: "aggregation",
+    displayName: { en: "#aggregation", ru: "#aggregation" },
+    canonicalConceptId: "cpt_aggregation",
+    category: "OOP"
+  },
+  {
+    id: "tag_composition_ownership",
+    slug: "composition-ownership",
+    displayName: { en: "#composition-ownership", ru: "#composition-ownership" },
+    canonicalConceptId: "cpt_composition_ownership",
+    category: "OOP"
+  },
+  {
+    id: "tag_java_lang_object",
+    slug: "java-lang-object",
+    displayName: { en: "#java-lang-object", ru: "#java-lang-object" },
+    canonicalConceptId: "cpt_java_lang_object",
+    category: "OOP"
+  },
+  {
+    id: "tag_getclass_vs_instanceof",
+    slug: "getclass-vs-instanceof",
+    displayName: { en: "#getclass-vs-instanceof", ru: "#getclass-vs-instanceof" },
+    canonicalConceptId: "cpt_getclass_vs_instanceof",
+    category: "OOP"
+  },
+  {
+    id: "tag_clone_pitfalls",
+    slug: "clone-pitfalls",
+    displayName: { en: "#clone-pitfalls", ru: "#clone-pitfalls" },
+    canonicalConceptId: "cpt_clone_pitfalls",
+    category: "OOP"
+  },
+  {
+    id: "tag_tostring_diagnostics",
+    slug: "tostring-diagnostics",
+    displayName: { en: "#tostring-diagnostics", ru: "#tostring-diagnostics" },
+    canonicalConceptId: "cpt_tostring_diagnostics",
+    category: "OOP"
+  },
+  {
+    id: "tag_pii_redaction",
+    slug: "pii-redaction",
+    displayName: { en: "#pii-redaction", ru: "#pii-redaction" },
+    canonicalConceptId: "cpt_pii_redaction",
+    category: "OOP"
+  },
+  {
+    id: "tag_logging_parameterization",
+    slug: "logging-parameterization",
+    displayName: { en: "#logging-parameterization", ru: "#logging-parameterization" },
+    canonicalConceptId: "cpt_logging_parameterization",
     category: "OOP"
   }
 ];
