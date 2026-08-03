@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMissionBySlug } from '../data';
+import { getMissionBySlug, ALL_TOPICS } from '../data';
 import { OOP_DATA_PACKAGE } from '../data/modules/oop';
 import { useAppStore } from '../store/useAppStore';
 import { useMissionStore } from '../store/useMissionStore';
@@ -25,14 +25,14 @@ export const MissionPage: React.FC = () => {
   const slug = missionSlug || id || 'protecting-bank-account-invariants';
 
   const mission = getMissionBySlug(slug) || OOP_DATA_PACKAGE.missions[0];
-  const { stages } = OOP_DATA_PACKAGE;
+  const stages = OOP_DATA_PACKAGE.stages.filter((s) => s.missionId === mission.id);
 
   const { languageMode, addXP, toggleSidebar } = useAppStore();
   const {
     currentStageId, setCurrentStageId,
     hypothesisText, setHypothesisText,
     confidence,
-    hintsRevealedIds, revealHint,
+    hintsRevealedIds,
     reflectionText, setReflectionText
   } = useMissionStore();
 
@@ -44,7 +44,7 @@ export const MissionPage: React.FC = () => {
   const [checkpointFeedback, setCheckpointFeedback] = useState<Record<string, { isCorrect: boolean; text: LocalizedText }>>({});
 
   useEffect(() => {
-    if (!currentStageId && stages.length > 0) {
+    if (stages.length > 0 && (!currentStageId || !stages.some((s) => s.id === currentStageId))) {
       setCurrentStageId(stages[0].id);
     }
   }, [currentStageId, setCurrentStageId, stages]);
@@ -55,7 +55,104 @@ export const MissionPage: React.FC = () => {
   };
 
   const currentStageIndex = stages.findIndex((s) => s.id === currentStageId);
-  const currentStage = stages[currentStageIndex] || stages[0];
+  const currentStage = stages[currentStageIndex] || stages[0] || OOP_DATA_PACKAGE.stages[0];
+
+  // Dynamic entity resolution scoped strictly to the active mission
+  const theoryStage = stages.find((s) => s.type === 'THEORY') as { theoryArticleId?: string } | undefined;
+  const theoryArticle = OOP_DATA_PACKAGE.theoryArticles.find((a) => a.id === (currentStage as any)?.theoryArticleId) ||
+    OOP_DATA_PACKAGE.theoryArticles.find((a) => a.id === theoryStage?.theoryArticleId) ||
+    OOP_DATA_PACKAGE.theoryArticles.find((a) => a.topicIds.includes(mission.primaryTopicId)) ||
+    OOP_DATA_PACKAGE.theoryArticles[0];
+
+  const theoryCheckpoints = OOP_DATA_PACKAGE.theoryCheckpoints.filter((c) => c.theoryArticleId === theoryArticle?.id);
+
+  const fixBuilderChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'FIX_BUILDER') ||
+    OOP_DATA_PACKAGE.challenges[0];
+
+  const bugHuntChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'BUG_HUNT') ||
+    OOP_DATA_PACKAGE.challenges[1];
+
+  const interviewAnswerChallenge = OOP_DATA_PACKAGE.challenges.find((c) => c.missionId === mission.id && c.type === 'INTERVIEW_ANSWER') ||
+    OOP_DATA_PACKAGE.challenges[2];
+
+  const missionBrokenArtifactId =
+    (fixBuilderChallenge as any)?.payload?.baseCodeArtifactId as string | undefined;
+  const codeArtifact = OOP_DATA_PACKAGE.codeArtifacts.find((a) => a.id === (currentStage as any)?.codeArtifactId) ||
+    OOP_DATA_PACKAGE.codeArtifacts.find((a) => a.id === missionBrokenArtifactId) ||
+    OOP_DATA_PACKAGE.codeArtifacts[0];
+
+  const missionSourceIds = new Set(theoryArticle?.sourceIds ?? []);
+  const missionSources = OOP_DATA_PACKAGE.sources.filter((s) => missionSourceIds.has(s.id));
+  const missionSourceReferences = OOP_DATA_PACKAGE.sourceReferences.filter((r) => missionSourceIds.has(r.sourceId));
+
+  const primaryTopic = ALL_TOPICS.find((t) => t.id === mission.primaryTopicId);
+  const relatedTopics = [mission.primaryTopicId, ...mission.secondaryTopicIds]
+    .map((tid) => ALL_TOPICS.find((t) => t.id === tid))
+    .filter((t): t is NonNullable<typeof t> => !!t)
+    .slice(0, 3);
+  const exitTopicPath = primaryTopic
+    ? `/modules/${primaryTopic.moduleId}/topics/${primaryTopic.slug}`
+    : '/modules/object-oriented-programming/topics/encapsulation';
+
+  const missionVisualizations: Record<string, { brokenTitle: string; brokenCode: string; brokenDesc: string; fixedTitle: string; fixedCode: string; fixedDesc: string }> = {
+    mis_bank_account_invariants: {
+      brokenTitle: 'Unprotected Direct Field Mutation',
+      brokenCode: 'account.balance = -500.0;',
+      brokenDesc: 'Bypasses pre-condition guards ──► Corrupts Heap Memory State!',
+      fixedTitle: 'Encapsulated Behavior Execution',
+      fixedCode: 'account.withdraw(50000);',
+      fixedDesc: 'Validates amount & funds ──► Throws IllegalStateException!'
+    },
+    mis_equals_hashcode_contract: {
+      brokenTitle: 'Key Mutation & Bucket Mismatch',
+      brokenCode: 'put(key, val) ──► Bucket #4',
+      brokenDesc: 'key.setStatus("COMPLETED") mutates hashCode() ──► get(key) checks Bucket #11 (EMPTY)! Returns null!',
+      fixedTitle: 'Java 17 Record Key Immutability',
+      fixedCode: 'public record PaymentKey(String transactionId)',
+      fixedDesc: 'Identity is strictly immutable ──► Hash Code Remains 100% Stable ──► O(1) Cache Hit!'
+    },
+    mis_immutability_defensive_copy: {
+      brokenTitle: 'CustomerSnapshot Reference Leak',
+      brokenCode: 'snapshot.getTransactions().add(fakeTxn);',
+      brokenDesc: 'Leaked mutable List/Money ──► Settlement totals corrupt without calling a setter!',
+      fixedTitle: 'Deep Immutability via List.copyOf + Money record',
+      fixedCode: 'this.transactions = List.copyOf(transactions);',
+      fixedDesc: 'Immutable Money (long cents) + Instant ──► External mutation throws UnsupportedOperationException!'
+    },
+    mis_composition_over_inheritance: {
+      brokenTitle: 'Fragile Base Class Double-Count',
+      brokenCode: 'sendBatch() → calls send() internally',
+      brokenDesc: 'EmailNotificationService increments counter in BOTH methods ──► delivery metrics ×2!',
+      fixedTitle: 'Composition: EmailSender + SmsSender',
+      fixedCode: 'dispatcher.send(channel, notification);',
+      fixedDesc: 'NotificationDispatcher delegates to EmailSender/SmsSender ──► single instrumentation point!'
+    },
+    mis_liskov_substitution_principle: {
+      brokenTitle: 'BankTransfer Breaks PaymentProcessor Contract',
+      brokenCode: 'processor.refund(request);',
+      brokenDesc: 'BankTransfer.refund() throws UnsupportedOperationException ──► chargeback batch crashes!',
+      fixedTitle: 'Segregated RefundablePaymentProcessor',
+      fixedCode: 'if (p instanceof RefundablePaymentProcessor r) r.refund(req);',
+      fixedDesc: 'CardPayment implements refund; BankTransfer stays process-only ──► LSP preserved!'
+    },
+    mis_object_creation_builder: {
+      brokenTitle: 'Telescoping Constructor Flag Swap',
+      brokenCode: 'new SettlementInstruction(..., isAudited, isTaxExempt)',
+      brokenDesc: 'Boolean parameters swapped silently ──► incorrect tax reports in financial statements!',
+      fixedTitle: 'Builder + Static Factory',
+      fixedCode: 'SettlementInstruction.taxExemptWire(id, payer, amount)',
+      fixedDesc: 'Named factories + fluent Builder ──► mandatory fields validated before build()!'
+    },
+    mis_interface_default_methods: {
+      brokenTitle: 'Diamond Default Method Conflict',
+      brokenCode: 'implements Auditable, Traceable',
+      brokenDesc: 'Both define default void auditLog() ──► compile error: inherits unrelated defaults!',
+      fixedTitle: 'Explicit Interface.super Resolution',
+      fixedCode: 'Auditable.super.auditLog(); Traceable.super.auditLog();',
+      fixedDesc: 'Override + Interface.super chain ──► both compliance and trace audit trails preserved!'
+    }
+  };
+  const viz = missionVisualizations[mission.id] || missionVisualizations.mis_bank_account_invariants;
 
   const handleNextStage = () => {
     if (!completedStageIds.includes(currentStage.id)) {
@@ -67,13 +164,6 @@ export const MissionPage: React.FC = () => {
     }
   };
 
-  const handlePrevStage = () => {
-    setEvaluation(null);
-    if (currentStageIndex > 0) {
-      setCurrentStageId(stages[currentStageIndex - 1].id);
-    }
-  };
-
   // Stage 3 Hypothesis Submission
   const handleHypothesisSubmit = async () => {
     if (!hypothesisText.trim()) return;
@@ -82,10 +172,10 @@ export const MissionPage: React.FC = () => {
       correctness: "CORRECT",
       score: 1.0,
       feedback: {
-        en: "Great initial diagnostic hypothesis! Public balance exposure and missing negative checks corrupt class invariants.",
-        ru: "Отличная первичная гипотеза! Открытый доступ к балансу и отсутствие проверок ломают инварианты."
+        en: "Great initial diagnostic hypothesis! You identified key invariant vulnerabilities.",
+        ru: "Отличная первичная гипотеза! Вы определили ключевые уязвимости инвариантов."
       },
-      matchedConceptIds: ["cpt_encapsulation"],
+      matchedConceptIds: mission.requiredConceptIds,
       missingConceptIds: [],
       detectedMistakePatternIds: []
     };
@@ -95,7 +185,7 @@ export const MissionPage: React.FC = () => {
 
   // Stage 5 Theory Checkpoint Selection
   const handleCheckpointSelect = (checkpointId: string, optionId: string) => {
-    const chk = OOP_DATA_PACKAGE.theoryCheckpoints.find((c) => c.id === checkpointId);
+    const chk = theoryCheckpoints.find((c) => c.id === checkpointId);
     if (!chk) return;
     const opt = chk.options.find((o) => o.id === optionId);
     if (!opt) return;
@@ -116,11 +206,11 @@ export const MissionPage: React.FC = () => {
 
   // Stage 7 Guided FixBuilder Submission
   const handleGuidedSubmit = async (selectedOptionIds: string[]) => {
-    const correctOptions = OOP_DATA_PACKAGE.challenges[0].type === 'FIX_BUILDER'
-      ? (OOP_DATA_PACKAGE.challenges[0] as any).payload.options.filter((o: any) => o.isCorrect).map((o: any) => o.id)
+    const correctOptions = fixBuilderChallenge.type === 'FIX_BUILDER'
+      ? (fixBuilderChallenge as any).payload.options.filter((o: any) => o.isCorrect).map((o: any) => o.id)
       : [];
 
-    const isFullyCorrect = correctOptions.every((id: string) => selectedOptionIds.includes(id)) &&
+    const isFullyCorrect = correctOptions.every((optId: string) => selectedOptionIds.includes(optId)) &&
       selectedOptionIds.length === correctOptions.length;
 
     const evalRes: EvaluationResult = {
@@ -128,26 +218,26 @@ export const MissionPage: React.FC = () => {
       score: isFullyCorrect ? 1.0 : 0.5,
       feedback: isFullyCorrect
         ? {
-            en: "Flawless solution! Private fields, constructor guards, and domain methods deposit()/withdraw() enforce state encapsulation.",
-            ru: "Идеальное решение! Приватные поля, проверки в конструкторе и доменные методы deposit()/withdraw() защищают состояние."
+            en: "Flawless solution! You selected the production-safe architectural fixes.",
+            ru: "Идеальное решение! Вы выбрали безопасные архитектурные исправления."
           }
         : {
-            en: "Partial match. Ensure you include private long cents fields, constructor validation, and validated deposit/withdraw methods.",
-            ru: "Частично верно. Убедитесь, что выбрали приватные поля long центов, проверки в конструкторе и методы deposit/withdraw."
+            en: "Partial match. Ensure you select all production-safe fixes and reject dangerous quick-fixes.",
+            ru: "Частично верно. Убедитесь, что выбрали все безопасные исправления и отклонили быстрые костыли."
           },
-      matchedConceptIds: ["cpt_encapsulation", "cpt_invariants"],
+      matchedConceptIds: mission.requiredConceptIds,
       missingConceptIds: [],
-      detectedMistakePatternIds: isFullyCorrect ? [] : ["err_setter_invariant_bypass"]
+      detectedMistakePatternIds: isFullyCorrect ? [] : []
     };
 
     setEvaluation(evalRes);
-    await updateConceptMastery(["cpt_encapsulation", "cpt_invariants"], evalRes.correctness, confidence, hintsRevealedIds.length);
+    await updateConceptMastery(mission.requiredConceptIds, evalRes.correctness, confidence, hintsRevealedIds.length);
     await recordUserAttempt({
       userId: 'local-user',
-      challengeId: OOP_DATA_PACKAGE.challenges[0].id,
+      challengeId: fixBuilderChallenge.id,
       missionId: mission.id,
       stageId: currentStage.id,
-      challengeType: OOP_DATA_PACKAGE.challenges[0].type,
+      challengeType: fixBuilderChallenge.type,
       answerPayloadJson: JSON.stringify(selectedOptionIds),
       submittedAt: new Date().toISOString(),
       durationMs: 120000,
@@ -172,12 +262,12 @@ export const MissionPage: React.FC = () => {
       score: isGood ? 1.0 : 0.6,
       feedback: isGood
         ? {
-            en: "Strong verbal answer! You correctly emphasized state invariant protection and replacing setters with explicit domain behaviors.",
-            ru: "Сильный устный ответ! Вы верно подчеркнули защиту инвариантов состояния и замену сеттеров на доменные методы."
+            en: "Strong verbal answer! You correctly explained the core mechanics and trade-offs.",
+            ru: "Сильный устный ответ! Вы верно объяснили ключевую механику и компромиссы."
           }
         : {
-            en: "Answer recorded. Review the model 3-tier speech script below to refine your elevator pitch and trade-offs delivery.",
-            ru: "Ответ записан. Изучите модель устного ответа ниже для улучшения Elevator Pitch и аргументации компромиссов."
+            en: "Answer recorded. Review the model 3-tier speech script below to refine your pitch.",
+            ru: "Ответ записан. Изучите модель устного ответа ниже для улучшения ответа."
           },
       matchedConceptIds,
       missingConceptIds: [],
@@ -185,35 +275,36 @@ export const MissionPage: React.FC = () => {
     };
 
     setEvaluation(evalRes);
-    await updateConceptMastery(["cpt_encapsulation", "cpt_access_modifiers"], evalRes.correctness, confidence, 0);
+    await updateConceptMastery(mission.requiredConceptIds, evalRes.correctness, confidence, 0);
     await addXP(100);
   };
 
   // Stage 10 Bug Hunt Submission
   const handleBugHuntSubmit = async (selectedLines: number[]) => {
-    const isCorrect = selectedLines.includes(10) || selectedLines.includes(15);
+    const targetLines = (bugHuntChallenge as any).payload?.targetLines || [11, 24, 25, 39];
+    const isCorrect = selectedLines.some((line) => targetLines.includes(line));
 
     const evalRes: EvaluationResult = {
       correctness: isCorrect ? "CORRECT" : "INCORRECT",
       score: isCorrect ? 1.0 : 0.0,
       feedback: isCorrect
         ? {
-            en: "Vulnerability identified! Lines 10 and 15 leak mutable Date references without defensive copying.",
-            ru: "Уязвимость найдена! Строки 10 и 15 приводят к утечке мутабельной ссылки Date без защитного копирования."
+            en: "Vulnerability identified! You located the line(s) causing state invariant decay.",
+            ru: "Уязвимость найдена! Вы нашли строку(и), вызывающую распад инвариантов состояния."
           }
         : {
-            en: "Incorrect line selected. Inspect where internal java.util.Date references are directly assigned or returned.",
-            ru: "Неверно выбранная строка. Посмотрите, где ссылки на java.util.Date напрямую присваиваются или возвращаются."
+            en: "Incorrect line selected. Inspect where key fields or mutable state are modified.",
+            ru: "Неверно выбранная строка. Посмотрите, где изменяются поля ключа или мутабельное состояние."
           },
-      matchedConceptIds: ["cpt_defensive_copying"],
+      matchedConceptIds: mission.requiredConceptIds,
       missingConceptIds: [],
-      detectedMistakePatternIds: isCorrect ? [] : ["err_mutable_reference_leak"]
+      detectedMistakePatternIds: isCorrect ? [] : ["err_mutable_key_hash_decay"]
     };
 
     setEvaluation(evalRes);
-    await updateConceptMastery(["cpt_defensive_copying"], evalRes.correctness, confidence, hintsRevealedIds.length);
+    await updateConceptMastery(mission.requiredConceptIds, evalRes.correctness, confidence, hintsRevealedIds.length);
     if (!isCorrect) {
-      await recordMistakeOccurrence("err_mutable_reference_leak", confidence === 'CONFIDENT');
+      await recordMistakeOccurrence("err_mutable_key_hash_decay", confidence === 'CONFIDENT');
     } else {
       await addXP(100);
     }
@@ -245,19 +336,21 @@ export const MissionPage: React.FC = () => {
       {/* Workspace Navigation Header */}
       <div className="mission-workspace-header">
         <div className="header-left-group">
-          <button type="button" className="btn-exit-mission" onClick={() => navigate('/modules/object-oriented-programming/topics/encapsulation')}>
+          <button type="button" className="btn-exit-mission" onClick={() => navigate(exitTopicPath)}>
             <ArrowLeft size={16} /> Exit Mission
           </button>
           <div className="mission-title-area">
             <h2>{getText(mission.title.en, mission.title.ru)}</h2>
-            <span className="topic-badge">Topic 05: Encapsulation</span>
+            <span className="topic-badge">
+              {primaryTopic ? (languageMode === 'ru' ? primaryTopic.title.ru : primaryTopic.title.en) : 'Topic'}
+            </span>
           </div>
         </div>
 
         <div className="header-right-group">
           <div className="xp-reward-tag">
             <Trophy size={14} className="text-warning" />
-            <span>+250 XP</span>
+            <span>+{mission.xpReward || 250} XP</span>
           </div>
           <button type="button" className="btn-sidebar-trigger" onClick={() => toggleSidebar()}>
             <BookOpen size={16} />
@@ -274,7 +367,7 @@ export const MissionPage: React.FC = () => {
         onSelectStage={(stgId) => setCurrentStageId(stgId)}
       />
 
-      {/* Main Workspace Active Stage Stage View */}
+      {/* Main Workspace Active Stage Viewport */}
       <div className="mission-stage-viewport">
         {/* STAGE 1: MISSION INTRODUCTION */}
         {currentStage.type === 'MISSION_INTRODUCTION' && (
@@ -285,12 +378,12 @@ export const MissionPage: React.FC = () => {
             </div>
             <p className="scenario-story">{getText(mission.scenarioIntroduction.en, mission.scenarioIntroduction.ru)}</p>
 
-            <CodeViewer artifact={OOP_DATA_PACKAGE.codeArtifacts[0]} />
+            <CodeViewer artifact={codeArtifact} />
 
             <SourceContext
-              classification="BOOK_DERIVED_EXERCISE"
-              sources={OOP_DATA_PACKAGE.sources}
-              sourceReferences={OOP_DATA_PACKAGE.sourceReferences}
+              classification="REAL_INTERVIEW_REPORT"
+              sources={missionSources.length > 0 ? missionSources : OOP_DATA_PACKAGE.sources}
+              sourceReferences={missionSourceReferences.length > 0 ? missionSourceReferences : OOP_DATA_PACKAGE.sourceReferences}
             />
 
             <div className="stage-actions">
@@ -310,7 +403,7 @@ export const MissionPage: React.FC = () => {
             </div>
             <p className="problem-text">{getText(mission.engineeringProblem.en, mission.engineeringProblem.ru)}</p>
 
-            <CodeViewer artifact={OOP_DATA_PACKAGE.codeArtifacts[0]} />
+            <CodeViewer artifact={codeArtifact} />
 
             <div className="stage-actions">
               <button type="button" className="btn-primary-action" onClick={handleNextStage}>
@@ -327,7 +420,7 @@ export const MissionPage: React.FC = () => {
               <span className="stage-num-badge">STAGE 03</span>
               <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
-            <p>Formulate your initial diagnostic hypothesis: Why is public balance mutation dangerous, and which class invariant is unprotected?</p>
+            <p>{currentStage.instructions ? getText(currentStage.instructions.en, currentStage.instructions.ru) : ''}</p>
 
             <textarea
               className="hypothesis-textarea"
@@ -368,7 +461,7 @@ export const MissionPage: React.FC = () => {
               <span className="stage-num-badge">STAGE 04</span>
               <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
-            <p>This is a no-penalty bridge to transition into deep core theory and visual state mechanics.</p>
+            <p>{currentStage.instructions ? getText(currentStage.instructions.en, currentStage.instructions.ru) : ''}</p>
 
             <div className="stage-actions">
               <button type="button" className="btn-primary-action" onClick={handleNextStage}>
@@ -388,7 +481,7 @@ export const MissionPage: React.FC = () => {
 
             {/* Theory Sections */}
             <div className="theory-sections-container">
-              {OOP_DATA_PACKAGE.theoryArticles[0].sections.map((sec) => (
+              {theoryArticle.sections.map((sec) => (
                 <div key={sec.id} className="theory-section-block">
                   <h3>{getText(sec.title.en, sec.title.ru)}</h3>
                   {sec.blocks.map((b) => (
@@ -398,10 +491,10 @@ export const MissionPage: React.FC = () => {
               ))}
             </div>
 
-            {/* 3 Theory Checkpoints */}
+            {/* Theory Checkpoints */}
             <div className="theory-checkpoints-container">
-              <h3>Theory Checkpoints (3 Learning Checks)</h3>
-              {OOP_DATA_PACKAGE.theoryCheckpoints.map((chk, idx) => {
+              <h3>Theory Checkpoints ({theoryCheckpoints.length} Learning Checks)</h3>
+              {theoryCheckpoints.map((chk, idx) => {
                 const feedback = checkpointFeedback[chk.id];
 
                 return (
@@ -448,18 +541,18 @@ export const MissionPage: React.FC = () => {
 
             <div className="visualization-comparison-box">
               <div className="visual-column broken">
-                <h4>🔴 Unprotected Direct Field Mutation</h4>
+                <h4>🔴 {viz.brokenTitle}</h4>
                 <div className="memory-flow-box">
-                  <code>account.balance = -500.0;</code>
-                  <p>Bypasses pre-condition guards ──► Corrupts Heap Memory State!</p>
+                  <code>{viz.brokenCode}</code>
+                  <p>{viz.brokenDesc}</p>
                 </div>
               </div>
 
               <div className="visual-column protected">
-                <h4>🟢 Encapsulated Behavior Execution</h4>
+                <h4>🟢 {viz.fixedTitle}</h4>
                 <div className="memory-flow-box">
-                  <code>account.withdraw(50000);</code>
-                  <p>Validates amount & funds ──► Throws IllegalStateException!</p>
+                  <code>{viz.fixedCode}</code>
+                  <p>{viz.fixedDesc}</p>
                 </div>
               </div>
             </div>
@@ -481,7 +574,7 @@ export const MissionPage: React.FC = () => {
             </div>
 
             <GuidedPuzzle
-              challenge={OOP_DATA_PACKAGE.challenges[0] as any}
+              challenge={fixBuilderChallenge as any}
               onAttemptSubmit={handleGuidedSubmit}
             />
 
@@ -503,7 +596,10 @@ export const MissionPage: React.FC = () => {
               <h2>{getText(currentStage.title.en, currentStage.title.ru)}</h2>
             </div>
             <p className="scenario-statement">
-              How do you explain the fundamental difference between encapsulation and data hiding to a developer who claims 'making fields private and adding getters/setters is encapsulation'?
+              {getText(
+                (interviewAnswerChallenge as any).payload?.questionStatement?.en || (interviewAnswerChallenge as any).prompt.en,
+                (interviewAnswerChallenge as any).payload?.questionStatement?.ru || (interviewAnswerChallenge as any).prompt.ru
+              )}
             </p>
 
             <div className="stage-actions">
@@ -523,7 +619,7 @@ export const MissionPage: React.FC = () => {
             </div>
 
             <InterviewAnswerChallengeView
-              challenge={OOP_DATA_PACKAGE.challenges[2] as any}
+              challenge={interviewAnswerChallenge as any}
               onAttemptSubmit={handleInterviewSubmit}
               isSubmitted={!!evaluation}
             />
@@ -547,7 +643,7 @@ export const MissionPage: React.FC = () => {
             </div>
 
             <BugHuntChallengeView
-              challenge={OOP_DATA_PACKAGE.challenges[1] as any}
+              challenge={bugHuntChallenge as any}
               onAttemptSubmit={handleBugHuntSubmit}
             />
 
@@ -571,18 +667,16 @@ export const MissionPage: React.FC = () => {
             <p>Explore lateral knowledge connections to reinforce concepts across the OOP module graph.</p>
 
             <div className="related-nodes-grid">
-              <div className="node-card" onClick={() => navigate('/modules/object-oriented-programming/topics/access-modifiers')}>
-                <h4>Topic 06: Access Modifiers</h4>
-                <p>Private, protected, package-private visibility boundaries.</p>
-              </div>
-              <div className="node-card" onClick={() => navigate('/modules/object-oriented-programming/topics/coupling-and-cohesion')}>
-                <h4>Topic 18: Coupling and Cohesion</h4>
-                <p>High cohesion and low coupling in enterprise aggregates.</p>
-              </div>
-              <div className="node-card" onClick={() => navigate('/modules/object-oriented-programming/topics/immutability-defensive-copy')}>
-                <h4>Topic 22: Immutability & Defensive Copying</h4>
-                <p>Building bulletproof immutable domain entities & Records.</p>
-              </div>
+              {relatedTopics.map((topic) => (
+                <div
+                  key={topic.id}
+                  className="node-card"
+                  onClick={() => navigate(`/modules/${topic.moduleId}/topics/${topic.slug}`)}
+                >
+                  <h4>{getText(topic.title.en, topic.title.ru)}</h4>
+                  <p>{getText(topic.description.en, topic.description.ru)}</p>
+                </div>
+              ))}
             </div>
 
             <div className="stage-actions">
@@ -604,11 +698,11 @@ export const MissionPage: React.FC = () => {
             <div className="results-summary-card">
               <Trophy size={48} className="text-warning hero-trophy" />
               <h3>Mission Completed!</h3>
-              <p>You have successfully protected state invariants for BankAccount.</p>
+              <p>{getText(mission.description.en, mission.description.ru)}</p>
 
               <div className="stats-metric-grid">
                 <div className="metric-box">
-                  <span className="metric-num">+250</span>
+                  <span className="metric-num">+{mission.xpReward || 250}</span>
                   <span className="metric-lbl">XP Earned</span>
                 </div>
                 <div className="metric-box">
@@ -644,7 +738,7 @@ export const MissionPage: React.FC = () => {
               rows={4}
               value={reflectionText}
               onChange={(e) => setReflectionText(e.target.value)}
-              placeholder="e.g. I will replace arbitrary setters with validated domain methods and apply defensive copying to Date objects..."
+              placeholder="e.g. Write one production rule from this mission you will enforce in code reviews..."
             />
 
             <div className="stage-actions">

@@ -27,13 +27,11 @@ export const ModulePage: React.FC = () => {
     return moduleObj.description.en;
   };
 
+  const activeMissionCount = OOP_TOPICS.reduce((acc, t) => acc + (t.missionIds?.length || 0), 0);
+
   const handleSelectTopic = (topic: Topic) => {
-    if (topic.slug === 'encapsulation' || topic.id === 'top_oop_05') {
-      navigate(`/modules/object-oriented-programming/topics/encapsulation`);
-    } else {
-      // Show details or toast for other topics
-      navigate(`/modules/object-oriented-programming/topics/${topic.slug}`);
-    }
+    const currentSlug = moduleSlug || 'object-oriented-programming';
+    navigate(`/modules/${currentSlug}/topics/${topic.slug}`);
   };
 
   const breadcrumbs = [
@@ -65,11 +63,11 @@ export const ModulePage: React.FC = () => {
             </div>
             <div className="hero-stat-item">
               <Layers size={16} />
-              <span>37 Canonical Topics</span>
+              <span>{OOP_TOPICS.length} Canonical Topics</span>
             </div>
             <div className="hero-stat-item">
               <Trophy size={16} />
-              <span>1 Active MVP Mission</span>
+              <span>{activeMissionCount} Active Mission{activeMissionCount !== 1 ? 's' : ''}</span>
             </div>
           </div>
         </div>
@@ -77,7 +75,7 @@ export const ModulePage: React.FC = () => {
 
       <div className="topics-section-header">
         <h2>Canonical Topics Directory ({OOP_TOPICS.length} Topics)</h2>
-        <p>Explore the prerequisite topics graph. Topic 05 (Encapsulation) contains the active BankAccount Mission.</p>
+        <p>Explore the prerequisite topics graph and interactive learning missions.</p>
       </div>
 
       <div className="topics-grid-container">

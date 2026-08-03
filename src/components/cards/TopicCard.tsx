@@ -22,6 +22,8 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, onSelect }) => {
 
   const isAvailable = topic.availability === 'AVAILABLE';
   const isLocked = topic.availability === 'LOCKED';
+  const missionCount = topic.missionIds ? topic.missionIds.length : 0;
+  const hasMissions = missionCount > 0;
 
   return (
     <div
@@ -38,8 +40,9 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, onSelect }) => {
       <div className="topic-card-header">
         <div className="topic-badge-row">
           <span className="topic-difficulty-badge">{topic.difficulty}</span>
+          {hasMissions && <span className="status-pill status-active"><Trophy size={12} /> Mission Active</span>}
           {isLocked && <span className="status-pill status-locked"><Lock size={12} /> Locked</span>}
-          {topic.id === 'top_oop_05' && <span className="status-pill status-active"><Trophy size={12} /> MVP Mission Active</span>}
+          {!hasMissions && !isLocked && <span className="status-pill status-planned">Mission Coming Soon</span>}
         </div>
       </div>
 
@@ -52,7 +55,7 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, onSelect }) => {
           <span>{topic.estimatedMinutes}m</span>
         </div>
         <div className="meta-item">
-          <span>📚 {topic.missionIds.length || (topic.id === 'top_oop_05' ? 1 : 0)} Missions</span>
+          <span>📚 {missionCount} Mission{missionCount !== 1 ? 's' : ''}</span>
         </div>
         <div className="meta-item">
           <span>❓ {topic.questionCount || 4} Verified Qs</span>
@@ -67,9 +70,9 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, onSelect }) => {
       )}
 
       <div className="topic-card-action">
-        {topic.id === 'top_oop_05' ? (
+        {hasMissions ? (
           <button type="button" className="btn-small-primary">
-            <Play size={13} /> Start Encapsulation Topic
+            <Play size={13} /> View Topic
           </button>
         ) : isLocked ? (
           <button type="button" className="btn-small-secondary">
@@ -77,7 +80,7 @@ export const TopicCard: React.FC<TopicCardProps> = ({ topic, onSelect }) => {
           </button>
         ) : (
           <button type="button" className="btn-small-secondary">
-            <span>Explore Topic</span>
+            <span>View Topic</span>
           </button>
         )}
       </div>
