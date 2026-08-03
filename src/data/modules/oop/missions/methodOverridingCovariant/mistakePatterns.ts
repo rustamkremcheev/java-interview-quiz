@@ -90,8 +90,8 @@ export const MISTAKE_PATTERNS_OVERRIDING_COVARIANT: readonly MistakePattern[] = 
     remediationMissionIds: ["mis_method_overriding_covariant"]
   },
   {
-    id: "err_static_hiding_as_override",
-    code: "ERR_STATIC_HIDING_AS_OVERRIDE",
+    id: "err_static_hiding_as_override_overriding",
+    code: "ERR_STATIC_HIDING_AS_OVERRIDE_OVERRIDING",
     title: {
       en: "Treating Static Method Hiding as Runtime Override",
       ru: "Принятие Скрытия Static-Метода за Runtime Override"

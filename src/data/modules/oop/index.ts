@@ -283,6 +283,22 @@ export * from './missions/oopRefactoringLegacy/hints';
 export * from './missions/oopRefactoringLegacy/sources';
 export * from './missions/oopRefactoringLegacy/mistakePatterns';
 
+export * from './missions/seniorOopTradeoffs/mission';
+export * from './missions/seniorOopTradeoffs/theory';
+export * from './missions/seniorOopTradeoffs/challenges';
+export * from './missions/seniorOopTradeoffs/codeArtifacts';
+export * from './missions/seniorOopTradeoffs/hints';
+export * from './missions/seniorOopTradeoffs/sources';
+export * from './missions/seniorOopTradeoffs/mistakePatterns';
+
+export * from './missions/jvmMemoryObjectLayout/mission';
+export * from './missions/jvmMemoryObjectLayout/theory';
+export * from './missions/jvmMemoryObjectLayout/challenges';
+export * from './missions/jvmMemoryObjectLayout/codeArtifacts';
+export * from './missions/jvmMemoryObjectLayout/hints';
+export * from './missions/jvmMemoryObjectLayout/sources';
+export * from './missions/jvmMemoryObjectLayout/mistakePatterns';
+
 import { OOP_TOPICS } from './topics';
 import { OOP_CONCEPTS, OOP_TAGS } from './concepts';
 import { BANK_ACCOUNT_MISSION, BANK_ACCOUNT_MISSION_STAGES } from './missions/bankAccountInvariants/mission';
@@ -566,6 +582,22 @@ import { HINTS_OOP_REFACTORING_LEGACY } from './missions/oopRefactoringLegacy/hi
 import { SOURCES_OOP_REFACTORING_LEGACY, SOURCE_REFERENCES_OOP_REFACTORING_LEGACY } from './missions/oopRefactoringLegacy/sources';
 import { MISTAKE_PATTERNS_OOP_REFACTORING_LEGACY } from './missions/oopRefactoringLegacy/mistakePatterns';
 
+import { SENIOR_OOP_TRADEOFFS_MISSION, SENIOR_OOP_TRADEOFFS_MISSION_STAGES } from './missions/seniorOopTradeoffs/mission';
+import { THEORY_ARTICLE_SENIOR_OOP_TRADEOFFS, THEORY_CHECKPOINTS_SENIOR_OOP_TRADEOFFS } from './missions/seniorOopTradeoffs/theory';
+import { ALL_SENIOR_OOP_TRADEOFFS_CHALLENGES } from './missions/seniorOopTradeoffs/challenges';
+import { CODE_ARTIFACTS_SENIOR_OOP_TRADEOFFS } from './missions/seniorOopTradeoffs/codeArtifacts';
+import { HINTS_SENIOR_OOP_TRADEOFFS } from './missions/seniorOopTradeoffs/hints';
+import { SOURCES_SENIOR_OOP_TRADEOFFS, SOURCE_REFERENCES_SENIOR_OOP_TRADEOFFS } from './missions/seniorOopTradeoffs/sources';
+import { MISTAKE_PATTERNS_SENIOR_OOP_TRADEOFFS } from './missions/seniorOopTradeoffs/mistakePatterns';
+
+import { JVM_MEMORY_OBJECT_LAYOUT_MISSION, JVM_MEMORY_OBJECT_LAYOUT_MISSION_STAGES } from './missions/jvmMemoryObjectLayout/mission';
+import { THEORY_ARTICLE_JVM_MEMORY_OBJECT_LAYOUT, THEORY_CHECKPOINTS_JVM_MEMORY_OBJECT_LAYOUT } from './missions/jvmMemoryObjectLayout/theory';
+import { ALL_JVM_MEMORY_OBJECT_LAYOUT_CHALLENGES } from './missions/jvmMemoryObjectLayout/challenges';
+import { CODE_ARTIFACTS_JVM_MEMORY_OBJECT_LAYOUT } from './missions/jvmMemoryObjectLayout/codeArtifacts';
+import { HINTS_JVM_MEMORY_OBJECT_LAYOUT } from './missions/jvmMemoryObjectLayout/hints';
+import { SOURCES_JVM_MEMORY_OBJECT_LAYOUT, SOURCE_REFERENCES_JVM_MEMORY_OBJECT_LAYOUT } from './missions/jvmMemoryObjectLayout/sources';
+import { MISTAKE_PATTERNS_JVM_MEMORY_OBJECT_LAYOUT } from './missions/jvmMemoryObjectLayout/mistakePatterns';
+
 import { MODULES_REGISTRY } from '../registry';
 
 export const OOP_MODULE: Module = MODULES_REGISTRY.find((m) => m.id === "mod_oop")!;
@@ -603,7 +635,16 @@ export const OOP_DATA_PACKAGE = {
     ACCESS_MODIFIERS_MISSION,
     ASSOCIATION_AGGREGATION_COMPOSITION_MISSION,
     OBJECT_CLASS_CONTRACTS_MISSION,
-    TOSTRING_SAFE_LOGGING_MISSION
+    TOSTRING_SAFE_LOGGING_MISSION,
+    INTRODUCTION_TO_OOP_MISSION,
+    BUILDER_PATTERN_MISSION,
+    TEMPLATE_METHOD_PATTERN_MISSION,
+    OBSERVER_PATTERN_MISSION,
+    DECORATOR_PATTERN_MISSION,
+    API_CONTRACT_DESIGN_MISSION,
+    OOP_REFACTORING_LEGACY_MISSION,
+    SENIOR_OOP_TRADEOFFS_MISSION,
+    JVM_MEMORY_OBJECT_LAYOUT_MISSION
   ],
   stages: [
     ...BANK_ACCOUNT_MISSION_STAGES,
@@ -640,7 +681,9 @@ export const OOP_DATA_PACKAGE = {
     ...OBSERVER_PATTERN_MISSION_STAGES,
     ...DECORATOR_PATTERN_MISSION_STAGES,
     ...API_CONTRACT_DESIGN_MISSION_STAGES,
-    ...OOP_REFACTORING_LEGACY_MISSION_STAGES
+    ...OOP_REFACTORING_LEGACY_MISSION_STAGES,
+    ...SENIOR_OOP_TRADEOFFS_MISSION_STAGES,
+    ...JVM_MEMORY_OBJECT_LAYOUT_MISSION_STAGES
   ],
   theoryArticles: [
     THEORY_ARTICLE_BANK_ACCOUNT,
@@ -670,7 +713,16 @@ export const OOP_DATA_PACKAGE = {
     THEORY_ARTICLE_ACCESS_MODIFIERS,
     THEORY_ARTICLE_ASSOCIATION_AGGREGATION_COMPOSITION,
     THEORY_ARTICLE_OBJECT_CLASS_CONTRACTS,
-    THEORY_ARTICLE_TOSTRING_SAFE_LOGGING
+    THEORY_ARTICLE_TOSTRING_SAFE_LOGGING,
+    THEORY_ARTICLE_INTRODUCTION_TO_OOP,
+    THEORY_ARTICLE_BUILDER_PATTERN,
+    THEORY_ARTICLE_TEMPLATE_METHOD_PATTERN,
+    THEORY_ARTICLE_OBSERVER_PATTERN,
+    THEORY_ARTICLE_DECORATOR_PATTERN,
+    THEORY_ARTICLE_API_CONTRACT_DESIGN,
+    THEORY_ARTICLE_OOP_REFACTORING_LEGACY,
+    THEORY_ARTICLE_SENIOR_OOP_TRADEOFFS,
+    THEORY_ARTICLE_JVM_MEMORY_OBJECT_LAYOUT
   ],
   theoryCheckpoints: [
     ...THEORY_CHECKPOINTS_BANK_ACCOUNT,
@@ -707,7 +759,9 @@ export const OOP_DATA_PACKAGE = {
     ...THEORY_CHECKPOINTS_OBSERVER_PATTERN,
     ...THEORY_CHECKPOINTS_DECORATOR_PATTERN,
     ...THEORY_CHECKPOINTS_API_CONTRACT_DESIGN,
-    ...THEORY_CHECKPOINTS_OOP_REFACTORING_LEGACY
+    ...THEORY_CHECKPOINTS_OOP_REFACTORING_LEGACY,
+    ...THEORY_CHECKPOINTS_SENIOR_OOP_TRADEOFFS,
+    ...THEORY_CHECKPOINTS_JVM_MEMORY_OBJECT_LAYOUT
   ],
   challenges: [
     ...ALL_BANK_ACCOUNT_CHALLENGES,
@@ -744,7 +798,9 @@ export const OOP_DATA_PACKAGE = {
     ...ALL_OBSERVER_PATTERN_CHALLENGES,
     ...ALL_DECORATOR_PATTERN_CHALLENGES,
     ...ALL_API_CONTRACT_DESIGN_CHALLENGES,
-    ...ALL_OOP_REFACTORING_LEGACY_CHALLENGES
+    ...ALL_OOP_REFACTORING_LEGACY_CHALLENGES,
+    ...ALL_SENIOR_OOP_TRADEOFFS_CHALLENGES,
+    ...ALL_JVM_MEMORY_OBJECT_LAYOUT_CHALLENGES
   ],
   codeArtifacts: [
     ...CODE_ARTIFACTS_BANK_ACCOUNT,
@@ -781,7 +837,9 @@ export const OOP_DATA_PACKAGE = {
     ...CODE_ARTIFACTS_OBSERVER_PATTERN,
     ...CODE_ARTIFACTS_DECORATOR_PATTERN,
     ...CODE_ARTIFACTS_API_CONTRACT_DESIGN,
-    ...CODE_ARTIFACTS_OOP_REFACTORING_LEGACY
+    ...CODE_ARTIFACTS_OOP_REFACTORING_LEGACY,
+    ...CODE_ARTIFACTS_SENIOR_OOP_TRADEOFFS,
+    ...CODE_ARTIFACTS_JVM_MEMORY_OBJECT_LAYOUT
   ],
   hints: [
     ...HINTS_BANK_ACCOUNT,
@@ -818,7 +876,9 @@ export const OOP_DATA_PACKAGE = {
     ...HINTS_OBSERVER_PATTERN,
     ...HINTS_DECORATOR_PATTERN,
     ...HINTS_API_CONTRACT_DESIGN,
-    ...HINTS_OOP_REFACTORING_LEGACY
+    ...HINTS_OOP_REFACTORING_LEGACY,
+    ...HINTS_SENIOR_OOP_TRADEOFFS,
+    ...HINTS_JVM_MEMORY_OBJECT_LAYOUT
   ],
   sources: [
     ...SOURCES_BANK_ACCOUNT,
@@ -855,7 +915,9 @@ export const OOP_DATA_PACKAGE = {
     ...SOURCES_OBSERVER_PATTERN,
     ...SOURCES_DECORATOR_PATTERN,
     ...SOURCES_API_CONTRACT_DESIGN,
-    ...SOURCES_OOP_REFACTORING_LEGACY
+    ...SOURCES_OOP_REFACTORING_LEGACY,
+    ...SOURCES_SENIOR_OOP_TRADEOFFS,
+    ...SOURCES_JVM_MEMORY_OBJECT_LAYOUT
   ],
   sourceReferences: [
     ...SOURCE_REFERENCES_BANK_ACCOUNT,
@@ -892,7 +954,9 @@ export const OOP_DATA_PACKAGE = {
     ...SOURCE_REFERENCES_OBSERVER_PATTERN,
     ...SOURCE_REFERENCES_DECORATOR_PATTERN,
     ...SOURCE_REFERENCES_API_CONTRACT_DESIGN,
-    ...SOURCE_REFERENCES_OOP_REFACTORING_LEGACY
+    ...SOURCE_REFERENCES_OOP_REFACTORING_LEGACY,
+    ...SOURCE_REFERENCES_SENIOR_OOP_TRADEOFFS,
+    ...SOURCE_REFERENCES_JVM_MEMORY_OBJECT_LAYOUT
   ],
   mistakePatterns: [
     ...MISTAKE_PATTERNS_BANK_ACCOUNT,
@@ -929,6 +993,8 @@ export const OOP_DATA_PACKAGE = {
     ...MISTAKE_PATTERNS_OBSERVER_PATTERN,
     ...MISTAKE_PATTERNS_DECORATOR_PATTERN,
     ...MISTAKE_PATTERNS_API_CONTRACT_DESIGN,
-    ...MISTAKE_PATTERNS_OOP_REFACTORING_LEGACY
+    ...MISTAKE_PATTERNS_OOP_REFACTORING_LEGACY,
+    ...MISTAKE_PATTERNS_SENIOR_OOP_TRADEOFFS,
+    ...MISTAKE_PATTERNS_JVM_MEMORY_OBJECT_LAYOUT
   ]
 };

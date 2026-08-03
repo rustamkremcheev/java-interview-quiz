@@ -6,8 +6,10 @@ import { useAppStore } from '../store/useAppStore';
 import { useMissionStore } from '../store/useMissionStore';
 import {
   recordUserAttempt, updateConceptMastery, recordMistakeOccurrence,
-  saveMissionProgress, saveReflectionNote
+  saveMissionProgress, saveReflectionNote,
+  getAttemptsForMission, getMissionProgressRecord
 } from '../db/database';
+import type { UserAttempt, MissionProgress } from '../types/domain';
 import { StageStepper } from '../components/workspace/StageStepper';
 import { KnowledgeSidebar } from '../components/workspace/KnowledgeSidebar';
 import { SourceContext } from '../components/workspace/SourceContext';
@@ -24,8 +26,10 @@ export const MissionPage: React.FC = () => {
   const navigate = useNavigate();
   const slug = missionSlug || id || 'protecting-bank-account-invariants';
 
-  const mission = getMissionBySlug(slug) || OOP_DATA_PACKAGE.missions[0];
-  const stages = OOP_DATA_PACKAGE.stages.filter((s) => s.missionId === mission.id);
+  const mission = getMissionBySlug(slug);
+  const stages = mission
+    ? OOP_DATA_PACKAGE.stages.filter((s) => s.missionId === mission.id)
+    : [];
 
   const { languageMode, addXP, toggleSidebar } = useAppStore();
   const {
@@ -38,6 +42,9 @@ export const MissionPage: React.FC = () => {
 
   const [completedStageIds, setCompletedStageIds] = useState<string[]>([]);
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
+  const [sessionStartedAt] = useState(() => Date.now());
+  const [missionAttempts, setMissionAttempts] = useState<UserAttempt[]>([]);
+  const [missionProgressRecord, setMissionProgressRecord] = useState<MissionProgress | undefined>();
 
   // Theory Checkpoints Local State
   const [checkpointAnswers, setCheckpointAnswers] = useState<Record<string, string>>({});
@@ -49,13 +56,53 @@ export const MissionPage: React.FC = () => {
     }
   }, [currentStageId, setCurrentStageId, stages]);
 
+  useEffect(() => {
+    if (!mission) return;
+    let cancelled = false;
+    (async () => {
+      const [attempts, progress] = await Promise.all([
+        getAttemptsForMission(mission.id),
+        getMissionProgressRecord(mission.id)
+      ]);
+      if (!cancelled) {
+        setMissionAttempts(attempts);
+        setMissionProgressRecord(progress);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [mission?.id, evaluation, completedStageIds.length]);
+
   const getText = (en: string, ru: string) => {
     if (languageMode === 'ru') return ru;
     return en;
   };
 
+  if (!mission) {
+    return (
+      <div className="mission-workspace-page">
+        <div className="stage-card">
+          <h2>Mission Not Found</h2>
+          <p>No mission matches route slug <code>{slug}</code>.</p>
+          <button type="button" className="btn-primary-action" onClick={() => navigate('/modules')}>
+            Back to Modules
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const currentStageIndex = stages.findIndex((s) => s.id === currentStageId);
-  const currentStage = stages[currentStageIndex] || stages[0] || OOP_DATA_PACKAGE.stages[0];
+  const currentStage = stages[currentStageIndex] || stages[0];
+  if (!currentStage) {
+    return (
+      <div className="mission-workspace-page">
+        <div className="stage-card">
+          <h2>Mission Stages Missing</h2>
+          <p>Mission <code>{mission.id}</code> has no registered stages.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Dynamic entity resolution scoped strictly to the active mission — no cross-mission fallbacks
   const theoryStage = stages.find((s) => s.type === 'THEORY') as { theoryArticleId?: string } | undefined;
@@ -380,6 +427,22 @@ export const MissionPage: React.FC = () => {
       fixedTitle: 'Characterization + Seams',
       fixedCode: 'CreditPolicy pure + ApplicantLookupPort + AuditPort',
       fixedDesc: 'Incremental extract while preserving behavior!'
+    },
+    mis_senior_oop_tradeoffs: {
+      brokenTitle: 'Slogan-Driven Payment Architecture',
+      brokenCode: 'AbstractPaymentBase → 5-level rails + interface-per-class',
+      brokenDesc: 'Every new rail reopens the hierarchy; debugging crosses Strategy + Decorator + Factory!',
+      fixedTitle: 'Constraint-Driven Decision Map',
+      fixedCode: 'volatility × seams × ops-debug → choose A/B/C (no permanent winner)',
+      fixedDesc: 'Composition + explicit orchestration when constraints demand — revise when scale changes!'
+    },
+    mis_jvm_memory_object_layout: {
+      brokenTitle: 'Field-Sum Capacity Fantasy',
+      brokenCode: 'estimate = long+int+ref+boolean  (ignore header/pad/box)',
+      brokenDesc: 'Tens of millions of PositionSnapshot ──► heap several× larger; GC stalls!',
+      fixedTitle: 'Illustrative HotSpot Layout',
+      fixedCode: 'header + fields + refs + padding → shallow vs retained (config-specific)',
+      fixedDesc: 'Verify with JOL on a stated JVM; not a JLS guarantee!'
     }
   };
   const viz = missionVisualizations[mission.id];
@@ -506,7 +569,22 @@ export const MissionPage: React.FC = () => {
 
     setEvaluation(evalRes);
     await updateConceptMastery(mission.requiredConceptIds, evalRes.correctness, confidence, 0);
-    await addXP(100);
+    await recordUserAttempt({
+      userId: 'local-user',
+      challengeId: interviewAnswerChallenge.id,
+      missionId: mission.id,
+      stageId: currentStage.id,
+      challengeType: interviewAnswerChallenge.type,
+      answerPayloadJson: JSON.stringify({ responseText, matchedConceptIds }),
+      submittedAt: new Date().toISOString(),
+      durationMs: Math.max(0, Date.now() - sessionStartedAt),
+      confidence,
+      hintsUsedCount: 0,
+      hintsUsedIds: [],
+      evaluation: evalRes,
+      xpAwarded: isGood ? 100 : 50
+    });
+    await addXP(isGood ? 100 : 50);
   };
 
   // Stage 10 Bug Hunt Submission
@@ -546,6 +624,21 @@ export const MissionPage: React.FC = () => {
 
     setEvaluation(evalRes);
     await updateConceptMastery(mission.requiredConceptIds, evalRes.correctness, confidence, hintsRevealedIds.length);
+    await recordUserAttempt({
+      userId: 'local-user',
+      challengeId: bugHuntChallenge.id,
+      missionId: mission.id,
+      stageId: currentStage.id,
+      challengeType: bugHuntChallenge.type,
+      answerPayloadJson: JSON.stringify(selectedLines),
+      submittedAt: new Date().toISOString(),
+      durationMs: Math.max(0, Date.now() - sessionStartedAt),
+      confidence,
+      hintsUsedCount: hintsRevealedIds.length,
+      hintsUsedIds: hintsRevealedIds,
+      evaluation: evalRes,
+      xpAwarded: isCorrect ? 100 : 0
+    });
     if (isCorrect) {
       await addXP(100);
     }
@@ -554,6 +647,11 @@ export const MissionPage: React.FC = () => {
   // Stage 13 Reflection Submission
   const handleReflectionSubmit = async () => {
     if (!reflectionText.trim()) return;
+    const latestAttempts = await getAttemptsForMission(mission.id);
+    const xpFromAttempts = latestAttempts.reduce((sum, a) => sum + (a.xpAwarded || 0), 0);
+    const bestScore = latestAttempts.length
+      ? Math.round(Math.max(...latestAttempts.map((a) => a.evaluation.score)) * 100)
+      : 0;
     await saveReflectionNote(mission.id, reflectionText);
     await saveMissionProgress({
       userId: 'local-user',
@@ -561,14 +659,15 @@ export const MissionPage: React.FC = () => {
       state: "MASTERED",
       currentStageId: currentStage.id,
       completedStageIds: stages.map((s) => s.id),
-      startedAt: new Date().toISOString(),
+      startedAt: missionProgressRecord?.startedAt || new Date(sessionStartedAt).toISOString(),
       lastActivityAt: new Date().toISOString(),
       completedAt: new Date().toISOString(),
       completionPercentage: 100,
-      bestScore: 100,
-      totalAttempts: 3
+      bestScore,
+      totalAttempts: latestAttempts.length
     });
     await addXP(50);
+    void xpFromAttempts;
     navigate('/progress');
   };
 
@@ -966,20 +1065,104 @@ export const MissionPage: React.FC = () => {
               <h3>Mission Completed!</h3>
               <p>{getText(mission.description.en, mission.description.ru)}</p>
 
-              <div className="stats-metric-grid">
-                <div className="metric-box">
-                  <span className="metric-num">+{mission.xpReward || 250}</span>
-                  <span className="metric-lbl">XP Earned</span>
-                </div>
-                <div className="metric-box">
-                  <span className="metric-num">100%</span>
-                  <span className="metric-lbl">Accuracy</span>
-                </div>
-                <div className="metric-box">
-                  <span className="metric-num">25m</span>
-                  <span className="metric-lbl">Time Spent</span>
-                </div>
-              </div>
+              {(() => {
+                const challengeIds = new Set(
+                  OOP_DATA_PACKAGE.challenges.filter((c) => c.missionId === mission.id).map((c) => c.id)
+                );
+                const totalChallenges = challengeIds.size;
+                const attempts = missionAttempts;
+                const submitted = attempts.length;
+                const byChallenge = new Map<string, UserAttempt>();
+                for (const a of attempts) {
+                  const prev = byChallenge.get(a.challengeId);
+                  if (!prev || a.submittedAt > prev.submittedAt) byChallenge.set(a.challengeId, a);
+                }
+                const completedChallenges = [...byChallenge.values()].filter(
+                  (a) => a.evaluation.correctness === 'CORRECT' || a.evaluation.correctness === 'PARTIALLY_CORRECT'
+                ).length;
+                const correct = attempts.filter((a) => a.evaluation.correctness === 'CORRECT').length;
+                const partial = attempts.filter((a) => a.evaluation.correctness === 'PARTIALLY_CORRECT').length;
+                const incorrect = attempts.filter((a) => a.evaluation.correctness === 'INCORRECT').length;
+                const hintsOpened = Math.max(
+                  hintsRevealedIds.length,
+                  ...attempts.map((a) => a.hintsUsedCount),
+                  0
+                );
+                const xpEarned = attempts.reduce((sum, a) => sum + (a.xpAwarded || 0), 0);
+                const confidenceCounts = attempts.reduce(
+                  (acc, a) => {
+                    acc[a.confidence] = (acc[a.confidence] || 0) + 1;
+                    return acc;
+                  },
+                  {} as Record<string, number>
+                );
+                const confidentCorrect = attempts.filter(
+                  (a) => a.confidence === 'CONFIDENT' && a.evaluation.correctness === 'CORRECT'
+                ).length;
+                const confidentTotal = attempts.filter((a) => a.confidence === 'CONFIDENT').length;
+                const confidenceAccuracy =
+                  confidentTotal > 0
+                    ? `${Math.round((confidentCorrect / confidentTotal) * 100)}%`
+                    : 'Not available yet';
+                const accuracy =
+                  submitted > 0
+                    ? `${Math.round((correct / submitted) * 100)}%`
+                    : 'Not available yet';
+                let timeLabel = 'Not available yet';
+                if (missionProgressRecord?.startedAt && missionProgressRecord?.lastActivityAt) {
+                  const ms =
+                    new Date(missionProgressRecord.lastActivityAt).getTime() -
+                    new Date(missionProgressRecord.startedAt).getTime();
+                  if (Number.isFinite(ms) && ms >= 0) {
+                    const mins = Math.round(ms / 60000);
+                    timeLabel = mins < 1 ? '<1m' : `${mins}m`;
+                  }
+                } else if (sessionStartedAt) {
+                  const mins = Math.round((Date.now() - sessionStartedAt) / 60000);
+                  timeLabel = `${mins < 1 ? '<1' : mins}m (session estimate)`;
+                }
+                const mistakeIds = [
+                  ...new Set(attempts.flatMap((a) => a.evaluation.detectedMistakePatternIds || []))
+                ];
+
+                const metric = (num: string, lbl: string) => (
+                  <div className="metric-box" key={lbl}>
+                    <span className="metric-num">{num}</span>
+                    <span className="metric-lbl">{lbl}</span>
+                  </div>
+                );
+
+                return (
+                  <>
+                    <div className="stats-metric-grid">
+                      {metric(`${completedChallenges}/${totalChallenges || '—'}`, 'Challenges Done')}
+                      {metric(String(submitted), 'Submitted Attempts')}
+                      {metric(accuracy, 'Attempt Accuracy')}
+                      {metric(String(hintsOpened), 'Hints Opened')}
+                      {metric(xpEarned > 0 ? `+${xpEarned}` : 'Not available yet', 'XP from Attempts')}
+                      {metric(timeLabel, 'Time Spent')}
+                    </div>
+                    <div className="results-detail-list" style={{ marginTop: '1rem', textAlign: 'left' }}>
+                      <p><strong>Correct / Partial / Incorrect:</strong> {correct} / {partial} / {incorrect}</p>
+                      <p>
+                        <strong>Confidence selections:</strong>{' '}
+                        {submitted > 0
+                          ? Object.entries(confidenceCounts).map(([k, v]) => `${k}: ${v}`).join(' · ')
+                          : 'Not available yet'}
+                      </p>
+                      <p><strong>Confidence accuracy:</strong> {confidenceAccuracy}</p>
+                      <p>
+                        <strong>Detected mistake patterns:</strong>{' '}
+                        {mistakeIds.length > 0 ? mistakeIds.join(', ') : 'None recorded'}
+                      </p>
+                      <p>
+                        <strong>Scheduled reviews:</strong> Not available yet
+                        <span style={{ opacity: 0.7 }}> (review queue is concept-scoped; mission filter pending)</span>
+                      </p>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             <div className="stage-actions">

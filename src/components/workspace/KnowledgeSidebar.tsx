@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
+import { getMissionBySlug } from '../../data';
 import { OOP_DATA_PACKAGE } from '../../data/modules/oop';
 import { TagChip } from '../common/TagChip';
 import { X, BookOpen, AlertTriangle, MessageSquare, ExternalLink, Lightbulb, Hash } from 'lucide-react';
 
 export const KnowledgeSidebar: React.FC = () => {
+  const { missionSlug, id } = useParams<{ missionSlug?: string; id?: string }>();
   const {
     sidebarOpen,
     toggleSidebar,
@@ -35,9 +38,21 @@ export const KnowledgeSidebar: React.FC = () => {
     return en;
   };
 
+  const mission = getMissionBySlug(missionSlug || id || '');
+  const theoryStage = mission
+    ? OOP_DATA_PACKAGE.stages.find((s) => s.missionId === mission.id && s.type === 'THEORY') as
+        | { theoryArticleId?: string }
+        | undefined
+    : undefined;
+  const theoryArticle = theoryStage?.theoryArticleId
+    ? OOP_DATA_PACKAGE.theoryArticles.find((a) => a.id === theoryStage.theoryArticleId)
+    : undefined;
+
   const selectedConcept = sidebarSelectedTag
     ? OOP_DATA_PACKAGE.concepts.find((c) => c.canonicalTag === sidebarSelectedTag || c.canonicalTag === `#${sidebarSelectedTag}`)
-    : OOP_DATA_PACKAGE.concepts[0];
+    : mission
+      ? OOP_DATA_PACKAGE.concepts.find((c) => mission.requiredConceptIds.includes(c.id))
+      : undefined;
 
   return (
     <>
@@ -122,28 +137,34 @@ export const KnowledgeSidebar: React.FC = () => {
         <div className="sidebar-content-body">
           {sidebarActiveTab === 'THEORY' && (
             <div className="tab-pane-theory">
-              <h4>{getText(OOP_DATA_PACKAGE.theoryArticles[0].title.en, OOP_DATA_PACKAGE.theoryArticles[0].title.ru)}</h4>
-              <p className="summary-p">{getText(OOP_DATA_PACKAGE.theoryArticles[0].summary.en, OOP_DATA_PACKAGE.theoryArticles[0].summary.ru)}</p>
+              {!theoryArticle ? (
+                <p className="summary-p">No theory article resolved for the active mission.</p>
+              ) : (
+                <>
+                  <h4>{getText(theoryArticle.title.en, theoryArticle.title.ru)}</h4>
+                  <p className="summary-p">{getText(theoryArticle.summary.en, theoryArticle.summary.ru)}</p>
 
-              {OOP_DATA_PACKAGE.theoryArticles[0].sections.map((sec) => (
-                <div key={sec.id} className="sidebar-section-card">
-                  <h5 className="section-card-title">{getText(sec.title.en, sec.title.ru)}</h5>
-                  {sec.blocks.map((b) => {
-                    if (b.type === 'PARAGRAPH') {
-                      return <p key={b.id} className="block-p">{getText(b.content.en, b.content.ru)}</p>;
-                    }
-                    if (b.type === 'CALLOUT' || b.type === 'WARNING') {
-                      return (
-                        <div key={b.id} className={`callout-box ${b.type.toLowerCase()}`}>
-                          {b.title && <h6>{getText(b.title.en, b.title.ru)}</h6>}
-                          <p>{getText(b.content.en, b.content.ru)}</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              ))}
+                  {theoryArticle.sections.map((sec) => (
+                    <div key={sec.id} className="sidebar-section-card">
+                      <h5 className="section-card-title">{getText(sec.title.en, sec.title.ru)}</h5>
+                      {sec.blocks.map((b) => {
+                        if (b.type === 'PARAGRAPH') {
+                          return <p key={b.id} className="block-p">{getText(b.content.en, b.content.ru)}</p>;
+                        }
+                        if (b.type === 'CALLOUT' || b.type === 'WARNING') {
+                          return (
+                            <div key={b.id} className={`callout-box ${b.type.toLowerCase()}`}>
+                              {b.title && <h6>{getText(b.title.en, b.title.ru)}</h6>}
+                              <p>{getText(b.content.en, b.content.ru)}</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           )}
 

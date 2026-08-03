@@ -9,13 +9,6 @@ export const SOURCES_LISKOV: readonly Source[] = [
     accessedDate: "2026-08-03T00:00:00.000Z"
   },
   {
-    id: "src_effective_java_item18",
-    platform: "Book",
-    title: "Effective Java (3rd Edition) — Item 18: Favor composition over inheritance",
-    reliability: "HIGH",
-    accessedDate: "2026-08-03T00:00:00.000Z"
-  },
-  {
     id: "src_baeldung_lsp",
     platform: "Baeldung",
     title: "Baeldung — SOLID Principles: Liskov Substitution Explained",

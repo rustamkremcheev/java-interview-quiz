@@ -40,5 +40,20 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('/src/data/modules/oop/')) {
+            return 'oop-content';
+          }
+          if (id.includes('node_modules/dexie')) {
+            return 'vendor-dexie';
+          }
+        }
+      }
+    },
+    chunkSizeWarningLimit: 2400
   }
 });

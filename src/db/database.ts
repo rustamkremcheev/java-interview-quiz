@@ -172,14 +172,56 @@ export async function updateConceptMastery(
   }
 }
 
+/** Keep IndexedDB rows on canonical IDs after content de-duplication. */
+const MISTAKE_PATTERN_ID_ALIASES: Record<string, string> = {
+  err_static_hiding_as_override_overriding: 'err_static_hiding_as_override'
+};
+
+export function resolveMistakePatternId(id: string): string {
+  return MISTAKE_PATTERN_ID_ALIASES[id] ?? id;
+}
+
+export async function getAttemptsForMission(missionId: string): Promise<UserAttempt[]> {
+  try {
+    return await db.attempts.where('missionId').equals(missionId).toArray();
+  } catch (err) {
+    console.warn('Failed to load attempts for mission:', err);
+    return [];
+  }
+}
+
+export async function getMissionProgressRecord(missionId: string): Promise<MissionProgress | undefined> {
+  try {
+    return await db.missionProgress.get([DEFAULT_USER_ID, missionId]);
+  } catch (err) {
+    console.warn('Failed to load mission progress:', err);
+    return undefined;
+  }
+}
+
+export async function getMistakeRecordsForPatterns(
+  mistakePatternIds: readonly string[]
+): Promise<UserMistakeRecord[]> {
+  if (mistakePatternIds.length === 0) return [];
+  try {
+    const resolved = mistakePatternIds.map(resolveMistakePatternId);
+    const all = await db.userMistakes.where('userId').equals(DEFAULT_USER_ID).toArray();
+    return all.filter((r) => resolved.includes(resolveMistakePatternId(r.mistakePatternId)));
+  } catch (err) {
+    console.warn('Failed to load mistake records:', err);
+    return [];
+  }
+}
+
 export async function recordMistakeOccurrence(
   mistakePatternId: string,
   wasConfident: boolean
 ): Promise<void> {
   const userId = DEFAULT_USER_ID;
   const now = new Date().toISOString();
+  const canonicalId = resolveMistakePatternId(mistakePatternId);
   try {
-    const existing = await db.userMistakes.where('[userId+mistakePatternId]').equals([userId, mistakePatternId]).first();
+    const existing = await db.userMistakes.where('[userId+mistakePatternId]').equals([userId, canonicalId]).first();
     if (existing) {
       await db.userMistakes.update(existing.id!, {
         occurrenceCount: existing.occurrenceCount + 1,
@@ -190,7 +232,7 @@ export async function recordMistakeOccurrence(
     } else {
       await db.userMistakes.add({
         userId,
-        mistakePatternId,
+        mistakePatternId: canonicalId,
         occurrenceCount: 1,
         confidentMistakeCount: wasConfident ? 1 : 0,
         lastSeenAt: now,

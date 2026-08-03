@@ -1290,6 +1290,96 @@ export const OOP_CONCEPTS: readonly Concept[] = [
     topicIds: ["top_oop_35"],
     canonicalTag: "#incremental-refactoring",
     prerequisiteConceptIds: ["cpt_seam_extraction"]
+  },
+  {
+    id: "cpt_design_tradeoffs",
+    slug: "design-tradeoffs",
+    title: {
+      en: "Design Trade-offs (No Universal Winner)",
+      ru: "Архитектурные Компромиссы (Без Универсального Победителя)"
+    },
+    summary: {
+      en: "Choosing among inheritance, interfaces, Strategy, Decorator, and rich vs anemic models by weighing constraints — not slogans.",
+      ru: "Выбор между inheritance, interfaces, Strategy, Decorator и rich vs anemic моделями по ограничениям — не по слоганам."
+    },
+    topicIds: ["top_oop_36", "top_oop_16", "top_oop_26"],
+    canonicalTag: "#design-tradeoffs",
+    prerequisiteConceptIds: ["cpt_composition_over_inheritance"]
+  },
+  {
+    id: "cpt_constraint_driven_design",
+    slug: "constraint-driven-design",
+    title: {
+      en: "Constraint-Driven Design",
+      ru: "Проектирование от Ограничений"
+    },
+    summary: {
+      en: "Start from variant volatility, audit/fraud/retry needs, team skill, and change cost — then recommend structure.",
+      ru: "Начинайте с volatility вариантов, audit/fraud/retry, навыков команды и цены изменений — затем рекомендуйте структуру."
+    },
+    topicIds: ["top_oop_36"],
+    canonicalTag: "#constraint-driven-design",
+    prerequisiteConceptIds: ["cpt_design_tradeoffs"]
+  },
+  {
+    id: "cpt_overengineering_smell",
+    slug: "overengineering-smell",
+    title: {
+      en: "Overengineering Smell",
+      ru: "Запах Overengineering"
+    },
+    summary: {
+      en: "Deep hierarchies, interface-per-class, and 'always Strategy' without volatility — complexity that does not buy changeability.",
+      ru: "Глубокие иерархии, interface-per-class и «always Strategy» без volatility — сложность, не покупающая изменяемость."
+    },
+    topicIds: ["top_oop_36", "top_oop_31"],
+    canonicalTag: "#overengineering-smell",
+    prerequisiteConceptIds: ["cpt_design_tradeoffs"]
+  },
+  {
+    id: "cpt_object_header",
+    slug: "object-header",
+    title: {
+      en: "JVM Object Header (HotSpot)",
+      ru: "Заголовок Объекта JVM (HotSpot)"
+    },
+    summary: {
+      en: "HotSpot objects carry mark/klass metadata plus alignment; header size is configuration-dependent, not a fixed universal constant.",
+      ru: "Объекты HotSpot несут mark/klass metadata плюс alignment; размер заголовка зависит от конфигурации, а не является универсальной константой."
+    },
+    topicIds: ["top_oop_37", "top_oop_02"],
+    canonicalTag: "#object-header",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_compressed_oops",
+    slug: "compressed-oops",
+    title: {
+      en: "Compressed Oops / Class Pointers",
+      ru: "Compressed Oops / Class Pointers"
+    },
+    summary: {
+      en: "On common 64-bit HotSpot heaps, references and klass pointers may be compressed — changing measured layout vs naive 8-byte pointer math.",
+      ru: "На типичных 64-bit кучах HotSpot ссылки и klass pointers могут сжиматься — меняя измеренный layout относительно наивной математики 8-байтных указателей."
+    },
+    topicIds: ["top_oop_37"],
+    canonicalTag: "#compressed-oops",
+    prerequisiteConceptIds: ["cpt_object_header"]
+  },
+  {
+    id: "cpt_shallow_vs_retained_size",
+    slug: "shallow-vs-retained-size",
+    title: {
+      en: "Shallow vs Retained Size",
+      ru: "Shallow vs Retained Size"
+    },
+    summary: {
+      en: "Shallow size is the object itself; retained size includes the exclusive reachable graph — boxing and nested objects dominate caches.",
+      ru: "Shallow size — сам объект; retained size включает exclusive reachable graph — boxing и вложенные объекты доминируют в кэшах."
+    },
+    topicIds: ["top_oop_37", "top_oop_22"],
+    canonicalTag: "#shallow-vs-retained",
+    prerequisiteConceptIds: ["cpt_object_header"]
   }
 ];
 
@@ -1866,6 +1956,48 @@ export const OOP_TAGS: readonly Tag[] = [
     slug: "incremental-refactoring",
     displayName: { en: "#incremental-refactoring", ru: "#incremental-refactoring" },
     canonicalConceptId: "cpt_incremental_refactoring",
+    category: "OOP"
+  },
+  {
+    id: "tag_design_tradeoffs",
+    slug: "design-tradeoffs",
+    displayName: { en: "#design-tradeoffs", ru: "#design-tradeoffs" },
+    canonicalConceptId: "cpt_design_tradeoffs",
+    category: "OOP"
+  },
+  {
+    id: "tag_constraint_driven_design",
+    slug: "constraint-driven-design",
+    displayName: { en: "#constraint-driven-design", ru: "#constraint-driven-design" },
+    canonicalConceptId: "cpt_constraint_driven_design",
+    category: "OOP"
+  },
+  {
+    id: "tag_overengineering_smell",
+    slug: "overengineering-smell",
+    displayName: { en: "#overengineering-smell", ru: "#overengineering-smell" },
+    canonicalConceptId: "cpt_overengineering_smell",
+    category: "OOP"
+  },
+  {
+    id: "tag_object_header",
+    slug: "object-header",
+    displayName: { en: "#object-header", ru: "#object-header" },
+    canonicalConceptId: "cpt_object_header",
+    category: "OOP"
+  },
+  {
+    id: "tag_compressed_oops",
+    slug: "compressed-oops",
+    displayName: { en: "#compressed-oops", ru: "#compressed-oops" },
+    canonicalConceptId: "cpt_compressed_oops",
+    category: "OOP"
+  },
+  {
+    id: "tag_shallow_vs_retained",
+    slug: "shallow-vs-retained",
+    displayName: { en: "#shallow-vs-retained", ru: "#shallow-vs-retained" },
+    canonicalConceptId: "cpt_shallow_vs_retained_size",
     category: "OOP"
   }
 ];
