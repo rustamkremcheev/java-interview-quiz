@@ -150,6 +150,62 @@ export const MissionPage: React.FC = () => {
       fixedTitle: 'Explicit Interface.super Resolution',
       fixedCode: 'Auditable.super.auditLog(); Traceable.super.auditLog();',
       fixedDesc: 'Override + Interface.super chain ──► both compliance and trace audit trails preserved!'
+    },
+    mis_dynamic_dispatch: {
+      brokenTitle: 'Static Binding in Hot Loop',
+      brokenCode: 'RiskHandlers.evaluate(handler, event)',
+      brokenDesc: 'invokestatic binds at compile time ──► specialized RiskHandler logic skipped + megamorphic p99 spike!',
+      fixedTitle: 'Polymorphic Instance Dispatch',
+      fixedCode: 'handler.evaluate(event)',
+      fixedDesc: 'invokeinterface/invokevirtual + sealed/split call sites ──► runtime type + JIT-friendly profiles!'
+    },
+    mis_method_overriding_covariant: {
+      brokenTitle: 'Silent Overload (Missing @Override)',
+      brokenCode: 'findById(InvoiceKey) // not override',
+      brokenDesc: 'CorporateInvoiceRepository never runs via InvoiceRepository reference ──► enrichment skipped!',
+      fixedTitle: '@Override + Covariant CorporateInvoice',
+      fixedCode: '@Override CorporateInvoice findById(String id)',
+      fixedDesc: 'True override + covariant return ──► polymorphic callers hit corporate enrichment!'
+    },
+    mis_method_overloading: {
+      brokenTitle: 'Ambiguous Overload Resolution',
+      brokenCode: 'settle(amount) // long vs BigDecimal vs String',
+      brokenDesc: 'Compile-time most-specific rule + autoboxing ──► wrong ledger scale posted!',
+      fixedTitle: 'Named Methods (No Ambiguity)',
+      fixedCode: 'settleCents(long) / settleDecimal(BigDecimal)',
+      fixedDesc: 'Explicit API names ──► no null/autoboxing overload traps!'
+    },
+    mis_dependency_injection: {
+      brokenTitle: 'Field @Autowired Hidden Dependencies',
+      brokenCode: '@Autowired private FxRateGateway fx;',
+      brokenDesc: 'new SettlementOrchestrator() in tests ──► NPE; DIP broken by new LiveFxRateGateway()!',
+      fixedTitle: 'Constructor Injection + Abstractions',
+      fixedCode: 'SettlementOrchestrator(FxRateGateway, LedgerGateway)',
+      fixedDesc: 'final fields + constructor DI ──► testable, DIP-compliant!'
+    },
+    mis_strategy_pattern: {
+      brokenTitle: 'Fee Switch Fall-Through',
+      brokenCode: 'switch (channel) { case CARD: ... // missing break',
+      brokenDesc: 'OCP violation + fall-through ──► 0 fee or double fee in production!',
+      fixedTitle: 'FeeStrategy Registry',
+      fixedCode: 'strategies.get(channel).calculate(request)',
+      fixedDesc: 'Open for new channels via new FeeStrategy ──► calculator closed for modification!'
+    },
+    mis_factory_pattern: {
+      brokenTitle: 'Scattered new + Format Typo',
+      brokenCode: 'if ("CVS".equals(fmt)) return new Csv...',
+      brokenDesc: 'Typo CVS vs CSV ──► silent PdfComplianceReport when CSV requested!',
+      fixedTitle: 'ComplianceReportFactory',
+      fixedCode: 'ComplianceReportFactory.create(formatCode)',
+      fixedDesc: 'Centralized creation + fail-fast validation ──► clients depend on interface!'
+    },
+    mis_oop_anti_patterns: {
+      brokenTitle: 'Anemic Order + God Class Service',
+      brokenCode: 'service.fulfill(order) // 4000 lines',
+      brokenDesc: 'Order is DTO; OrderFulfillmentService owns all rules ──► Feature Envy / untestable!',
+      fixedTitle: 'Rich Aggregate + Ports',
+      fixedCode: 'order.place(paymentPort); order.reserveInventory(inv)',
+      fixedDesc: 'Tell Don\'t Ask ──► cohesive Order + segregated Inventory/Payment ports!'
     }
   };
   const viz = missionVisualizations[mission.id] || missionVisualizations.mis_bank_account_invariants;

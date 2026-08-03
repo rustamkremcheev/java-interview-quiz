@@ -8,7 +8,14 @@ import {
   COMPOSITION_MISSION,
   LISKOV_SUBSTITUTION_MISSION,
   OBJECT_CREATION_BUILDER_MISSION,
-  INTERFACE_DEFAULT_METHODS_MISSION
+  INTERFACE_DEFAULT_METHODS_MISSION,
+  DYNAMIC_DISPATCH_MISSION,
+  METHOD_OVERRIDING_COVARIANT_MISSION,
+  METHOD_OVERLOADING_MISSION,
+  DEPENDENCY_INJECTION_MISSION,
+  STRATEGY_PATTERN_MISSION,
+  FACTORY_PATTERN_MISSION,
+  OOP_ANTI_PATTERNS_MISSION
 } from './modules/oop';
 import { Module, Topic, Mission } from '../types/domain';
 
@@ -24,7 +31,14 @@ export const ALL_MISSIONS: readonly Mission[] = [
   COMPOSITION_MISSION,
   LISKOV_SUBSTITUTION_MISSION,
   OBJECT_CREATION_BUILDER_MISSION,
-  INTERFACE_DEFAULT_METHODS_MISSION
+  INTERFACE_DEFAULT_METHODS_MISSION,
+  DYNAMIC_DISPATCH_MISSION,
+  METHOD_OVERRIDING_COVARIANT_MISSION,
+  METHOD_OVERLOADING_MISSION,
+  DEPENDENCY_INJECTION_MISSION,
+  STRATEGY_PATTERN_MISSION,
+  FACTORY_PATTERN_MISSION,
+  OOP_ANTI_PATTERNS_MISSION
 ];
 
 export function getModuleBySlug(slug: string): Module | undefined {
@@ -54,18 +68,24 @@ export function getMissionsForTopic(topicIdOrSlug: string): Mission[] {
 const TOPIC_MISSION_ASSIGNMENTS: Record<string, string> = {
   top_oop_05: 'mis_bank_account_invariants',
   top_oop_09: 'mis_interface_default_methods',
+  top_oop_12: 'mis_dynamic_dispatch',
+  top_oop_14: 'mis_method_overloading',
+  top_oop_15: 'mis_method_overriding_covariant',
   top_oop_16: 'mis_composition_over_inheritance',
   top_oop_20: 'mis_equals_hashcode_contract',
   top_oop_22: 'mis_immutability_defensive_copy',
   top_oop_23: 'mis_liskov_substitution_principle',
-  top_oop_25: 'mis_object_creation_builder'
+  top_oop_24: 'mis_dependency_injection',
+  top_oop_25: 'mis_object_creation_builder',
+  top_oop_26: 'mis_strategy_pattern',
+  top_oop_27: 'mis_factory_pattern',
+  top_oop_32: 'mis_oop_anti_patterns'
 };
 
 export function validateDataIntegrity(): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
   const activeTopicIdsWithMissions = Object.keys(TOPIC_MISSION_ASSIGNMENTS);
 
-  // 1. Every missionId referenced by a Topic exists
   for (const topic of ALL_TOPICS) {
     for (const missionId of topic.missionIds || []) {
       const exists = ALL_MISSIONS.some((m) => m.id === missionId);
@@ -75,7 +95,6 @@ export function validateDataIntegrity(): { isValid: boolean; errors: string[] } 
     }
   }
 
-  // 2. Every Mission primaryTopicId points to an existing Topic
   for (const mission of ALL_MISSIONS) {
     if (mission.primaryTopicId) {
       const topicExists = ALL_TOPICS.some((t) => t.id === mission.primaryTopicId);
@@ -85,7 +104,6 @@ export function validateDataIntegrity(): { isValid: boolean; errors: string[] } 
     }
   }
 
-  // 3. Check specific topic mission assignments
   for (const [topicId, missionId] of Object.entries(TOPIC_MISSION_ASSIGNMENTS)) {
     const topic = OOP_TOPICS.find((t) => t.id === topicId);
     if (!topic?.missionIds.includes(missionId)) {
@@ -93,14 +111,12 @@ export function validateDataIntegrity(): { isValid: boolean; errors: string[] } 
     }
   }
 
-  // 4. Topics without missions must use missionIds: []
   for (const topic of ALL_TOPICS) {
     if (!activeTopicIdsWithMissions.includes(topic.id) && topic.missionIds && topic.missionIds.length > 0) {
       errors.push(`Topic '${topic.id}' (${topic.slug}) has missionIds when it should be empty`);
     }
   }
 
-  // 5. OOP_DATA_PACKAGE mission count matches ALL_MISSIONS
   if (OOP_DATA_PACKAGE.missions.length !== ALL_MISSIONS.length) {
     errors.push(
       `OOP_DATA_PACKAGE.missions (${OOP_DATA_PACKAGE.missions.length}) does not match ALL_MISSIONS (${ALL_MISSIONS.length})`
@@ -114,7 +130,6 @@ export function validateDataIntegrity(): { isValid: boolean; errors: string[] } 
   return { isValid: errors.length === 0, errors };
 }
 
-// Run validation in development environment
 if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
   validateDataIntegrity();
 }

@@ -227,6 +227,36 @@ export const OOP_CONCEPTS: readonly Concept[] = [
     prerequisiteConceptIds: ["cpt_immutability"]
   },
   {
+    id: "cpt_factory_pattern",
+    slug: "factory-pattern",
+    title: {
+      en: "Factory Method & Simple Factory",
+      ru: "Factory Method и Simple Factory"
+    },
+    summary: {
+      en: "Centralizing object creation behind a factory so clients receive product interfaces (e.g., ComplianceReport) instead of constructing concrete classes with scattered new.",
+      ru: "Централизация создания объектов за factory, чтобы клиенты получали product-интерфейсы (например, ComplianceReport) вместо разбросанных new конкретных классов."
+    },
+    topicIds: ["top_oop_27", "top_oop_25"],
+    canonicalTag: "#factory-pattern",
+    prerequisiteConceptIds: ["cpt_static_factory_methods"]
+  },
+  {
+    id: "cpt_creational_decoupling",
+    slug: "creational-decoupling",
+    title: {
+      en: "Creational Decoupling from Concrete Classes",
+      ru: "Creational Decoupling от Конкретных Классов"
+    },
+    summary: {
+      en: "Separating the decision of which concrete class to instantiate from client usage logic, so exporters depend on abstractions and format evolution stays localized.",
+      ru: "Отделение решения о том, какой конкретный класс инстанцировать, от логики использования клиентом — экспортёры зависят от абстракций, эволюция форматов локализована."
+    },
+    topicIds: ["top_oop_27", "top_oop_24"],
+    canonicalTag: "#creational-decoupling",
+    prerequisiteConceptIds: ["cpt_factory_pattern"]
+  },
+  {
     id: "cpt_default_methods",
     slug: "default-methods",
     title: {
@@ -255,6 +285,201 @@ export const OOP_CONCEPTS: readonly Concept[] = [
     topicIds: ["top_oop_09"],
     canonicalTag: "#interfaces",
     prerequisiteConceptIds: ["cpt_default_methods"]
+  },
+  {
+    id: "cpt_method_overriding",
+    slug: "method-overriding",
+    title: {
+      en: "Method Overriding & @Override Validation",
+      ru: "Переопределение Методов и Валидация @Override"
+    },
+    summary: {
+      en: "JLS 8.4.8 override-equivalent signatures, @Override compile-time checks, visibility rules, and checked-exception narrowing versus silent overloads.",
+      ru: "Override-equivalent сигнатуры JLS 8.4.8, compile-time проверки @Override, правила видимости и сужение checked-исключений против тихих перегрузок."
+    },
+    topicIds: ["top_oop_15", "top_oop_10", "top_oop_14"],
+    canonicalTag: "#overriding",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_covariant_returns",
+    slug: "covariant-returns",
+    title: {
+      en: "Covariant Return Types",
+      ru: "Ковариантные Возвращаемые Типы"
+    },
+    summary: {
+      en: "Allowing an override to return a subtype of the overridden method's return type while preserving polymorphic substitutability.",
+      ru: "Разрешение override возвращать подтип возвращаемого типа переопределяемого метода с сохранением полиморфной подставляемости."
+    },
+    topicIds: ["top_oop_15", "top_oop_11"],
+    canonicalTag: "#covariant-returns",
+    prerequisiteConceptIds: ["cpt_method_overriding"]
+  },
+  {
+    id: "cpt_method_overloading",
+    slug: "method-overloading",
+    title: {
+      en: "Method Overloading & Ambiguous APIs",
+      ru: "Перегрузка Методов и Неоднозначные API"
+    },
+    summary: {
+      en: "Multiple methods sharing a name with different parameter lists — dangerous when overloads mix related types or conflicting domain semantics.",
+      ru: "Несколько методов с одним именем и разными списками параметров — опасно, когда перегрузки смешивают связанные типы или конфликтующую доменную семантику."
+    },
+    topicIds: ["top_oop_14"],
+    canonicalTag: "#overloading",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_compile_time_resolution",
+    slug: "compile-time-resolution",
+    title: {
+      en: "Compile-Time Overload Resolution",
+      ru: "Compile-Time Разрешение Перегрузок"
+    },
+    summary: {
+      en: "JLS selects overloads using static argument types, applicability phases, boxing/unboxing, and the most-specific rule — distinct from runtime overriding.",
+      ru: "JLS выбирает перегрузки по статическим типам аргументов, фазам применимости, boxing/unboxing и правилу most-specific — в отличие от runtime-переопределения."
+    },
+    topicIds: ["top_oop_14", "top_oop_15"],
+    canonicalTag: "#compile-time",
+    prerequisiteConceptIds: ["cpt_method_overloading"]
+  },
+  {
+    id: "cpt_dynamic_dispatch",
+    slug: "dynamic-dispatch",
+    title: {
+      en: "Dynamic Dispatch & Call-Site Polymorphism",
+      ru: "Динамическая Диспетчеризация и Полиморфизм Call Site"
+    },
+    summary: {
+      en: "Runtime selection of instance method overrides via receiver type, including monomorphic/bimorphic/megamorphic HotSpot call sites.",
+      ru: "Runtime-выбор instance overrides по типу получателя, включая monomorphic/bimorphic/megamorphic call sites HotSpot."
+    },
+    topicIds: ["top_oop_12", "top_oop_11"],
+    canonicalTag: "#dynamic-dispatch",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_invokevirtual",
+    slug: "invokevirtual-bytecode",
+    title: {
+      en: "JVMS Invoke Instructions (invokevirtual / invokeinterface / invokestatic)",
+      ru: "Invoke-Инструкции JVMS (invokevirtual / invokeinterface / invokestatic)"
+    },
+    summary: {
+      en: "Bytecode-level method invocation: virtual/interface dispatch vs static binding and special non-virtual calls.",
+      ru: "Вызов методов на уровне байткода: virtual/interface dispatch vs static binding и специальные невиртуальные вызовы."
+    },
+    topicIds: ["top_oop_12"],
+    canonicalTag: "#invokevirtual",
+    prerequisiteConceptIds: ["cpt_dynamic_dispatch"]
+  },
+  {
+    id: "cpt_dependency_injection",
+    slug: "dependency-injection",
+    title: {
+      en: "Dependency Injection & Constructor Wiring",
+      ru: "Внедрение Зависимостей и Constructor Wiring"
+    },
+    summary: {
+      en: "Pushing collaborators via constructors (preferred) vs field @Autowired — explicit mandatory deps, testability, fail-fast wiring.",
+      ru: "Вталкивание коллабораторов через конструкторы (предпочтительно) vs field @Autowired — явные обязательные зависимости, тестируемость, fail-fast проводка."
+    },
+    topicIds: ["top_oop_24"],
+    canonicalTag: "#dependency-injection",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_dependency_inversion",
+    slug: "dependency-inversion",
+    title: {
+      en: "Dependency Inversion Principle (DIP)",
+      ru: "Принцип Инверсии Зависимостей (DIP)"
+    },
+    summary: {
+      en: "High-level modules depend on abstractions (ports), not low-level concretions — composition root wires adapters.",
+      ru: "Высокоуровневые модули зависят от абстракций (портов), не от низкоуровневых конкреций — composition root вставляет адаптеры."
+    },
+    topicIds: ["top_oop_24", "top_oop_23"],
+    canonicalTag: "#dip",
+    prerequisiteConceptIds: ["cpt_dependency_injection"]
+  },
+  {
+    id: "cpt_strategy_pattern",
+    slug: "strategy-pattern",
+    title: {
+      en: "Strategy Pattern — Encapsulated Algorithms",
+      ru: "Паттерн Strategy — Инкапсулированные Алгоритмы"
+    },
+    summary: {
+      en: "Encapsulating interchangeable algorithms behind a common interface so clients select behavior at runtime without switch/if explosions.",
+      ru: "Инкапсуляция взаимозаменяемых алгоритмов за общим интерфейсом, чтобы клиенты выбирали поведение во время выполнения без взрыва switch/if."
+    },
+    topicIds: ["top_oop_26", "top_oop_11"],
+    canonicalTag: "#strategy-pattern",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_open_closed",
+    slug: "open-closed-principle",
+    title: {
+      en: "Open-Closed Principle (OCP)",
+      ru: "Принцип Открытости/Закрытости (OCP)"
+    },
+    summary: {
+      en: "Software entities should be open for extension but closed for modification — add new behavior without editing existing calculator/switch code.",
+      ru: "Программные сущности должны быть открыты для расширения и закрыты для модификации — добавлять поведение без правки существующего switch/калькулятора."
+    },
+    topicIds: ["top_oop_23", "top_oop_26"],
+    canonicalTag: "#ocp",
+    prerequisiteConceptIds: ["cpt_strategy_pattern"]
+  },
+  {
+    id: "cpt_anemic_domain_model",
+    slug: "anemic-domain-model",
+    title: {
+      en: "Anemic Domain Model Anti-Pattern",
+      ru: "Антипаттерн Анемичной Доменной Модели"
+    },
+    summary: {
+      en: "Domain objects reduced to getters/setters with all business logic pushed into procedural services — Fowler's anti-pattern that destroys encapsulation and duplicates validation.",
+      ru: "Доменные объекты сведены к getters/setters, вся бизнес-логика вынесена в процедурные сервисы — антипаттерн Fowler, разрушающий инкапсуляцию и дублирующий валидацию."
+    },
+    topicIds: ["top_oop_32", "top_oop_33"],
+    canonicalTag: "#anemic-model",
+    prerequisiteConceptIds: ["cpt_encapsulation"]
+  },
+  {
+    id: "cpt_god_class",
+    slug: "god-class",
+    title: {
+      en: "God Class Anti-Pattern",
+      ru: "Антипаттерн God Class (Божественный Класс)"
+    },
+    summary: {
+      en: "A single class that knows and does too much — low cohesion, high coupling, untestable orchestration of unrelated responsibilities.",
+      ru: "Один класс, который знает и делает слишком много — низкая cohesion, высокая coupling, нетестируемая оркестрация несвязанных обязанностей."
+    },
+    topicIds: ["top_oop_32", "top_oop_18"],
+    canonicalTag: "#god-class",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_feature_envy",
+    slug: "feature-envy",
+    title: {
+      en: "Feature Envy / Tell Don't Ask",
+      ru: "Feature Envy / Tell Don't Ask"
+    },
+    summary: {
+      en: "A method that uses another object's data more than its own — fix by telling the object to perform the behavior instead of asking for its guts.",
+      ru: "Метод, использующий данные другого объекта больше своих — исправляется командой объекту выполнить поведение вместо запроса его внутренностей."
+    },
+    topicIds: ["top_oop_32", "top_oop_18"],
+    canonicalTag: "#feature-envy",
+    prerequisiteConceptIds: ["cpt_anemic_domain_model"]
   }
 ];
 
@@ -344,10 +569,115 @@ export const OOP_TAGS: readonly Tag[] = [
     category: "OOP"
   },
   {
+    id: "tag_factory_pattern",
+    slug: "factory-pattern",
+    displayName: { en: "#factory-pattern", ru: "#factory" },
+    canonicalConceptId: "cpt_factory_pattern",
+    category: "OOP"
+  },
+  {
+    id: "tag_creational_decoupling",
+    slug: "creational-decoupling",
+    displayName: { en: "#creational-decoupling", ru: "#creational-decoupling" },
+    canonicalConceptId: "cpt_creational_decoupling",
+    category: "OOP"
+  },
+  {
     id: "tag_default_methods",
     slug: "default-methods",
     displayName: { en: "#default-methods", ru: "#default-методы" },
     canonicalConceptId: "cpt_default_methods",
+    category: "OOP"
+  },
+  {
+    id: "tag_overriding",
+    slug: "overriding",
+    displayName: { en: "#overriding", ru: "#переопределение" },
+    canonicalConceptId: "cpt_method_overriding",
+    category: "OOP"
+  },
+  {
+    id: "tag_covariant_returns",
+    slug: "covariant-returns",
+    displayName: { en: "#covariant-returns", ru: "#ковариантные-возвраты" },
+    canonicalConceptId: "cpt_covariant_returns",
+    category: "OOP"
+  },
+  {
+    id: "tag_overloading",
+    slug: "overloading",
+    displayName: { en: "#overloading", ru: "#перегрузка" },
+    canonicalConceptId: "cpt_method_overloading",
+    category: "OOP"
+  },
+  {
+    id: "tag_compile_time",
+    slug: "compile-time",
+    displayName: { en: "#compile-time", ru: "#compile-time" },
+    canonicalConceptId: "cpt_compile_time_resolution",
+    category: "OOP"
+  },
+  {
+    id: "tag_dynamic_dispatch",
+    slug: "dynamic-dispatch",
+    displayName: { en: "#dynamic-dispatch", ru: "#динамическая-диспетчеризация" },
+    canonicalConceptId: "cpt_dynamic_dispatch",
+    category: "OOP"
+  },
+  {
+    id: "tag_invokevirtual",
+    slug: "invokevirtual",
+    displayName: { en: "#invokevirtual", ru: "#invokevirtual" },
+    canonicalConceptId: "cpt_invokevirtual",
+    category: "OOP"
+  },
+  {
+    id: "tag_dependency_injection",
+    slug: "dependency-injection",
+    displayName: { en: "#dependency-injection", ru: "#внедрение-зависимостей" },
+    canonicalConceptId: "cpt_dependency_injection",
+    category: "OOP"
+  },
+  {
+    id: "tag_dip",
+    slug: "dip",
+    displayName: { en: "#dip", ru: "#dip" },
+    canonicalConceptId: "cpt_dependency_inversion",
+    category: "OOP"
+  },
+  {
+    id: "tag_strategy_pattern",
+    slug: "strategy-pattern",
+    displayName: { en: "#strategy-pattern", ru: "#strategy" },
+    canonicalConceptId: "cpt_strategy_pattern",
+    category: "OOP"
+  },
+  {
+    id: "tag_ocp",
+    slug: "ocp",
+    displayName: { en: "#ocp", ru: "#ocp" },
+    canonicalConceptId: "cpt_open_closed",
+    category: "OOP"
+  },
+  {
+    id: "tag_anemic_model",
+    slug: "anemic-model",
+    displayName: { en: "#anemic-model", ru: "#анемичная-модель" },
+    canonicalConceptId: "cpt_anemic_domain_model",
+    category: "OOP"
+  },
+  {
+    id: "tag_god_class",
+    slug: "god-class",
+    displayName: { en: "#god-class", ru: "#god-class" },
+    canonicalConceptId: "cpt_god_class",
+    category: "OOP"
+  },
+  {
+    id: "tag_feature_envy",
+    slug: "feature-envy",
+    displayName: { en: "#feature-envy", ru: "#feature-envy" },
+    canonicalConceptId: "cpt_feature_envy",
     category: "OOP"
   }
 ];
