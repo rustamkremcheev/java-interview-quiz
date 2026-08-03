@@ -1,0 +1,11 @@
+import { Hint } from '../../../../../types/domain';
+
+export const HINTS_TEMPLATE_METHOD_PATTERN: readonly Hint[] = [
+  { id: "hnt_tm_1", challengeId: "chl_tm_fix_builder", level: 1, text: { en: "Directional Clue: Focus on the structural pattern named in the mission title.", ru: "Направляющая Подсказка: Сфокусируйтесь на структурном паттерне из названия миссии." }, xpPenalty: 10, order: 1 },
+  { id: "hnt_tm_2", challengeId: "chl_tm_fix_builder", level: 2, text: { en: "Concept Reminder: cpt_template_method, cpt_final_template_skeleton, cpt_hook_vs_strategy", ru: "Напоминание Концепции: cpt_template_method, cpt_final_template_skeleton, cpt_hook_vs_strategy" }, xpPenalty: 25, order: 2 },
+  { id: "hnt_tm_3", challengeId: "chl_tm_fix_builder", level: 3, text: { en: "Mechanism Clue: Declare processBatch final on EndOfDaySettlementProcessor to seal load → ComplianceCheck → settleRail → SettlementAudit. | Let DomesticSettlementProcessor and CrossBorderSettlementProcessor implement only the settleRail hook. | Keep compliance and audit private in the base template so subclasses cannot skip them.", ru: "Механика: соберите корректные структурные блоки из вариантов." }, xpPenalty: 50, order: 3 },
+  { id: "hnt_tm_4", challengeId: "chl_tm_fix_builder", level: 4, text: { en: "Near-Solution: Select the three correct options; reject the two distractors that recreate the failure.", ru: "Структура Решения: Выберите три верных варианта; отвергните два дистрактора." }, xpPenalty: 75, order: 4 },
+  { id: "hnt_tm_bug_1", challengeId: "chl_tm_bughunt", level: 1, text: { en: "Directional Clue: Look for lines that implement the failure mode from the scenario.", ru: "Направляющая Подсказка: Ищите строки, реализующие режим отказа из сценария." }, xpPenalty: 10, order: 1 },
+  { id: "hnt_tm_bug_2", challengeId: "chl_tm_bughunt", level: 2, text: { en: "Concept Reminder: Non-bug lines explain as 'Not the defect line.'", ru: "Напоминание: Не-баг строки имеют пояснение 'Не строка дефекта.'" }, xpPenalty: 25, order: 2 },
+  { id: "hnt_tm_bug_3", challengeId: "chl_tm_bughunt", level: 3, text: { en: "Near-Solution: Mark every isBug:true line from the challenge payload.", ru: "Структура Решения: Отметьте все строки isBug:true из payload challenge." }, xpPenalty: 50, order: 3 }
+];

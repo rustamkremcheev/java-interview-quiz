@@ -990,6 +990,306 @@ export const OOP_CONCEPTS: readonly Concept[] = [
     topicIds: ["top_oop_21"],
     canonicalTag: "#logging-parameterization",
     prerequisiteConceptIds: ["cpt_pii_redaction"]
+  },
+  {
+    id: "cpt_oop_paradigm",
+    slug: "oop-paradigm",
+    title: {
+      en: "Object-Oriented Programming Paradigm",
+      ru: "Парадигма Объектно-Ориентированного Программирования"
+    },
+    summary: {
+      en: "Organizing software as objects that combine state and behavior and collaborate via methods rather than shared global data.",
+      ru: "Организация ПО как объектов, объединяющих state и behavior и сотрудничающих через методы, а не через общие глобальные данные."
+    },
+    topicIds: ["top_oop_01"],
+    canonicalTag: "#oop-paradigm",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_procedural_vs_oop",
+    slug: "procedural-vs-oop",
+    title: {
+      en: "Procedural vs OOP Style",
+      ru: "Процедурный Стиль vs ООП"
+    },
+    summary: {
+      en: "Contrast data-in-maps plus global helpers with typed objects that own transitions and collaborate through named responsibilities.",
+      ru: "Противопоставление данных в maps плюс глобальные хелперы типизированным объектам, владеющим переходами и сотрудничающим через именованные обязанности."
+    },
+    topicIds: ["top_oop_01"],
+    canonicalTag: "#procedural-vs-oop",
+    prerequisiteConceptIds: ["cpt_oop_paradigm"]
+  },
+  {
+    id: "cpt_object_collaboration",
+    slug: "object-collaboration",
+    title: {
+      en: "Object Collaboration",
+      ru: "Сотрудничество Объектов"
+    },
+    summary: {
+      en: "Designing systems as collaborating objects with clear responsibilities (workflow, policy, store) instead of dual writers on shared structures.",
+      ru: "Проектирование систем как сотрудничающих объектов с ясными обязанностями (workflow, policy, store) вместо dual writers на общих структурах."
+    },
+    topicIds: ["top_oop_01", "top_oop_02"],
+    canonicalTag: "#object-collaboration",
+    prerequisiteConceptIds: ["cpt_oop_paradigm"]
+  },
+  {
+    id: "cpt_telescoping_constructor",
+    slug: "telescoping-constructor",
+    title: {
+      en: "Telescoping Constructor Anti-Pattern",
+      ru: "Антипаттерн Телескопического Конструктора"
+    },
+    summary: {
+      en: "Chains of overloaded constructors that invite omitted mandatory arguments and unreadable call sites as parameter lists grow.",
+      ru: "Цепочки перегруженных конструкторов, провоцирующие пропуск обязательных аргументов и нечитаемые call site по мере роста списков параметров."
+    },
+    topicIds: ["top_oop_28", "top_oop_25"],
+    canonicalTag: "#telescoping-constructor",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_build_time_validation",
+    slug: "build-time-validation",
+    title: {
+      en: "Build-Time Validation in Builders",
+      ru: "Build-Time Валидация в Builder"
+    },
+    summary: {
+      en: "Enforcing mandatory fields and invariants in Builder.build() so invalid objects never escape construction.",
+      ru: "Проверка обязательных полей и инвариантов в Builder.build(), чтобы невалидные объекты никогда не покидали конструкцию."
+    },
+    topicIds: ["top_oop_28"],
+    canonicalTag: "#build-time-validation",
+    prerequisiteConceptIds: ["cpt_builder_pattern"]
+  },
+  {
+    id: "cpt_template_method",
+    slug: "template-method",
+    title: {
+      en: "Template Method Pattern",
+      ru: "Паттерн Template Method"
+    },
+    summary: {
+      en: "Define an algorithm skeleton in a base method and let subclasses override selected steps (hooks) without changing the overall sequence.",
+      ru: "Определить skeleton алгоритма в базовом методе и позволить подклассам переопределять выбранные шаги (хуки) без изменения общей последовательности."
+    },
+    topicIds: ["top_oop_29", "top_oop_08"],
+    canonicalTag: "#template-method",
+    prerequisiteConceptIds: ["cpt_abstract_class"]
+  },
+  {
+    id: "cpt_final_template_skeleton",
+    slug: "final-template-skeleton",
+    title: {
+      en: "Final Template Skeleton",
+      ru: "Final Skeleton Шаблона"
+    },
+    summary: {
+      en: "Marking the template method final so subclasses cannot bypass mandatory steps such as compliance and audit.",
+      ru: "Пометка template method как final, чтобы подклассы не могли обойти обязательные шаги вроде compliance и audit."
+    },
+    topicIds: ["top_oop_29"],
+    canonicalTag: "#final-template-skeleton",
+    prerequisiteConceptIds: ["cpt_template_method"]
+  },
+  {
+    id: "cpt_hook_vs_strategy",
+    slug: "hook-vs-strategy",
+    title: {
+      en: "Hook vs Strategy",
+      ru: "Hook vs Strategy"
+    },
+    summary: {
+      en: "Template Method hooks vary steps via inheritance; Strategy varies behavior via injected collaborators — choose based on stability of the skeleton.",
+      ru: "Хуки Template Method варьируют шаги через наследование; Strategy варьирует поведение через инжектируемых сотрудников — выбор зависит от стабильности skeleton."
+    },
+    topicIds: ["top_oop_29", "top_oop_26"],
+    canonicalTag: "#hook-vs-strategy",
+    prerequisiteConceptIds: ["cpt_template_method"]
+  },
+  {
+    id: "cpt_observer_pattern",
+    slug: "observer-pattern",
+    title: {
+      en: "Observer Pattern",
+      ru: "Паттерн Observer"
+    },
+    summary: {
+      en: "In-process publish-subscribe where a subject notifies registered observers of state changes or domain events.",
+      ru: "In-process publish-subscribe, где subject уведомляет зарегистрированных observers об изменениях состояния или доменных событиях."
+    },
+    topicIds: ["top_oop_30"],
+    canonicalTag: "#observer-pattern",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_subscription_lifecycle",
+    slug: "subscription-lifecycle",
+    title: {
+      en: "Observer Subscription Lifecycle",
+      ru: "Lifecycle Подписки Observer"
+    },
+    summary: {
+      en: "Idempotent subscribe/unsubscribe (often via Subscription tokens) to prevent duplicate registrations and listener leaks.",
+      ru: "Идемпотентные subscribe/unsubscribe (часто через токены Subscription) для предотвращения дублей регистрации и утечек listener."
+    },
+    topicIds: ["top_oop_30"],
+    canonicalTag: "#subscription-lifecycle",
+    prerequisiteConceptIds: ["cpt_observer_pattern"]
+  },
+  {
+    id: "cpt_observer_exception_isolation",
+    slug: "observer-exception-isolation",
+    title: {
+      en: "Observer Exception Isolation",
+      ru: "Изоляция Исключений Observer"
+    },
+    summary: {
+      en: "Catching per-observer failures during notify so one throwing listener cannot skip the remaining observers.",
+      ru: "Перехват сбоев per-observer во время notify, чтобы один падающий listener не пропускал остальных observers."
+    },
+    topicIds: ["top_oop_30"],
+    canonicalTag: "#observer-exception-isolation",
+    prerequisiteConceptIds: ["cpt_observer_pattern"]
+  },
+  {
+    id: "cpt_decorator_pattern",
+    slug: "decorator-pattern",
+    title: {
+      en: "Decorator Pattern",
+      ru: "Паттерн Decorator"
+    },
+    summary: {
+      en: "Compose wrappers that implement the same interface and add responsibilities by delegating to an inner component.",
+      ru: "Композиция обёрток, реализующих тот же интерфейс и добавляющих обязанности делегированием внутреннему компоненту."
+    },
+    topicIds: ["top_oop_31"],
+    canonicalTag: "#decorator-pattern",
+    prerequisiteConceptIds: ["cpt_composition_over_inheritance"]
+  },
+  {
+    id: "cpt_decorator_order",
+    slug: "decorator-order",
+    title: {
+      en: "Decorator Composition Order",
+      ru: "Порядок Композиции Декораторов"
+    },
+    summary: {
+      en: "The order of decorators changes semantics (what gets audited, retried, or authorized) and must be explicit in the composition root.",
+      ru: "Порядок декораторов меняет семантику (что аудитится, ретраится или авторизуется) и должен быть явным в composition root."
+    },
+    topicIds: ["top_oop_31"],
+    canonicalTag: "#decorator-order",
+    prerequisiteConceptIds: ["cpt_decorator_pattern"]
+  },
+  {
+    id: "cpt_decorator_vs_proxy",
+    slug: "decorator-vs-proxy",
+    title: {
+      en: "Decorator vs Proxy",
+      ru: "Decorator vs Proxy"
+    },
+    summary: {
+      en: "Decorator adds responsibilities; Proxy controls access, laziness, or remote representation — similar structure, different intent.",
+      ru: "Decorator добавляет обязанности; Proxy контролирует доступ, lazy или remote представление — похожая структура, разный intent."
+    },
+    topicIds: ["top_oop_31"],
+    canonicalTag: "#decorator-vs-proxy",
+    prerequisiteConceptIds: ["cpt_decorator_pattern"]
+  },
+  {
+    id: "cpt_api_contract",
+    slug: "api-contract",
+    title: {
+      en: "API Contract Beyond Signatures",
+      ru: "API-Контракт Шире Сигнатур"
+    },
+    summary: {
+      en: "Published APIs commit to behavioral promises: error models, null/empty semantics, pre/postconditions — not only method signatures.",
+      ru: "Published API обязуются к поведенческим обещаниям: модели ошибок, семантика null/empty, pre/postconditions — не только сигнатуры методов."
+    },
+    topicIds: ["top_oop_34"],
+    canonicalTag: "#api-contract",
+    prerequisiteConceptIds: ["cpt_interface_contracts"]
+  },
+  {
+    id: "cpt_behavioral_compatibility",
+    slug: "behavioral-compatibility",
+    title: {
+      en: "Behavioral Compatibility",
+      ru: "Поведенческая Совместимость"
+    },
+    summary: {
+      en: "Evolving APIs without silently changing client-observable outcomes such as exception vs result-object declines.",
+      ru: "Эволюция API без тихой смены client-observable исходов вроде exception vs result-object declines."
+    },
+    topicIds: ["top_oop_34"],
+    canonicalTag: "#behavioral-compatibility",
+    prerequisiteConceptIds: ["cpt_api_contract"]
+  },
+  {
+    id: "cpt_null_vs_empty_collection",
+    slug: "null-vs-empty-collection",
+    title: {
+      en: "Null vs Empty Collection Returns",
+      ru: "Null vs Empty Коллекции в Возвратах"
+    },
+    summary: {
+      en: "Prefer empty collections over null for zero-or-more results; flipping the convention breaks clients with NPE or missed branches.",
+      ru: "Предпочитайте empty collections вместо null для результатов «ноль или больше»; смена конвенции ломает клиентов через NPE или пропущенные ветки."
+    },
+    topicIds: ["top_oop_34"],
+    canonicalTag: "#null-vs-empty",
+    prerequisiteConceptIds: ["cpt_api_contract"]
+  },
+  {
+    id: "cpt_characterization_test",
+    slug: "characterization-test",
+    title: {
+      en: "Characterization Tests",
+      ru: "Characterization-Тесты"
+    },
+    summary: {
+      en: "Tests that lock current legacy behavior so refactoring can proceed safely before intentional behavior changes.",
+      ru: "Тесты, фиксирующие текущее legacy-поведение, чтобы рефакторинг шёл безопасно до намеренных изменений поведения."
+    },
+    topicIds: ["top_oop_35"],
+    canonicalTag: "#characterization-test",
+    prerequisiteConceptIds: []
+  },
+  {
+    id: "cpt_seam_extraction",
+    slug: "seam-extraction",
+    title: {
+      en: "Seam Extraction (Feathers)",
+      ru: "Извлечение Seam (Feathers)"
+    },
+    summary: {
+      en: "Introducing places (ports/fakes) where behavior can be altered without editing the call site — enabling tests in legacy code.",
+      ru: "Введение мест (ports/fakes), где поведение можно изменить без правки call site — включая тесты в legacy-коде."
+    },
+    topicIds: ["top_oop_35"],
+    canonicalTag: "#seam-extraction",
+    prerequisiteConceptIds: ["cpt_characterization_test"]
+  },
+  {
+    id: "cpt_incremental_refactoring",
+    slug: "incremental-refactoring",
+    title: {
+      en: "Incremental Refactoring Under Constraints",
+      ru: "Инкрементальный Рефакторинг под Ограничениями"
+    },
+    summary: {
+      en: "Small behavior-preserving steps under characterization coverage instead of big-bang rewrites of production engines.",
+      ru: "Малые behavior-preserving шаги под characterization-покрытием вместо big-bang rewrite продакшн-движков."
+    },
+    topicIds: ["top_oop_35"],
+    canonicalTag: "#incremental-refactoring",
+    prerequisiteConceptIds: ["cpt_seam_extraction"]
   }
 ];
 
@@ -1426,6 +1726,146 @@ export const OOP_TAGS: readonly Tag[] = [
     slug: "logging-parameterization",
     displayName: { en: "#logging-parameterization", ru: "#logging-parameterization" },
     canonicalConceptId: "cpt_logging_parameterization",
+    category: "OOP"
+  },
+  {
+    id: "tag_oop_paradigm",
+    slug: "oop-paradigm",
+    displayName: { en: "#oop-paradigm", ru: "#парадигма-ооп" },
+    canonicalConceptId: "cpt_oop_paradigm",
+    category: "OOP"
+  },
+  {
+    id: "tag_procedural_vs_oop",
+    slug: "procedural-vs-oop",
+    displayName: { en: "#procedural-vs-oop", ru: "#procedural-vs-oop" },
+    canonicalConceptId: "cpt_procedural_vs_oop",
+    category: "OOP"
+  },
+  {
+    id: "tag_object_collaboration",
+    slug: "object-collaboration",
+    displayName: { en: "#object-collaboration", ru: "#сотрудничество-объектов" },
+    canonicalConceptId: "cpt_object_collaboration",
+    category: "OOP"
+  },
+  {
+    id: "tag_telescoping_constructor",
+    slug: "telescoping-constructor",
+    displayName: { en: "#telescoping-constructor", ru: "#телескопический-конструктор" },
+    canonicalConceptId: "cpt_telescoping_constructor",
+    category: "OOP"
+  },
+  {
+    id: "tag_build_time_validation",
+    slug: "build-time-validation",
+    displayName: { en: "#build-time-validation", ru: "#build-time-validation" },
+    canonicalConceptId: "cpt_build_time_validation",
+    category: "OOP"
+  },
+  {
+    id: "tag_template_method",
+    slug: "template-method",
+    displayName: { en: "#template-method", ru: "#template-method" },
+    canonicalConceptId: "cpt_template_method",
+    category: "OOP"
+  },
+  {
+    id: "tag_final_template_skeleton",
+    slug: "final-template-skeleton",
+    displayName: { en: "#final-template-skeleton", ru: "#final-template-skeleton" },
+    canonicalConceptId: "cpt_final_template_skeleton",
+    category: "OOP"
+  },
+  {
+    id: "tag_hook_vs_strategy",
+    slug: "hook-vs-strategy",
+    displayName: { en: "#hook-vs-strategy", ru: "#hook-vs-strategy" },
+    canonicalConceptId: "cpt_hook_vs_strategy",
+    category: "OOP"
+  },
+  {
+    id: "tag_observer_pattern",
+    slug: "observer-pattern",
+    displayName: { en: "#observer-pattern", ru: "#observer" },
+    canonicalConceptId: "cpt_observer_pattern",
+    category: "OOP"
+  },
+  {
+    id: "tag_subscription_lifecycle",
+    slug: "subscription-lifecycle",
+    displayName: { en: "#subscription-lifecycle", ru: "#subscription-lifecycle" },
+    canonicalConceptId: "cpt_subscription_lifecycle",
+    category: "OOP"
+  },
+  {
+    id: "tag_observer_exception_isolation",
+    slug: "observer-exception-isolation",
+    displayName: { en: "#observer-exception-isolation", ru: "#observer-exception-isolation" },
+    canonicalConceptId: "cpt_observer_exception_isolation",
+    category: "OOP"
+  },
+  {
+    id: "tag_decorator_pattern",
+    slug: "decorator-pattern",
+    displayName: { en: "#decorator-pattern", ru: "#decorator" },
+    canonicalConceptId: "cpt_decorator_pattern",
+    category: "OOP"
+  },
+  {
+    id: "tag_decorator_order",
+    slug: "decorator-order",
+    displayName: { en: "#decorator-order", ru: "#decorator-order" },
+    canonicalConceptId: "cpt_decorator_order",
+    category: "OOP"
+  },
+  {
+    id: "tag_decorator_vs_proxy",
+    slug: "decorator-vs-proxy",
+    displayName: { en: "#decorator-vs-proxy", ru: "#decorator-vs-proxy" },
+    canonicalConceptId: "cpt_decorator_vs_proxy",
+    category: "OOP"
+  },
+  {
+    id: "tag_api_contract",
+    slug: "api-contract",
+    displayName: { en: "#api-contract", ru: "#api-контракт" },
+    canonicalConceptId: "cpt_api_contract",
+    category: "OOP"
+  },
+  {
+    id: "tag_behavioral_compatibility",
+    slug: "behavioral-compatibility",
+    displayName: { en: "#behavioral-compatibility", ru: "#behavioral-compatibility" },
+    canonicalConceptId: "cpt_behavioral_compatibility",
+    category: "OOP"
+  },
+  {
+    id: "tag_null_vs_empty",
+    slug: "null-vs-empty",
+    displayName: { en: "#null-vs-empty", ru: "#null-vs-empty" },
+    canonicalConceptId: "cpt_null_vs_empty_collection",
+    category: "OOP"
+  },
+  {
+    id: "tag_characterization_test",
+    slug: "characterization-test",
+    displayName: { en: "#characterization-test", ru: "#characterization-test" },
+    canonicalConceptId: "cpt_characterization_test",
+    category: "OOP"
+  },
+  {
+    id: "tag_seam_extraction",
+    slug: "seam-extraction",
+    displayName: { en: "#seam-extraction", ru: "#seam-extraction" },
+    canonicalConceptId: "cpt_seam_extraction",
+    category: "OOP"
+  },
+  {
+    id: "tag_incremental_refactoring",
+    slug: "incremental-refactoring",
+    displayName: { en: "#incremental-refactoring", ru: "#incremental-refactoring" },
+    canonicalConceptId: "cpt_incremental_refactoring",
     category: "OOP"
   }
 ];

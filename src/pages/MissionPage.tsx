@@ -324,6 +324,62 @@ export const MissionPage: React.FC = () => {
       fixedTitle: 'Redacted Diagnostics',
       fixedCode: 'RedactionPolicy + structured safe fields',
       fixedDesc: 'toString for humans without secrets ──► observability + security!'
+    },
+    mis_introduction_to_oop: {
+      brokenTitle: 'Procedural Clearing Script',
+      brokenCode: 'Map statuses + global helpers + shared mutables',
+      brokenDesc: 'New rail edits scatter across unrelated functions ──► inconsistent clearing!',
+      fixedTitle: 'Collaborating Objects',
+      fixedCode: 'ClearingPayment + Workflow + ValidationPolicy + Store',
+      fixedDesc: 'State+behavior+identity per payment ──► polymorphic rails, clear ownership!'
+    },
+    mis_builder_pattern: {
+      brokenTitle: 'Telescoping Risk Constructor',
+      brokenCode: 'new RiskAssessmentRequest(id,null,true,false,...)',
+      brokenDesc: 'Wrong-order booleans silently enable incorrect risk mode!',
+      fixedTitle: 'Validated Named Builder',
+      fixedCode: 'RiskAssessmentRequest.builder()...build()',
+      fixedDesc: 'Required/optional named steps + build-time validation ──► safe immutable request!'
+    },
+    mis_template_method_pattern: {
+      brokenTitle: 'Bypassed EOD Compliance Step',
+      brokenCode: 'CrossBorder overrides process() skips ComplianceCheck',
+      brokenDesc: 'Mandatory audit/compliance omitted ──► inconsistent settlement!',
+      fixedTitle: 'Final Template Skeleton',
+      fixedCode: 'final processBatch(): load→cutoff→reserve→exec→audit',
+      fixedDesc: 'Hooks vary rails; compliance step sealed in superclass!'
+    },
+    mis_observer_pattern: {
+      brokenTitle: 'Duplicate Observer Registration',
+      brokenCode: 'publisher.subscribe(obs); // twice, never remove',
+      brokenDesc: 'Duplicate alerts + retained refs ──► memory growth & storms!',
+      fixedTitle: 'Subscription Lifecycle',
+      fixedCode: 'Subscription token + unsubscribe + isolate failures',
+      fixedDesc: 'Idempotent register, safe teardown, exception isolation!'
+    },
+    mis_decorator_pattern: {
+      brokenTitle: 'Bypassable Cross-Cutting Controls',
+      brokenCode: 'if (audit) ...; core.transfer() // sometimes bare',
+      brokenDesc: 'Some paths skip audit/auth/retry ──► missing control layers!',
+      fixedTitle: 'Composable Gateway Decorators',
+      fixedCode: 'Authorized(Retrying(Audited(Core)))',
+      fixedDesc: 'Same contract wrappers; composition root enforces order!'
+    },
+    mis_api_contract_design: {
+      brokenTitle: 'Behaviorally Breaking API',
+      brokenCode: 'return null; throw OtherEx; mutable List',
+      brokenDesc: 'Clients still compile ──► silent null/exception/mutability failures!',
+      fixedTitle: 'Stable Behavioral Contract',
+      fixedCode: 'empty immutable lists; documented exceptions',
+      fixedDesc: 'Source+binary+behavioral compatibility for multi-service APIs!'
+    },
+    mis_oop_refactoring_legacy: {
+      brokenTitle: 'Untestable Static Decision Blob',
+      brokenCode: 'static DB in LegacyCreditDecisionEngine.decide()',
+      brokenDesc: 'No seams ──► cannot unit-test under live regulatory traffic!',
+      fixedTitle: 'Characterization + Seams',
+      fixedCode: 'CreditPolicy pure + ApplicantLookupPort + AuditPort',
+      fixedDesc: 'Incremental extract while preserving behavior!'
     }
   };
   const viz = missionVisualizations[mission.id];

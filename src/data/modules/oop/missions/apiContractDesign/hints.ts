@@ -1,0 +1,11 @@
+import { Hint } from '../../../../../types/domain';
+
+export const HINTS_API_CONTRACT_DESIGN: readonly Hint[] = [
+  { id: "hnt_api_1", challengeId: "chl_api_fix_builder", level: 1, text: { en: "Directional Clue: Focus on the structural pattern named in the mission title.", ru: "Направляющая Подсказка: Сфокусируйтесь на структурном паттерне из названия миссии." }, xpPenalty: 10, order: 1 },
+  { id: "hnt_api_2", challengeId: "chl_api_fix_builder", level: 2, text: { en: "Concept Reminder: cpt_api_contract, cpt_behavioral_compatibility, cpt_null_vs_empty_collection", ru: "Напоминание Концепции: cpt_api_contract, cpt_behavioral_compatibility, cpt_null_vs_empty_collection" }, xpPenalty: 25, order: 2 },
+  { id: "hnt_api_3", challengeId: "chl_api_fix_builder", level: 3, text: { en: "Mechanism Clue: Document and keep AuthorizationResult for declines unless a versioned break is intentional; avoid silent switch to PaymentAuthorizationException. | Pick null-vs-empty once for declineReasons (prefer empty list) and never flip without a migration. | Provide an adapter/compatibility layer when AuthorizationPolicy evolution must change client-visible behavior.", ru: "Механика: соберите корректные структурные блоки из вариантов." }, xpPenalty: 50, order: 3 },
+  { id: "hnt_api_4", challengeId: "chl_api_fix_builder", level: 4, text: { en: "Near-Solution: Select the three correct options; reject the two distractors that recreate the failure.", ru: "Структура Решения: Выберите три верных варианта; отвергните два дистрактора." }, xpPenalty: 75, order: 4 },
+  { id: "hnt_api_bug_1", challengeId: "chl_api_bughunt", level: 1, text: { en: "Directional Clue: Look for lines that implement the failure mode from the scenario.", ru: "Направляющая Подсказка: Ищите строки, реализующие режим отказа из сценария." }, xpPenalty: 10, order: 1 },
+  { id: "hnt_api_bug_2", challengeId: "chl_api_bughunt", level: 2, text: { en: "Concept Reminder: Non-bug lines explain as 'Not the defect line.'", ru: "Напоминание: Не-баг строки имеют пояснение 'Не строка дефекта.'" }, xpPenalty: 25, order: 2 },
+  { id: "hnt_api_bug_3", challengeId: "chl_api_bughunt", level: 3, text: { en: "Near-Solution: Mark every isBug:true line from the challenge payload.", ru: "Структура Решения: Отметьте все строки isBug:true из payload challenge." }, xpPenalty: 50, order: 3 }
+];

@@ -226,6 +226,63 @@ export * from './missions/toStringSafeLogging/hints';
 export * from './missions/toStringSafeLogging/sources';
 export * from './missions/toStringSafeLogging/mistakePatterns';
 
+
+export * from './missions/introductionToOop/mission';
+export * from './missions/introductionToOop/theory';
+export * from './missions/introductionToOop/challenges';
+export * from './missions/introductionToOop/codeArtifacts';
+export * from './missions/introductionToOop/hints';
+export * from './missions/introductionToOop/sources';
+export * from './missions/introductionToOop/mistakePatterns';
+
+export * from './missions/builderPattern/mission';
+export * from './missions/builderPattern/theory';
+export * from './missions/builderPattern/challenges';
+export * from './missions/builderPattern/codeArtifacts';
+export * from './missions/builderPattern/hints';
+export * from './missions/builderPattern/sources';
+export * from './missions/builderPattern/mistakePatterns';
+
+export * from './missions/templateMethodPattern/mission';
+export * from './missions/templateMethodPattern/theory';
+export * from './missions/templateMethodPattern/challenges';
+export * from './missions/templateMethodPattern/codeArtifacts';
+export * from './missions/templateMethodPattern/hints';
+export * from './missions/templateMethodPattern/sources';
+export * from './missions/templateMethodPattern/mistakePatterns';
+
+export * from './missions/observerPattern/mission';
+export * from './missions/observerPattern/theory';
+export * from './missions/observerPattern/challenges';
+export * from './missions/observerPattern/codeArtifacts';
+export * from './missions/observerPattern/hints';
+export * from './missions/observerPattern/sources';
+export * from './missions/observerPattern/mistakePatterns';
+
+export * from './missions/decoratorPattern/mission';
+export * from './missions/decoratorPattern/theory';
+export * from './missions/decoratorPattern/challenges';
+export * from './missions/decoratorPattern/codeArtifacts';
+export * from './missions/decoratorPattern/hints';
+export * from './missions/decoratorPattern/sources';
+export * from './missions/decoratorPattern/mistakePatterns';
+
+export * from './missions/apiContractDesign/mission';
+export * from './missions/apiContractDesign/theory';
+export * from './missions/apiContractDesign/challenges';
+export * from './missions/apiContractDesign/codeArtifacts';
+export * from './missions/apiContractDesign/hints';
+export * from './missions/apiContractDesign/sources';
+export * from './missions/apiContractDesign/mistakePatterns';
+
+export * from './missions/oopRefactoringLegacy/mission';
+export * from './missions/oopRefactoringLegacy/theory';
+export * from './missions/oopRefactoringLegacy/challenges';
+export * from './missions/oopRefactoringLegacy/codeArtifacts';
+export * from './missions/oopRefactoringLegacy/hints';
+export * from './missions/oopRefactoringLegacy/sources';
+export * from './missions/oopRefactoringLegacy/mistakePatterns';
+
 import { OOP_TOPICS } from './topics';
 import { OOP_CONCEPTS, OOP_TAGS } from './concepts';
 import { BANK_ACCOUNT_MISSION, BANK_ACCOUNT_MISSION_STAGES } from './missions/bankAccountInvariants/mission';
@@ -452,6 +509,63 @@ import { HINTS_TOSTRING_SAFE_LOGGING } from './missions/toStringSafeLogging/hint
 import { SOURCES_TOSTRING_SAFE_LOGGING, SOURCE_REFERENCES_TOSTRING_SAFE_LOGGING } from './missions/toStringSafeLogging/sources';
 import { MISTAKE_PATTERNS_TOSTRING_SAFE_LOGGING } from './missions/toStringSafeLogging/mistakePatterns';
 
+
+import { INTRODUCTION_TO_OOP_MISSION, INTRODUCTION_TO_OOP_MISSION_STAGES } from './missions/introductionToOop/mission';
+import { THEORY_ARTICLE_INTRODUCTION_TO_OOP, THEORY_CHECKPOINTS_INTRODUCTION_TO_OOP } from './missions/introductionToOop/theory';
+import { ALL_INTRODUCTION_TO_OOP_CHALLENGES } from './missions/introductionToOop/challenges';
+import { CODE_ARTIFACTS_INTRODUCTION_TO_OOP } from './missions/introductionToOop/codeArtifacts';
+import { HINTS_INTRODUCTION_TO_OOP } from './missions/introductionToOop/hints';
+import { SOURCES_INTRODUCTION_TO_OOP, SOURCE_REFERENCES_INTRODUCTION_TO_OOP } from './missions/introductionToOop/sources';
+import { MISTAKE_PATTERNS_INTRODUCTION_TO_OOP } from './missions/introductionToOop/mistakePatterns';
+
+import { BUILDER_PATTERN_MISSION, BUILDER_PATTERN_MISSION_STAGES } from './missions/builderPattern/mission';
+import { THEORY_ARTICLE_BUILDER_PATTERN, THEORY_CHECKPOINTS_BUILDER_PATTERN } from './missions/builderPattern/theory';
+import { ALL_BUILDER_PATTERN_CHALLENGES } from './missions/builderPattern/challenges';
+import { CODE_ARTIFACTS_BUILDER_PATTERN } from './missions/builderPattern/codeArtifacts';
+import { HINTS_BUILDER_PATTERN } from './missions/builderPattern/hints';
+import { SOURCES_BUILDER_PATTERN, SOURCE_REFERENCES_BUILDER_PATTERN } from './missions/builderPattern/sources';
+import { MISTAKE_PATTERNS_BUILDER_PATTERN } from './missions/builderPattern/mistakePatterns';
+
+import { TEMPLATE_METHOD_PATTERN_MISSION, TEMPLATE_METHOD_PATTERN_MISSION_STAGES } from './missions/templateMethodPattern/mission';
+import { THEORY_ARTICLE_TEMPLATE_METHOD_PATTERN, THEORY_CHECKPOINTS_TEMPLATE_METHOD_PATTERN } from './missions/templateMethodPattern/theory';
+import { ALL_TEMPLATE_METHOD_PATTERN_CHALLENGES } from './missions/templateMethodPattern/challenges';
+import { CODE_ARTIFACTS_TEMPLATE_METHOD_PATTERN } from './missions/templateMethodPattern/codeArtifacts';
+import { HINTS_TEMPLATE_METHOD_PATTERN } from './missions/templateMethodPattern/hints';
+import { SOURCES_TEMPLATE_METHOD_PATTERN, SOURCE_REFERENCES_TEMPLATE_METHOD_PATTERN } from './missions/templateMethodPattern/sources';
+import { MISTAKE_PATTERNS_TEMPLATE_METHOD_PATTERN } from './missions/templateMethodPattern/mistakePatterns';
+
+import { OBSERVER_PATTERN_MISSION, OBSERVER_PATTERN_MISSION_STAGES } from './missions/observerPattern/mission';
+import { THEORY_ARTICLE_OBSERVER_PATTERN, THEORY_CHECKPOINTS_OBSERVER_PATTERN } from './missions/observerPattern/theory';
+import { ALL_OBSERVER_PATTERN_CHALLENGES } from './missions/observerPattern/challenges';
+import { CODE_ARTIFACTS_OBSERVER_PATTERN } from './missions/observerPattern/codeArtifacts';
+import { HINTS_OBSERVER_PATTERN } from './missions/observerPattern/hints';
+import { SOURCES_OBSERVER_PATTERN, SOURCE_REFERENCES_OBSERVER_PATTERN } from './missions/observerPattern/sources';
+import { MISTAKE_PATTERNS_OBSERVER_PATTERN } from './missions/observerPattern/mistakePatterns';
+
+import { DECORATOR_PATTERN_MISSION, DECORATOR_PATTERN_MISSION_STAGES } from './missions/decoratorPattern/mission';
+import { THEORY_ARTICLE_DECORATOR_PATTERN, THEORY_CHECKPOINTS_DECORATOR_PATTERN } from './missions/decoratorPattern/theory';
+import { ALL_DECORATOR_PATTERN_CHALLENGES } from './missions/decoratorPattern/challenges';
+import { CODE_ARTIFACTS_DECORATOR_PATTERN } from './missions/decoratorPattern/codeArtifacts';
+import { HINTS_DECORATOR_PATTERN } from './missions/decoratorPattern/hints';
+import { SOURCES_DECORATOR_PATTERN, SOURCE_REFERENCES_DECORATOR_PATTERN } from './missions/decoratorPattern/sources';
+import { MISTAKE_PATTERNS_DECORATOR_PATTERN } from './missions/decoratorPattern/mistakePatterns';
+
+import { API_CONTRACT_DESIGN_MISSION, API_CONTRACT_DESIGN_MISSION_STAGES } from './missions/apiContractDesign/mission';
+import { THEORY_ARTICLE_API_CONTRACT_DESIGN, THEORY_CHECKPOINTS_API_CONTRACT_DESIGN } from './missions/apiContractDesign/theory';
+import { ALL_API_CONTRACT_DESIGN_CHALLENGES } from './missions/apiContractDesign/challenges';
+import { CODE_ARTIFACTS_API_CONTRACT_DESIGN } from './missions/apiContractDesign/codeArtifacts';
+import { HINTS_API_CONTRACT_DESIGN } from './missions/apiContractDesign/hints';
+import { SOURCES_API_CONTRACT_DESIGN, SOURCE_REFERENCES_API_CONTRACT_DESIGN } from './missions/apiContractDesign/sources';
+import { MISTAKE_PATTERNS_API_CONTRACT_DESIGN } from './missions/apiContractDesign/mistakePatterns';
+
+import { OOP_REFACTORING_LEGACY_MISSION, OOP_REFACTORING_LEGACY_MISSION_STAGES } from './missions/oopRefactoringLegacy/mission';
+import { THEORY_ARTICLE_OOP_REFACTORING_LEGACY, THEORY_CHECKPOINTS_OOP_REFACTORING_LEGACY } from './missions/oopRefactoringLegacy/theory';
+import { ALL_OOP_REFACTORING_LEGACY_CHALLENGES } from './missions/oopRefactoringLegacy/challenges';
+import { CODE_ARTIFACTS_OOP_REFACTORING_LEGACY } from './missions/oopRefactoringLegacy/codeArtifacts';
+import { HINTS_OOP_REFACTORING_LEGACY } from './missions/oopRefactoringLegacy/hints';
+import { SOURCES_OOP_REFACTORING_LEGACY, SOURCE_REFERENCES_OOP_REFACTORING_LEGACY } from './missions/oopRefactoringLegacy/sources';
+import { MISTAKE_PATTERNS_OOP_REFACTORING_LEGACY } from './missions/oopRefactoringLegacy/mistakePatterns';
+
 import { MODULES_REGISTRY } from '../registry';
 
 export const OOP_MODULE: Module = MODULES_REGISTRY.find((m) => m.id === "mod_oop")!;
@@ -519,7 +633,14 @@ export const OOP_DATA_PACKAGE = {
     ...ACCESS_MODIFIERS_MISSION_STAGES,
     ...ASSOCIATION_AGGREGATION_COMPOSITION_MISSION_STAGES,
     ...OBJECT_CLASS_CONTRACTS_MISSION_STAGES,
-    ...TOSTRING_SAFE_LOGGING_MISSION_STAGES
+    ...TOSTRING_SAFE_LOGGING_MISSION_STAGES,
+    ...INTRODUCTION_TO_OOP_MISSION_STAGES,
+    ...BUILDER_PATTERN_MISSION_STAGES,
+    ...TEMPLATE_METHOD_PATTERN_MISSION_STAGES,
+    ...OBSERVER_PATTERN_MISSION_STAGES,
+    ...DECORATOR_PATTERN_MISSION_STAGES,
+    ...API_CONTRACT_DESIGN_MISSION_STAGES,
+    ...OOP_REFACTORING_LEGACY_MISSION_STAGES
   ],
   theoryArticles: [
     THEORY_ARTICLE_BANK_ACCOUNT,
@@ -579,7 +700,14 @@ export const OOP_DATA_PACKAGE = {
     ...THEORY_CHECKPOINTS_ACCESS_MODIFIERS,
     ...THEORY_CHECKPOINTS_ASSOCIATION_AGGREGATION_COMPOSITION,
     ...THEORY_CHECKPOINTS_OBJECT_CLASS_CONTRACTS,
-    ...THEORY_CHECKPOINTS_TOSTRING_SAFE_LOGGING
+    ...THEORY_CHECKPOINTS_TOSTRING_SAFE_LOGGING,
+    ...THEORY_CHECKPOINTS_INTRODUCTION_TO_OOP,
+    ...THEORY_CHECKPOINTS_BUILDER_PATTERN,
+    ...THEORY_CHECKPOINTS_TEMPLATE_METHOD_PATTERN,
+    ...THEORY_CHECKPOINTS_OBSERVER_PATTERN,
+    ...THEORY_CHECKPOINTS_DECORATOR_PATTERN,
+    ...THEORY_CHECKPOINTS_API_CONTRACT_DESIGN,
+    ...THEORY_CHECKPOINTS_OOP_REFACTORING_LEGACY
   ],
   challenges: [
     ...ALL_BANK_ACCOUNT_CHALLENGES,
@@ -609,7 +737,14 @@ export const OOP_DATA_PACKAGE = {
     ...ALL_ACCESS_MODIFIERS_CHALLENGES,
     ...ALL_ASSOCIATION_AGGREGATION_COMPOSITION_CHALLENGES,
     ...ALL_OBJECT_CLASS_CONTRACTS_CHALLENGES,
-    ...ALL_TOSTRING_SAFE_LOGGING_CHALLENGES
+    ...ALL_TOSTRING_SAFE_LOGGING_CHALLENGES,
+    ...ALL_INTRODUCTION_TO_OOP_CHALLENGES,
+    ...ALL_BUILDER_PATTERN_CHALLENGES,
+    ...ALL_TEMPLATE_METHOD_PATTERN_CHALLENGES,
+    ...ALL_OBSERVER_PATTERN_CHALLENGES,
+    ...ALL_DECORATOR_PATTERN_CHALLENGES,
+    ...ALL_API_CONTRACT_DESIGN_CHALLENGES,
+    ...ALL_OOP_REFACTORING_LEGACY_CHALLENGES
   ],
   codeArtifacts: [
     ...CODE_ARTIFACTS_BANK_ACCOUNT,
@@ -639,7 +774,14 @@ export const OOP_DATA_PACKAGE = {
     ...CODE_ARTIFACTS_ACCESS_MODIFIERS,
     ...CODE_ARTIFACTS_ASSOCIATION_AGGREGATION_COMPOSITION,
     ...CODE_ARTIFACTS_OBJECT_CLASS_CONTRACTS,
-    ...CODE_ARTIFACTS_TOSTRING_SAFE_LOGGING
+    ...CODE_ARTIFACTS_TOSTRING_SAFE_LOGGING,
+    ...CODE_ARTIFACTS_INTRODUCTION_TO_OOP,
+    ...CODE_ARTIFACTS_BUILDER_PATTERN,
+    ...CODE_ARTIFACTS_TEMPLATE_METHOD_PATTERN,
+    ...CODE_ARTIFACTS_OBSERVER_PATTERN,
+    ...CODE_ARTIFACTS_DECORATOR_PATTERN,
+    ...CODE_ARTIFACTS_API_CONTRACT_DESIGN,
+    ...CODE_ARTIFACTS_OOP_REFACTORING_LEGACY
   ],
   hints: [
     ...HINTS_BANK_ACCOUNT,
@@ -669,7 +811,14 @@ export const OOP_DATA_PACKAGE = {
     ...HINTS_ACCESS_MODIFIERS,
     ...HINTS_ASSOCIATION_AGGREGATION_COMPOSITION,
     ...HINTS_OBJECT_CLASS_CONTRACTS,
-    ...HINTS_TOSTRING_SAFE_LOGGING
+    ...HINTS_TOSTRING_SAFE_LOGGING,
+    ...HINTS_INTRODUCTION_TO_OOP,
+    ...HINTS_BUILDER_PATTERN,
+    ...HINTS_TEMPLATE_METHOD_PATTERN,
+    ...HINTS_OBSERVER_PATTERN,
+    ...HINTS_DECORATOR_PATTERN,
+    ...HINTS_API_CONTRACT_DESIGN,
+    ...HINTS_OOP_REFACTORING_LEGACY
   ],
   sources: [
     ...SOURCES_BANK_ACCOUNT,
@@ -699,7 +848,14 @@ export const OOP_DATA_PACKAGE = {
     ...SOURCES_ACCESS_MODIFIERS,
     ...SOURCES_ASSOCIATION_AGGREGATION_COMPOSITION,
     ...SOURCES_OBJECT_CLASS_CONTRACTS,
-    ...SOURCES_TOSTRING_SAFE_LOGGING
+    ...SOURCES_TOSTRING_SAFE_LOGGING,
+    ...SOURCES_INTRODUCTION_TO_OOP,
+    ...SOURCES_BUILDER_PATTERN,
+    ...SOURCES_TEMPLATE_METHOD_PATTERN,
+    ...SOURCES_OBSERVER_PATTERN,
+    ...SOURCES_DECORATOR_PATTERN,
+    ...SOURCES_API_CONTRACT_DESIGN,
+    ...SOURCES_OOP_REFACTORING_LEGACY
   ],
   sourceReferences: [
     ...SOURCE_REFERENCES_BANK_ACCOUNT,
@@ -729,7 +885,14 @@ export const OOP_DATA_PACKAGE = {
     ...SOURCE_REFERENCES_ACCESS_MODIFIERS,
     ...SOURCE_REFERENCES_ASSOCIATION_AGGREGATION_COMPOSITION,
     ...SOURCE_REFERENCES_OBJECT_CLASS_CONTRACTS,
-    ...SOURCE_REFERENCES_TOSTRING_SAFE_LOGGING
+    ...SOURCE_REFERENCES_TOSTRING_SAFE_LOGGING,
+    ...SOURCE_REFERENCES_INTRODUCTION_TO_OOP,
+    ...SOURCE_REFERENCES_BUILDER_PATTERN,
+    ...SOURCE_REFERENCES_TEMPLATE_METHOD_PATTERN,
+    ...SOURCE_REFERENCES_OBSERVER_PATTERN,
+    ...SOURCE_REFERENCES_DECORATOR_PATTERN,
+    ...SOURCE_REFERENCES_API_CONTRACT_DESIGN,
+    ...SOURCE_REFERENCES_OOP_REFACTORING_LEGACY
   ],
   mistakePatterns: [
     ...MISTAKE_PATTERNS_BANK_ACCOUNT,
@@ -759,6 +922,13 @@ export const OOP_DATA_PACKAGE = {
     ...MISTAKE_PATTERNS_ACCESS_MODIFIERS,
     ...MISTAKE_PATTERNS_ASSOCIATION_AGGREGATION_COMPOSITION,
     ...MISTAKE_PATTERNS_OBJECT_CLASS_CONTRACTS,
-    ...MISTAKE_PATTERNS_TOSTRING_SAFE_LOGGING
+    ...MISTAKE_PATTERNS_TOSTRING_SAFE_LOGGING,
+    ...MISTAKE_PATTERNS_INTRODUCTION_TO_OOP,
+    ...MISTAKE_PATTERNS_BUILDER_PATTERN,
+    ...MISTAKE_PATTERNS_TEMPLATE_METHOD_PATTERN,
+    ...MISTAKE_PATTERNS_OBSERVER_PATTERN,
+    ...MISTAKE_PATTERNS_DECORATOR_PATTERN,
+    ...MISTAKE_PATTERNS_API_CONTRACT_DESIGN,
+    ...MISTAKE_PATTERNS_OOP_REFACTORING_LEGACY
   ]
 };
