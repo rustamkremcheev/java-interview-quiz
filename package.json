@@ -9,7 +9,9 @@
     "preview": "npx vite preview",
     "type-check": "npx --no-install tsc --noEmit",
     "audit:oop": "node scripts/route-integrity.mjs",
-    "audit:density": "node scripts/content-density-audit.mjs"
+    "audit:density": "node scripts/content-density-audit.mjs",
+    "audit:algorithms": "node scripts/algorithm-lab-smoke.mjs",
+    "test:mosaic-generator": "node scripts/mosaic-generator-test.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

@@ -2,6 +2,37 @@ import { Module } from '../../types/domain';
 
 export const MODULES_REGISTRY: readonly Module[] = [
   {
+    id: "mod_algorithm_lab",
+    slug: "algorithm-lab",
+    title: {
+      en: "Algorithm Lab",
+      ru: "Algorithm Lab"
+    },
+    shortTitle: {
+      en: "Algorithm Lab",
+      ru: "Algorithm Lab"
+    },
+    description: {
+      en: "Assemble, simulate, debug, and explain algorithms in an interactive workshop — starting with Contains Duplicate.",
+      ru: "Собирайте, симулируйте, отлаживайте и объясняйте алгоритмы в интерактивном воркшопе — начиная с Contains Duplicate."
+    },
+    icon: "Hash",
+    difficultyRange: {
+      min: "FOUNDATION",
+      max: "SENIOR"
+    },
+    estimatedMinutes: 25,
+    topicIds: [],
+    tags: ["#algorithms", "#hashing", "#interview-prep", "#java"],
+    order: 0,
+    availability: "AVAILABLE",
+    version: "0.1.0",
+    createdAt: "2026-08-06T00:00:00.000Z",
+    updatedAt: "2026-08-06T00:00:00.000Z",
+    codingExerciseCount: 1,
+    interviewQuestionCount: 1
+  },
+  {
     id: "mod_oop",
     slug: "object-oriented-programming",
     title: {

@@ -26,6 +26,12 @@ const ProgressPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage }))
 );
+const AlgorithmLabPage = lazy(() =>
+  import('./pages/AlgorithmLabPage').then((m) => ({ default: m.AlgorithmLabPage }))
+);
+const AlgorithmWorkshopPage = lazy(() =>
+  import('./pages/AlgorithmWorkshopPage').then((m) => ({ default: m.AlgorithmWorkshopPage }))
+);
 
 const RouteFallback: React.FC = () => (
   <div className="route-loading-fallback" style={{ padding: '2rem', color: 'var(--text-secondary, #94a3b8)' }}>
@@ -46,10 +52,13 @@ export const App: React.FC = () => {
             <Route path="missions/:missionSlug" element={<MissionPage />} />
             <Route path="mission/:id" element={<MissionPage />} />
             <Route path="learn" element={<Navigate to="/modules" replace />} />
-            <Route path="review" element={<ReviewPage />} />
-            <Route path="progress" element={<ProgressPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="algorithms" element={<AlgorithmLabPage />} />
+          <Route path="algorithms/:problemSlug" element={<AlgorithmLabPage />} />
+          <Route path="algorithms/:problemSlug/workshop" element={<AlgorithmWorkshopPage />} />
+          <Route path="review" element={<ReviewPage />} />
+          <Route path="progress" element={<ProgressPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
       </Suspense>

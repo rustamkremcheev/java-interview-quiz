@@ -8,3 +8,4 @@ coverage/
 !.env.example
 scripts/.tmp-*
 scripts/.route-integrity-report.json
+scripts/algorithm-lab-bridge.ts

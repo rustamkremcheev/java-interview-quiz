@@ -11,6 +11,7 @@ import {
   EvaluationResult,
   LanguageMode
 } from '../types/domain';
+import { WorkshopAttempt, WorkshopProgress } from '../types/algorithmLab';
 
 export class AppDatabase extends Dexie {
   attempts!: Table<UserAttempt, number>;
@@ -20,6 +21,8 @@ export class AppDatabase extends Dexie {
   userPreferences!: Table<UserPreferences, string>;
   reflectionNotes!: Table<ReflectionNote, number>;
   userMistakes!: Table<UserMistakeRecord, number>;
+  workshopProgress!: Table<WorkshopProgress, string>;
+  workshopAttempts!: Table<WorkshopAttempt, string>;
 
   constructor() {
     super('JavaMissionControlDB');
@@ -32,12 +35,107 @@ export class AppDatabase extends Dexie {
       reflectionNotes: '++id, userId, missionId, createdAt',
       userMistakes: '++id, [userId+mistakePatternId], resolved'
     });
+    this.version(3).stores({
+      workshopProgress: '[userId+problemId], lastActivityAt',
+      workshopAttempts: 'id, userId, problemId, stageType, submittedAt'
+    });
   }
 }
 
 export const db = new AppDatabase();
 
-const DEFAULT_USER_ID = 'local-user';
+export const DEFAULT_USER_ID = 'local-user';
+
+const memoryWorkshopProgress = new Map<string, WorkshopProgress>();
+let persistenceWarningShown = false;
+
+function workshopKey(problemId: string): string {
+  return `${DEFAULT_USER_ID}::${problemId}`;
+}
+
+export function createEmptyWorkshopProgress(problemId: string): WorkshopProgress {
+  const now = new Date().toISOString();
+  return {
+    userId: DEFAULT_USER_ID,
+    problemId,
+    currentStageType: 'CLARIFY',
+    completedStageTypes: [],
+    strategyJustificationChipIds: [],
+    strategyChanged: false,
+    previousStrategyIds: [],
+    clarifySelectedOptionIds: [],
+    blueprintOrder: [],
+    blueprintDiscardedIds: [],
+    blueprintAttempts: 0,
+    mosaicOrder: [],
+    mosaicDiscardedIds: [],
+    mosaicAttempts: 0,
+    mosaicCorrectDiscards: 0,
+    traceStepIndex: 0,
+    traceCorrectSteps: 0,
+    traceTotalAnswered: 0,
+    hintsUsedByStage: {},
+    reflectionText: '',
+    masteryState: 'NOT_STARTED',
+    markedForReview: false,
+    startedAt: now,
+    lastActivityAt: now
+  };
+}
+
+export async function getWorkshopProgress(problemId: string): Promise<WorkshopProgress> {
+  try {
+    const row = await db.workshopProgress.get([DEFAULT_USER_ID, problemId]);
+    if (row) return row;
+  } catch (err) {
+    if (!persistenceWarningShown) {
+      console.warn('IndexedDB unavailable for workshop progress; using in-memory fallback.', err);
+      persistenceWarningShown = true;
+    }
+    const mem = memoryWorkshopProgress.get(workshopKey(problemId));
+    if (mem) return mem;
+  }
+  return createEmptyWorkshopProgress(problemId);
+}
+
+export async function saveWorkshopProgress(progress: WorkshopProgress): Promise<{ usedFallback: boolean }> {
+  const next = { ...progress, lastActivityAt: new Date().toISOString() };
+  try {
+    await db.workshopProgress.put(next);
+    memoryWorkshopProgress.set(workshopKey(progress.problemId), next);
+    return { usedFallback: false };
+  } catch (err) {
+    if (!persistenceWarningShown) {
+      console.warn('IndexedDB unavailable for workshop progress; using in-memory fallback.', err);
+      persistenceWarningShown = true;
+    }
+    memoryWorkshopProgress.set(workshopKey(progress.problemId), next);
+    return { usedFallback: true };
+  }
+}
+
+export async function recordWorkshopAttempt(
+  attempt: Omit<WorkshopAttempt, 'id' | 'userId'> & { id?: string; userId?: string }
+): Promise<void> {
+  const row: WorkshopAttempt = {
+    id: attempt.id ?? `wa_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    userId: attempt.userId ?? DEFAULT_USER_ID,
+    problemId: attempt.problemId,
+    stageType: attempt.stageType,
+    submittedAt: attempt.submittedAt,
+    payloadJson: attempt.payloadJson,
+    correct: attempt.correct
+  };
+  try {
+    await db.workshopAttempts.put(row);
+  } catch (err) {
+    console.warn('Failed to persist workshop attempt:', err);
+  }
+}
+
+export function wasPersistenceFallbackUsed(): boolean {
+  return persistenceWarningShown;
+}
 
 export async function initializeDatabaseDefaults(): Promise<{
   preferences: UserPreferences;

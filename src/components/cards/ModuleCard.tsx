@@ -34,17 +34,21 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, progressPercent 
   };
 
   const isAvailable = module.availability === 'AVAILABLE';
+  const targetPath =
+    module.id === 'mod_algorithm_lab' || module.slug === 'algorithm-lab'
+      ? '/algorithms'
+      : `/modules/${module.slug}`;
 
   const handleCardClick = () => {
     if (isAvailable) {
-      navigate(`/modules/${module.slug}`);
+      navigate(targetPath);
     }
   };
 
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isAvailable) {
-      navigate(`/modules/${module.slug}`);
+      navigate(targetPath);
     }
   };
 

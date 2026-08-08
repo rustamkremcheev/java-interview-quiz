@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getModuleBySlug } from '../data';
 import { OOP_TOPICS } from '../data/modules/oop/topics';
 import { TopicCard } from '../components/cards/TopicCard';
@@ -14,6 +14,10 @@ export const ModulePage: React.FC = () => {
   const { languageMode } = useAppStore();
 
   const moduleObj = getModuleBySlug(moduleSlug || 'object-oriented-programming');
+
+  if (moduleObj?.id === 'mod_algorithm_lab' || moduleSlug === 'algorithm-lab') {
+    return <Navigate to="/algorithms" replace />;
+  }
 
   const getTitle = () => {
     if (!moduleObj) return 'Object-Oriented Programming';
