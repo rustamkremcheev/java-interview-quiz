@@ -15,7 +15,10 @@ export type MosaicTileRole =
   | 'DISTRACTOR_COMPILE'
   | 'DISTRACTOR_LOGIC'
   | 'DISTRACTOR_STRATEGY'
-  | 'DISTRACTOR_IRRELEVANT';
+  | 'DISTRACTOR_IRRELEVANT'
+  | 'DISTRACTOR_COMPLEXITY'
+  | 'DISTRACTOR_INVARIANT'
+  | 'DISTRACTOR_EDGE_CASE';
 
 /** Mosaic tile granularity derived from a canonical solution. MEDIUM is production. */
 export type MosaicDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
@@ -156,26 +159,86 @@ export interface MosaicPuzzle {
   readonly alternativeNote: LocalizedText;
 }
 
-export type TraceOperation = 'ADD' | 'DUPLICATE_FOUND' | 'DONE_FALSE' | 'DONE_TRUE';
+/** Reusable execution-trace visualization/kinds — problem data chooses one. */
+export type TraceKind =
+  | 'HASH_STATE'
+  | 'ARRAY_POINTERS'
+  | 'INTERVAL_SWEEP'
+  | 'PREFIX_SUFFIX'
+  | 'RUNNING_DP'
+  | 'MATRIX_BOUNDARIES'
+  | 'FREQUENCY_STATE'
+  | 'PREFIX_REMAINDER';
 
+export interface TraceChoice {
+  readonly id: string;
+  readonly text: LocalizedText;
+}
+
+/** One interactive step: show algorithm-specific state, ask one question. */
 export interface TraceStep {
   readonly id: string;
-  readonly index: number;
-  readonly currentValue: number;
-  readonly setBefore: readonly number[];
-  readonly operation: TraceOperation;
-  readonly setAfter: readonly number[];
-  readonly returns: boolean | null;
-  readonly addSucceeded: boolean | null;
+  readonly title: LocalizedText;
+  readonly narrative: LocalizedText;
+  /** Algorithm-specific state keys → display values (left/right, prefix, etc.). */
+  readonly state: Readonly<Record<string, string>>;
+  readonly question: LocalizedText;
+  readonly choices: readonly TraceChoice[];
+  readonly correctChoiceId: string;
+  readonly feedbackCorrect: LocalizedText;
+  readonly feedbackIncorrect: LocalizedText;
+  /** Optional filmstrip highlight when `arrayInput` is present. */
+  readonly highlightIndex?: number;
+  /** Optional set values for HASH_STATE visualizations. */
+  readonly setValues?: readonly number[];
+  readonly highlightSetValue?: number | null;
 }
 
 export interface TraceScenario {
   readonly id: string;
   readonly problemId: string;
+  readonly kind: TraceKind;
   readonly label: LocalizedText;
-  readonly input: readonly number[];
+  readonly inputSummary: LocalizedText;
+  /** Optional numeric array for filmstrip when useful. */
+  readonly arrayInput?: readonly number[];
   readonly steps: readonly TraceStep[];
-  readonly finalAnswer: boolean;
+  readonly followUpQuestion: LocalizedText;
+  readonly followUpChoices: readonly TraceChoice[];
+  readonly followUpCorrectChoiceId: string;
+  readonly followUpFeedbackCorrect: LocalizedText;
+  readonly followUpFeedbackIncorrect: LocalizedText;
+}
+
+export interface WorkshopSummaryContent {
+  readonly corePattern: LocalizedText;
+  readonly invariant: LocalizedText;
+  readonly timeComplexity: string;
+  readonly spaceComplexity: string;
+  readonly commonMistake: LocalizedText;
+  readonly recognitionCue: LocalizedText;
+}
+
+/** Full workshop content pack for one algorithm problem. */
+export interface AlgorithmWorkshopPack {
+  readonly problem: AlgorithmProblem;
+  readonly clarify: readonly ClarifyQuestion[];
+  readonly strategies: readonly AlgorithmStrategyOption[];
+  /** Strategy that unlocks the canonical Mosaic / Blueprint path. */
+  readonly targetStrategyId: string;
+  readonly blueprint: BlueprintGraph;
+  readonly solutions: readonly AlgorithmSolution[];
+  readonly distractors: readonly MosaicDistractor[];
+  readonly mosaicId: string;
+  readonly mosaicAlternativeNote: LocalizedText;
+  readonly mosaicSuccessMessage: LocalizedText;
+  readonly blueprintHelp: LocalizedText;
+  readonly blueprintSuccessMessage: LocalizedText;
+  readonly resolveMosaic: (strategyId?: string) => MosaicPuzzle;
+  readonly trace: TraceScenario;
+  readonly hints: readonly AlgorithmHint[];
+  readonly reflectionPrompt: LocalizedText;
+  readonly summary: WorkshopSummaryContent;
 }
 
 export interface ClarifyQuestion {
@@ -242,7 +305,8 @@ export interface WorkshopProgress {
   readonly traceStepIndex: number;
   readonly traceCorrectSteps: number;
   readonly traceTotalAnswered: number;
-  readonly followUpTraceAnswer?: boolean;
+  /** Selected follow-up choice id (legacy boolean may appear in old IndexedDB rows). */
+  readonly followUpTraceAnswer?: string | boolean;
   readonly followUpTraceCorrect?: boolean;
   readonly hintsUsedByStage: Readonly<Partial<Record<AlgorithmStageType, number>>>;
   readonly reflectionText: string;

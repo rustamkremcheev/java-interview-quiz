@@ -1,27 +1,26 @@
 import React, { useState } from 'react';
 import { TraceScenario } from '../../../types/algorithmLab';
 import { LanguageMode } from '../../../types/domain';
+import { getLocalizedInline, getLocalizedText } from '../../../lib/localized';
 import { ArrayFilmstrip } from '../ArrayFilmstrip';
 import { SetTokenCloud } from '../SetTokenCloud';
 
 interface TraceStageProps {
-  main: TraceScenario;
-  followUp: TraceScenario;
+  trace: TraceScenario;
   stepIndex: number;
   correctSteps: number;
   totalAnswered: number;
-  followUpAnswer?: boolean;
+  followUpAnswer?: string | boolean;
   followUpCorrect?: boolean;
   languageMode: LanguageMode;
   reducedMotion: boolean;
   onStepProgress: (correct: boolean, nextIndex: number) => void;
-  onFollowUp: (answer: boolean, correct: boolean) => void;
+  onFollowUp: (answerId: string, correct: boolean) => void;
   onComplete: () => void;
 }
 
 export const TraceStage: React.FC<TraceStageProps> = ({
-  main,
-  followUp,
+  trace,
   stepIndex,
   followUpAnswer,
   followUpCorrect,
@@ -32,143 +31,116 @@ export const TraceStage: React.FC<TraceStageProps> = ({
   onComplete
 }) => {
   const [feedback, setFeedback] = useState('');
-  const [selectedAdd, setSelectedAdd] = useState<boolean | null>(null);
-  const [selectedReturns, setSelectedReturns] = useState<boolean | null>(null);
+  const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
 
-  const completed = stepIndex >= main.steps.length;
-  const current = !completed ? main.steps[stepIndex] : null;
-  const displaySet = completed
-    ? main.steps[main.steps.length - 1].setAfter
-    : current?.setBefore ?? [];
+  const completed = stepIndex >= trace.steps.length;
+  const current = !completed ? trace.steps[stepIndex] : null;
 
   const submitStep = () => {
-    if (!current) return;
-    const addOk = selectedAdd === current.addSucceeded;
-    const returnOk =
-      current.returns === null
-        ? selectedReturns === null || selectedReturns === false
-        : selectedReturns === current.returns;
-    // For non-return steps, learner should say "does not return yet"
-    const expectsReturnChoice = current.returns !== null;
-    const returnChoiceOk = expectsReturnChoice
-      ? selectedReturns === true
-      : selectedReturns === false || selectedReturns === null;
-
-    const correct = addOk && (expectsReturnChoice ? selectedReturns === true : returnChoiceOk && returnOk);
-
+    if (!current || !selectedChoiceId) return;
+    const correct = selectedChoiceId === current.correctChoiceId;
     if (!correct) {
-      setFeedback(
-        languageMode === 'ru'
-          ? 'Неверно. HashSet.add возвращает false, если значение уже было — тогда метод возвращает true.'
-          : 'Not quite. HashSet.add returns false when the value already exists — then the method returns true.'
-      );
+      setFeedback(getLocalizedText(current.feedbackIncorrect, languageMode));
       onStepProgress(false, stepIndex);
       return;
     }
-
-    setFeedback(
-      current.operation === 'DUPLICATE_FOUND'
-        ? languageMode === 'ru'
-          ? 'Дубликат: add не удался, метод возвращает true.'
-          : 'Duplicate: add failed, method returns true.'
-        : languageMode === 'ru'
-          ? 'add успешен — значение новое и попадает в set.'
-          : 'add succeeded — value is new and enters the set.'
-    );
-    setSelectedAdd(null);
-    setSelectedReturns(null);
+    setFeedback(getLocalizedText(current.feedbackCorrect, languageMode));
+    setSelectedChoiceId(null);
     const next = stepIndex + 1;
     onStepProgress(true, next);
-    if (next >= main.steps.length && followUpCorrect) {
+    if (next >= trace.steps.length && followUpCorrect) {
       onComplete();
     }
   };
 
-  const handleFollowUp = (answer: boolean) => {
-    const correct = answer === followUp.finalAnswer;
-    onFollowUp(answer, correct);
+  const handleFollowUp = (answerId: string) => {
+    const correct = answerId === trace.followUpCorrectChoiceId;
+    onFollowUp(answerId, correct);
     setFeedback(
-      correct
-        ? languageMode === 'ru'
-          ? 'Верно: все значения различны → false.'
-          : 'Correct: all distinct → false.'
-        : languageMode === 'ru'
-          ? 'Для [1,2,3] дубликатов нет → false.'
-          : 'For [1,2,3] there is no duplicate → false.'
+      getLocalizedText(
+        correct ? trace.followUpFeedbackCorrect : trace.followUpFeedbackIncorrect,
+        languageMode
+      )
     );
-    if (correct && stepIndex >= main.steps.length) {
+    if (correct && stepIndex >= trace.steps.length) {
       onComplete();
     }
   };
+
+  const selectedFollowUpId =
+    typeof followUpAnswer === 'string'
+      ? followUpAnswer
+      : followUpAnswer === true
+        ? 'true'
+        : followUpAnswer === false
+          ? 'false'
+          : undefined;
 
   return (
     <div className="alg-stage-card">
       <h2>{languageMode === 'ru' ? 'Трассировка выполнения' : 'Execution Trace'}</h2>
       <p className="alg-help">
         {languageMode === 'ru'
-          ? 'Заполняйте один шаг за раз. Будущие строки скрыты.'
-          : 'Fill one step at a time. Future rows stay hidden.'}
+          ? 'Один шаг за раз. Смотрите состояние, специфичное для алгоритма.'
+          : 'One step at a time. Watch algorithm-specific state.'}
       </p>
 
-      <ArrayFilmstrip values={main.input} currentIndex={completed ? null : current?.index ?? 0} />
-      <SetTokenCloud
-        values={displaySet}
-        highlightValue={current?.currentValue ?? null}
-        collide={!reducedMotion && current?.operation === 'DUPLICATE_FOUND'}
-      />
+      <p className="alg-meta-row">
+        <span>{getLocalizedText(trace.inputSummary, languageMode)}</span>
+        <span className="alg-cost-badge">{trace.kind}</span>
+      </p>
+
+      {trace.arrayInput && (
+        <ArrayFilmstrip
+          values={trace.arrayInput}
+          currentIndex={completed ? null : current?.highlightIndex ?? null}
+        />
+      )}
+
+      {trace.kind === 'HASH_STATE' && (
+        <SetTokenCloud
+          values={current?.setValues ?? []}
+          highlightValue={current?.highlightSetValue ?? null}
+          collide={!reducedMotion && current?.correctChoiceId === 'return_true'}
+        />
+      )}
 
       {!completed && current && (
         <div className="alg-trace-step">
           <p>
-            <strong>
-              {languageMode === 'ru' ? 'Шаг' : 'Step'} {stepIndex + 1}
-            </strong>
-            {' — '}
-            current = <code>{current.currentValue}</code>
+            <strong>{getLocalizedInline(current.title, languageMode)}</strong>
           </p>
+          <p className="alg-help">{getLocalizedText(current.narrative, languageMode)}</p>
+          <dl className="alg-trace-state">
+            {Object.entries(current.state).map(([key, value]) => (
+              <div key={key} className="alg-trace-state-row">
+                <dt>{key}</dt>
+                <dd>
+                  <code>{value}</code>
+                </dd>
+              </div>
+            ))}
+          </dl>
           <fieldset>
-            <legend>seen.add(number) succeeds?</legend>
-            <label>
-              <input
-                type="radio"
-                name="add"
-                checked={selectedAdd === true}
-                onChange={() => setSelectedAdd(true)}
-              />{' '}
-              true (new value)
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="add"
-                checked={selectedAdd === false}
-                onChange={() => setSelectedAdd(false)}
-              />{' '}
-              false (already present)
-            </label>
+            <legend>{getLocalizedText(current.question, languageMode)}</legend>
+            {current.choices.map((choice) => (
+              <label key={choice.id}>
+                <input
+                  type="radio"
+                  name={`trace-${current.id}`}
+                  checked={selectedChoiceId === choice.id}
+                  onChange={() => setSelectedChoiceId(choice.id)}
+                />{' '}
+                {getLocalizedInline(choice.text, languageMode)}
+              </label>
+            ))}
           </fieldset>
-          <fieldset>
-            <legend>{languageMode === 'ru' ? 'Метод возвращает сейчас?' : 'Method returns now?'}</legend>
-            <label>
-              <input
-                type="radio"
-                name="ret"
-                checked={selectedReturns === false}
-                onChange={() => setSelectedReturns(false)}
-              />{' '}
-              {languageMode === 'ru' ? 'Ещё нет' : 'Not yet'}
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="ret"
-                checked={selectedReturns === true}
-                onChange={() => setSelectedReturns(true)}
-              />{' '}
-              return true
-            </label>
-          </fieldset>
-          <button type="button" className="btn-primary-action" onClick={submitStep}>
+          <button
+            type="button"
+            className="btn-primary-action"
+            onClick={submitStep}
+            disabled={!selectedChoiceId}
+          >
             Commit Step
           </button>
         </div>
@@ -177,27 +149,18 @@ export const TraceStage: React.FC<TraceStageProps> = ({
       {completed && (
         <div className="alg-followup">
           <h3>{languageMode === 'ru' ? 'Быстрый follow-up' : 'Quick follow-up'}</h3>
-          <ArrayFilmstrip values={followUp.input} currentIndex={null} />
-          <p>
-            {languageMode === 'ru'
-              ? 'Какой итоговый ответ без пошаговой трассировки?'
-              : 'Final answer without stepping every cell?'}
-          </p>
+          <p>{getLocalizedText(trace.followUpQuestion, languageMode)}</p>
           <div className="alg-stage-actions">
-            <button
-              type="button"
-              className={`btn-secondary-action ${followUpAnswer === true ? 'is-selected' : ''}`}
-              onClick={() => handleFollowUp(true)}
-            >
-              true
-            </button>
-            <button
-              type="button"
-              className={`btn-secondary-action ${followUpAnswer === false ? 'is-selected' : ''}`}
-              onClick={() => handleFollowUp(false)}
-            >
-              false
-            </button>
+            {trace.followUpChoices.map((choice) => (
+              <button
+                key={choice.id}
+                type="button"
+                className={`btn-secondary-action ${selectedFollowUpId === choice.id ? 'is-selected' : ''}`}
+                onClick={() => handleFollowUp(choice.id)}
+              >
+                {getLocalizedInline(choice.text, languageMode)}
+              </button>
+            ))}
           </div>
           {followUpCorrect && (
             <button type="button" className="btn-primary-action" onClick={onComplete}>

@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Breadcrumbs } from '../components/layout/Breadcrumbs';
 import { useAppStore } from '../store/useAppStore';
 import {
-  ALGORITHM_PATTERN_FAMILIES,
   getAvailableAlgorithmProblems,
+  getPatternFamilyById,
   PLANNED_ALGORITHM_PREVIEWS
 } from '../data/algorithms';
 import { getWorkshopProgress } from '../db/database';
 import { WorkshopProgress } from '../types/algorithmLab';
 import { getLocalizedText, getLocalizedInline } from '../lib/localized';
-import { Play, Clock, Hash } from 'lucide-react';
+import { Play, Clock } from 'lucide-react';
 
 export const AlgorithmLabPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,8 +33,6 @@ export const AlgorithmLabPage: React.FC = () => {
     };
   }, []);
 
-  const family = ALGORITHM_PATTERN_FAMILIES[0];
-
   const breadcrumbs = [
     { label: languageMode === 'ru' ? 'Дашборд' : 'Dashboard', path: '/' },
     { label: languageMode === 'ru' ? 'Модули' : 'Modules', path: '/modules' },
@@ -54,14 +52,6 @@ export const AlgorithmLabPage: React.FC = () => {
         </p>
       </header>
 
-      <section className="alg-family-card">
-        <Hash size={18} />
-        <div>
-          <h2>{getLocalizedInline(family.title, languageMode)}</h2>
-          <p>{getLocalizedText(family.description, languageMode)}</p>
-        </div>
-      </section>
-
       <section className="alg-problem-list">
         <h2>{languageMode === 'ru' ? 'Доступные задачи' : 'Available problems'}</h2>
         {problems.map((problem) => {
@@ -69,6 +59,7 @@ export const AlgorithmLabPage: React.FC = () => {
           const completed = progress?.completedStageTypes.length ?? 0;
           const total = problem.stages.length;
           const started = (progress?.masteryState ?? 'NOT_STARTED') !== 'NOT_STARTED';
+          const pattern = getPatternFamilyById(problem.patternFamilyId);
           return (
             <article key={problem.id} className="alg-problem-card">
               <div>
@@ -76,6 +67,11 @@ export const AlgorithmLabPage: React.FC = () => {
                 <p>{getLocalizedText(problem.summary, languageMode)}</p>
                 <div className="alg-meta-row">
                   <span>{problem.difficulty}</span>
+                  {pattern && (
+                    <span className="alg-pattern-chip">
+                      {getLocalizedInline(pattern.title, languageMode)}
+                    </span>
+                  )}
                   <span>
                     <Clock size={14} /> ~{problem.estimatedMinutes}m
                   </span>
@@ -119,7 +115,7 @@ export const AlgorithmLabPage: React.FC = () => {
               </div>
             </div>
             <button type="button" className="btn-secondary-action" disabled>
-              {preview.availability === 'COMING_SOON' ? 'Coming Soon' : 'Planned'}
+              {languageMode === 'ru' ? 'Скоро' : 'Coming soon'}
             </button>
           </article>
         ))}

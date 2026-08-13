@@ -1,16 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
-import {
-  getAlgorithmProblemBySlug,
-  CONTAINS_DUPLICATE_BLUEPRINT,
-  CONTAINS_DUPLICATE_CLARIFY,
-  CONTAINS_DUPLICATE_HINTS,
-  CONTAINS_DUPLICATE_STRATEGIES,
-  CONTAINS_DUPLICATE_TRACE_FOLLOWUP,
-  CONTAINS_DUPLICATE_TRACE_MAIN,
-  resolveContainsDuplicateMosaic
-} from '../data/algorithms';
+import { getWorkshopPackBySlug } from '../data/algorithms/packs';
 import {
   createEmptyWorkshopProgress,
   getWorkshopProgress,
@@ -57,7 +48,8 @@ export const AlgorithmWorkshopPage: React.FC = () => {
   const { problemSlug } = useParams<{ problemSlug: string }>();
   const navigate = useNavigate();
   const { languageMode, reducedMotion } = useAppStore();
-  const problem = getAlgorithmProblemBySlug(problemSlug || '');
+  const pack = getWorkshopPackBySlug(problemSlug || '');
+  const problem = pack?.problem;
 
   const [progress, setProgress] = useState<WorkshopProgress | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,12 +64,12 @@ export const AlgorithmWorkshopPage: React.FC = () => {
   }, []);
 
   const mosaic = useMemo(
-    () => resolveContainsDuplicateMosaic(progress?.selectedStrategyId),
-    [progress?.selectedStrategyId]
+    () => (pack ? pack.resolveMosaic(progress?.selectedStrategyId) : null),
+    [pack, progress?.selectedStrategyId]
   );
 
   useEffect(() => {
-    if (!problem) {
+    if (!pack || !problem) {
       setLoading(false);
       return;
     }
@@ -85,7 +77,7 @@ export const AlgorithmWorkshopPage: React.FC = () => {
     (async () => {
       const row = await getWorkshopProgress(problem.id);
       if (cancelled) return;
-      const puzzle = resolveContainsDuplicateMosaic(row.selectedStrategyId);
+      const puzzle = pack.resolveMosaic(row.selectedStrategyId);
       const sanitized = sanitizeMosaicProgress(row, puzzle);
       setProgress(sanitized);
       const changed =
@@ -102,16 +94,27 @@ export const AlgorithmWorkshopPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [problem]);
+  }, [pack, problem]);
 
   const stage = progress?.currentStageType ?? 'CLARIFY';
 
   const strategyTitle = useMemo(() => {
-    const strat = CONTAINS_DUPLICATE_STRATEGIES.find((s) => s.id === progress?.selectedStrategyId);
+    if (!pack) return '—';
+    const strat = pack.strategies.find((s) => s.id === progress?.selectedStrategyId);
     return strat ? getLocalizedInline(strat.title, languageMode) : '—';
-  }, [progress?.selectedStrategyId, languageMode]);
+  }, [pack, progress?.selectedStrategyId, languageMode]);
 
-  if (!problem) {
+  const targetTitle = pack
+    ? getLocalizedInline(
+        pack.strategies.find((s) => s.id === pack.targetStrategyId)?.title ?? {
+          en: 'target path',
+          ru: 'целевой путь'
+        },
+        languageMode
+      )
+    : '';
+
+  if (!pack || !problem) {
     return (
       <div className="alg-stage-card">
         <h2>Problem not found</h2>
@@ -122,13 +125,12 @@ export const AlgorithmWorkshopPage: React.FC = () => {
     );
   }
 
-  if (loading || !progress) {
+  if (loading || !progress || !mosaic) {
     return <div className="alg-stage-card">Loading workshop…</div>;
   }
 
   const goStage = async (type: AlgorithmStageType) => {
     setLiveMessage(`Stage ${type}`);
-    // Persist last visited stage only — never force an earlier incomplete stage.
     await persist({ ...progress, currentStageType: type });
   };
 
@@ -146,8 +148,8 @@ export const AlgorithmWorkshopPage: React.FC = () => {
   ) {
     advisories.push(
       languageMode === 'ru'
-        ? 'Стратегия не выбрана — путь воркшопа по умолчанию: HashSet.'
-        : 'Strategy not selected — default workshop path: HashSet.'
+        ? `Стратегия не выбрана — путь воркшопа по умолчанию: ${targetTitle}.`
+        : `Strategy not selected — default workshop path: ${targetTitle}.`
     );
   }
   if (stage === 'CODE_MOSAIC' && !progress.completedStageTypes.includes('BLUEPRINT')) {
@@ -160,8 +162,8 @@ export const AlgorithmWorkshopPage: React.FC = () => {
   if (stage === 'TRACE' && !progress.completedStageTypes.includes('CODE_MOSAIC')) {
     advisories.push(
       languageMode === 'ru'
-        ? 'Рекомендуется: собрать Code Mosaic перед трассировкой — но можно продолжить с каноническим HashSet-trace.'
-        : 'Recommended: assemble Code Mosaic before tracing — you can continue with the canonical HashSet trace.'
+        ? 'Рекомендуется: собрать Code Mosaic перед трассировкой — можно продолжить с каноническим trace.'
+        : 'Recommended: assemble Code Mosaic before tracing — you can continue with the canonical trace.'
     );
   }
   if (stage === 'SUMMARY' && recommended && recommended !== 'SUMMARY') {
@@ -174,7 +176,6 @@ export const AlgorithmWorkshopPage: React.FC = () => {
   if (recommended && stage !== recommended && !progress.completedStageTypes.includes(stage)) {
     const recTitle = problem.stages.find((s) => s.type === recommended);
     if (recTitle && stage !== 'SUMMARY') {
-      // Keep a single non-blocking cue when jumping far ahead of the recommended stage.
       if (!advisories.some((a) => a.includes('Recommended') || a.includes('Рекомендуется'))) {
         advisories.push(
           languageMode === 'ru'
@@ -198,7 +199,12 @@ export const AlgorithmWorkshopPage: React.FC = () => {
         </button>
         <div>
           <h1>{getLocalizedInline(problem.title, languageMode)}</h1>
-          <p className="alg-help">{getLocalizedInline(problem.stages.find((s) => s.type === stage)?.instructions ?? problem.summary, languageMode)}</p>
+          <p className="alg-help">
+            {getLocalizedInline(
+              problem.stages.find((s) => s.type === stage)?.instructions ?? problem.summary,
+              languageMode
+            )}
+          </p>
         </div>
       </div>
 
@@ -229,10 +235,12 @@ export const AlgorithmWorkshopPage: React.FC = () => {
           {stage === 'CLARIFY' && (
             <ClarifyStage
               problem={problem}
-              questions={CONTAINS_DUPLICATE_CLARIFY}
+              questions={pack.clarify}
               selectedOptionIds={progress.clarifySelectedOptionIds}
               languageMode={languageMode}
-              onChange={(ids) => void persist({ ...progress, clarifySelectedOptionIds: ids, masteryState: 'LEARNING' })}
+              onChange={(ids) =>
+                void persist({ ...progress, clarifySelectedOptionIds: ids, masteryState: 'LEARNING' })
+              }
               onComplete={(ids) => {
                 void recordWorkshopAttempt({
                   problemId: problem.id,
@@ -248,7 +256,8 @@ export const AlgorithmWorkshopPage: React.FC = () => {
 
           {stage === 'STRATEGY' && (
             <StrategyStage
-              strategies={CONTAINS_DUPLICATE_STRATEGIES}
+              strategies={pack.strategies}
+              targetStrategyId={pack.targetStrategyId}
               selectedStrategyId={progress.selectedStrategyId}
               justificationChipIds={progress.strategyJustificationChipIds}
               languageMode={languageMode}
@@ -273,20 +282,20 @@ export const AlgorithmWorkshopPage: React.FC = () => {
                   : [...progress.strategyJustificationChipIds, chipKey];
                 void persist({ ...progress, strategyJustificationChipIds: next });
               }}
-              onLockHashSetPath={() => {
+              onLockTargetPath={() => {
                 void recordWorkshopAttempt({
                   problemId: problem.id,
                   stageType: 'STRATEGY',
                   submittedAt: new Date().toISOString(),
                   payloadJson: JSON.stringify({
                     selected: progress.selectedStrategyId,
-                    locked: 'strat_cd_hashset'
+                    locked: pack.targetStrategyId
                   }),
                   correct: true
                 });
                 void persist({
                   ...withCompleted(progress, 'STRATEGY'),
-                  selectedStrategyId: 'strat_cd_hashset',
+                  selectedStrategyId: pack.targetStrategyId,
                   currentStageType: 'BLUEPRINT'
                 });
               }}
@@ -295,10 +304,12 @@ export const AlgorithmWorkshopPage: React.FC = () => {
 
           {stage === 'BLUEPRINT' && (
             <BlueprintStage
-              blueprint={CONTAINS_DUPLICATE_BLUEPRINT}
+              blueprint={pack.blueprint}
               railIds={progress.blueprintOrder}
               discardedIds={progress.blueprintDiscardedIds}
               languageMode={languageMode}
+              helpText={pack.blueprintHelp}
+              successMessage={pack.blueprintSuccessMessage}
               onRailChange={(ids) => void persist({ ...progress, blueprintOrder: ids })}
               onDiscardedChange={(ids) => void persist({ ...progress, blueprintDiscardedIds: ids })}
               onAttempt={(correct) => {
@@ -325,6 +336,7 @@ export const AlgorithmWorkshopPage: React.FC = () => {
               railIds={progress.mosaicOrder}
               discardedIds={progress.mosaicDiscardedIds}
               languageMode={languageMode}
+              successMessage={pack.mosaicSuccessMessage}
               onRailChange={(ids) =>
                 void persist({
                   ...progress,
@@ -368,8 +380,7 @@ export const AlgorithmWorkshopPage: React.FC = () => {
 
           {stage === 'TRACE' && (
             <TraceStage
-              main={CONTAINS_DUPLICATE_TRACE_MAIN}
-              followUp={CONTAINS_DUPLICATE_TRACE_FOLLOWUP}
+              trace={pack.trace}
               stepIndex={progress.traceStepIndex}
               correctSteps={progress.traceCorrectSteps}
               totalAnswered={progress.traceTotalAnswered}
@@ -414,14 +425,12 @@ export const AlgorithmWorkshopPage: React.FC = () => {
                 progress.selectedStrategyId
                   ? strategyTitle
                   : languageMode === 'ru'
-                    ? 'Не выбрана (по умолчанию HashSet)'
-                    : 'Not selected (default HashSet path)'
+                    ? `Не выбрана (по умолчанию ${targetTitle})`
+                    : `Not selected (default ${targetTitle})`
               }
               languageMode={languageMode}
-              reflectionPrompt={{
-                en: 'What clue in the problem tells you that a Set may be useful?',
-                ru: 'Какая подсказка в условии говорит, что Set может быть полезен?'
-              }}
+              reflectionPrompt={pack.reflectionPrompt}
+              summary={pack.summary}
               onReflectionChange={(text) => void persist({ ...progress, reflectionText: text })}
               onRepeatMosaic={() => void goStage('CODE_MOSAIC')}
               onRepeatTrace={() =>
@@ -435,12 +444,7 @@ export const AlgorithmWorkshopPage: React.FC = () => {
               }
               onRestartWorkshop={async () => {
                 const fresh = createEmptyWorkshopProgress(problem.id);
-                // Preserve historical best completion timestamp
-                const next = {
-                  ...fresh,
-                  bestCompletedAt: progress.bestCompletedAt
-                };
-                await persist(next);
+                await persist({ ...fresh, bestCompletedAt: progress.bestCompletedAt });
               }}
               onReturnLab={() => navigate('/algorithms')}
               onMarkReview={() => void persist({ ...progress, markedForReview: true })}
@@ -449,7 +453,7 @@ export const AlgorithmWorkshopPage: React.FC = () => {
         </div>
 
         <AlgorithmHintPanel
-          hints={CONTAINS_DUPLICATE_HINTS}
+          hints={pack.hints}
           stageType={stage}
           revealedCount={progress.hintsUsedByStage[stage] ?? 0}
           languageMode={languageMode}

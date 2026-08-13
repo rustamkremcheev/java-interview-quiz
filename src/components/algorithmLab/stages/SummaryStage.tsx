@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlgorithmStage, WorkshopProgress } from '../../../types/algorithmLab';
+import { AlgorithmStage, WorkshopProgress, WorkshopSummaryContent } from '../../../types/algorithmLab';
 import { LanguageMode } from '../../../types/domain';
 import { getLocalizedText, getLocalizedInline } from '../../../lib/localized';
 import { getStageNavStatus } from '../AlgorithmStageRail';
@@ -10,6 +10,7 @@ interface SummaryStageProps {
   strategyTitle: string;
   languageMode: LanguageMode;
   reflectionPrompt: { en: string; ru: string };
+  summary: WorkshopSummaryContent;
   onReflectionChange: (text: string) => void;
   onRepeatMosaic: () => void;
   onRepeatTrace: () => void;
@@ -32,6 +33,7 @@ export const SummaryStage: React.FC<SummaryStageProps> = ({
   strategyTitle,
   languageMode,
   reflectionPrompt,
+  summary,
   onReflectionChange,
   onRepeatMosaic,
   onRepeatTrace,
@@ -131,6 +133,28 @@ export const SummaryStage: React.FC<SummaryStageProps> = ({
 
       <ul className="alg-summary-list">
         <li>
+          <strong>{languageMode === 'ru' ? 'Паттерн' : 'Pattern'}:</strong>{' '}
+          {getLocalizedText(summary.corePattern, languageMode)}
+        </li>
+        <li>
+          <strong>{languageMode === 'ru' ? 'Инвариант' : 'Invariant'}:</strong>{' '}
+          {getLocalizedText(summary.invariant, languageMode)}
+        </li>
+        <li>
+          <strong>{languageMode === 'ru' ? 'Время' : 'Time'}:</strong> {summary.timeComplexity}
+        </li>
+        <li>
+          <strong>{languageMode === 'ru' ? 'Память' : 'Space'}:</strong> {summary.spaceComplexity}
+        </li>
+        <li>
+          <strong>{languageMode === 'ru' ? 'Частая ошибка' : 'Common mistake'}:</strong>{' '}
+          {getLocalizedText(summary.commonMistake, languageMode)}
+        </li>
+        <li>
+          <strong>{languageMode === 'ru' ? 'Когда узнавать' : 'Recognize when'}:</strong>{' '}
+          {getLocalizedText(summary.recognitionCue, languageMode)}
+        </li>
+        <li>
           <strong>Strategy:</strong> {strategyTitle}
         </li>
         <li>
@@ -138,9 +162,6 @@ export const SummaryStage: React.FC<SummaryStageProps> = ({
         </li>
         <li>
           <strong>Mastery state:</strong> {progress.masteryState}
-        </li>
-        <li>
-          <strong>Time:</strong> Not tracked
         </li>
       </ul>
 
@@ -150,11 +171,6 @@ export const SummaryStage: React.FC<SummaryStageProps> = ({
           rows={4}
           value={progress.reflectionText}
           onChange={(e) => onReflectionChange(e.target.value)}
-          placeholder={
-            languageMode === 'ru'
-              ? 'Например: нужно ответить «видел ли я это значение?»'
-              : 'e.g. The ask is membership: “have I seen this value before?”'
-          }
         />
       </label>
 

@@ -1,5 +1,5 @@
 import { AlgorithmProblem } from '../../types/algorithmLab';
-import { CONTAINS_DUPLICATE_PROBLEM } from './containsDuplicate';
+import { ALL_WORKSHOP_PACKS } from './packs/catalog';
 
 export interface PlannedAlgorithmPreview {
   readonly id: string;
@@ -9,10 +9,11 @@ export interface PlannedAlgorithmPreview {
   readonly availability: 'COMING_SOON' | 'PLANNED';
 }
 
-export const ALGORITHM_PROBLEMS: readonly AlgorithmProblem[] = [
-  CONTAINS_DUPLICATE_PROBLEM
-];
+export const ALGORITHM_PROBLEMS: readonly AlgorithmProblem[] = ALL_WORKSHOP_PACKS.map(
+  (pack) => pack.problem
+);
 
+/** Remaining curriculum teasers not yet authored as full workshops. */
 export const PLANNED_ALGORITHM_PREVIEWS: readonly PlannedAlgorithmPreview[] = [
   {
     id: 'alg_two_sum',
@@ -27,13 +28,6 @@ export const PLANNED_ALGORITHM_PREVIEWS: readonly PlannedAlgorithmPreview[] = [
     title: { en: 'Valid Anagram', ru: 'Valid Anagram' },
     difficulty: 'EASY',
     availability: 'COMING_SOON'
-  },
-  {
-    id: 'alg_group_anagrams',
-    slug: 'group-anagrams',
-    title: { en: 'Group Anagrams', ru: 'Group Anagrams' },
-    difficulty: 'MEDIUM',
-    availability: 'PLANNED'
   },
   {
     id: 'alg_longest_consecutive',

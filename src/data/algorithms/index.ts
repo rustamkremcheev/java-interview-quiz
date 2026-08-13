@@ -1,6 +1,7 @@
 export * from './patterns';
 export * from './registry';
 export * from './validate';
+export * from './packs';
 export * from './containsDuplicate';
 
 import { validateAlgorithmLabContent } from './validate';

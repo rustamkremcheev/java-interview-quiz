@@ -13,25 +13,33 @@ const BADGE_LABEL: Record<CostBadgeKind, { en: string; ru: string }> = {
 
 interface StrategyStageProps {
   strategies: readonly AlgorithmStrategyOption[];
+  targetStrategyId: string;
   selectedStrategyId?: string;
   justificationChipIds: readonly string[];
   languageMode: LanguageMode;
   onSelect: (strategyId: string) => void;
   onToggleChip: (chipKey: string) => void;
-  onLockHashSetPath: () => void;
+  onLockTargetPath: () => void;
 }
 
 export const StrategyStage: React.FC<StrategyStageProps> = ({
   strategies,
+  targetStrategyId,
   selectedStrategyId,
   justificationChipIds,
   languageMode,
   onSelect,
   onToggleChip,
-  onLockHashSetPath
+  onLockTargetPath
 }) => {
   const [message, setMessage] = useState('');
   const selected = strategies.find((s) => s.id === selectedStrategyId);
+  const target = strategies.find((s) => s.id === targetStrategyId);
+  const targetTitle = target
+    ? getLocalizedInline(target.title, languageMode)
+    : languageMode === 'ru'
+      ? 'целевая стратегия'
+      : 'target strategy';
 
   const handleLock = () => {
     if (!selected) {
@@ -44,15 +52,15 @@ export const StrategyStage: React.FC<StrategyStageProps> = ({
       );
       return;
     }
-    if (selected.id !== 'strat_cd_hashset') {
+    if (selected.id !== targetStrategyId) {
       setMessage(
         languageMode === 'ru'
-          ? 'Стратегия принята с cost badge. Для этого вертикального среза продолжите путь HashSet.'
-          : 'Strategy accepted with a cost badge. This vertical slice continues on the HashSet path.'
+          ? `Стратегия принята с cost badge. Для этого воркшопа продолжите путь: ${targetTitle}.`
+          : `Strategy accepted with a cost badge. This workshop continues on: ${targetTitle}.`
       );
       return;
     }
-    onLockHashSetPath();
+    onLockTargetPath();
   };
 
   return (
@@ -120,7 +128,7 @@ export const StrategyStage: React.FC<StrategyStageProps> = ({
             })}
           </div>
 
-          {selected.id !== 'strat_cd_hashset' && (
+          {selected.id !== targetStrategyId && (
             <div className="alg-cost-callout" role="status">
               <p>
                 {languageMode === 'ru'
@@ -130,9 +138,9 @@ export const StrategyStage: React.FC<StrategyStageProps> = ({
               <button
                 type="button"
                 className="btn-secondary-action"
-                onClick={() => onSelect('strat_cd_hashset')}
+                onClick={() => onSelect(targetStrategyId)}
               >
-                {languageMode === 'ru' ? 'Перейти к HashSet' : 'Switch to HashSet'}
+                {languageMode === 'ru' ? `Перейти к: ${targetTitle}` : `Switch to: ${targetTitle}`}
               </button>
             </div>
           )}
@@ -141,19 +149,19 @@ export const StrategyStage: React.FC<StrategyStageProps> = ({
 
       <div className="alg-stage-actions">
         <button type="button" className="btn-primary-action" onClick={handleLock}>
-          {selected?.id === 'strat_cd_hashset'
+          {selected?.id === targetStrategyId
             ? languageMode === 'ru'
-              ? 'Зафиксировать HashSet и продолжить'
-              : 'Lock HashSet & Continue'
+              ? `Зафиксировать «${targetTitle}» и продолжить`
+              : `Lock ${targetTitle} & Continue`
             : languageMode === 'ru'
               ? 'Проверить выбор'
               : 'Review Choice'}
         </button>
-        {selected && selected.id !== 'strat_cd_hashset' && justificationChipIds.length > 0 && (
-          <button type="button" className="btn-primary-action" onClick={onLockHashSetPath}>
+        {selected && selected.id !== targetStrategyId && justificationChipIds.length > 0 && (
+          <button type="button" className="btn-primary-action" onClick={onLockTargetPath}>
             {languageMode === 'ru'
-              ? 'Принять cost badge и продолжить с HashSet'
-              : 'Accept cost badge & continue with HashSet'}
+              ? `Принять cost badge и продолжить с «${targetTitle}»`
+              : `Accept cost badge & continue with ${targetTitle}`}
           </button>
         )}
       </div>

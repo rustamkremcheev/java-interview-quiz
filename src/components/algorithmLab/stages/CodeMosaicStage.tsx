@@ -11,6 +11,7 @@ interface CodeMosaicStageProps {
   railIds: readonly string[];
   discardedIds: readonly string[];
   languageMode: LanguageMode;
+  successMessage: { en: string; ru: string };
   onRailChange: (ids: string[]) => void;
   onDiscardedChange: (ids: string[]) => void;
   onAttempt: (correct: boolean, correctDiscards: number) => void;
@@ -31,6 +32,7 @@ export const CodeMosaicStage: React.FC<CodeMosaicStageProps> = ({
   railIds,
   discardedIds,
   languageMode,
+  successMessage,
   onRailChange,
   onDiscardedChange,
   onAttempt,
@@ -60,11 +62,7 @@ export const CodeMosaicStage: React.FC<CodeMosaicStageProps> = ({
     const correctDiscards = discardedIds.filter((id) => distractorIds.includes(id)).length;
 
     if (result.correct) {
-      setFeedback(
-        languageMode === 'ru'
-          ? 'Мозаика собрана. !seen.add(number) детектирует уже существующее значение.'
-          : 'Mosaic complete. !seen.add(number) detects an already-present value.'
-      );
+      setFeedback(getLocalizedText(successMessage, languageMode));
       setShowAlt(true);
       onAttempt(true, correctDiscards);
       onComplete();

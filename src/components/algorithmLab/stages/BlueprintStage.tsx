@@ -9,6 +9,8 @@ interface BlueprintStageProps {
   railIds: readonly string[];
   discardedIds: readonly string[];
   languageMode: LanguageMode;
+  helpText: { en: string; ru: string };
+  successMessage: { en: string; ru: string };
   onRailChange: (ids: string[]) => void;
   onDiscardedChange: (ids: string[]) => void;
   onAttempt: (correct: boolean) => void;
@@ -24,6 +26,8 @@ export const BlueprintStage: React.FC<BlueprintStageProps> = ({
   railIds,
   discardedIds,
   languageMode,
+  helpText,
+  successMessage,
   onRailChange,
   onDiscardedChange,
   onAttempt,
@@ -52,11 +56,7 @@ export const BlueprintStage: React.FC<BlueprintStageProps> = ({
     });
 
     if (correctOrder && !discardedRequired && !distractorsInRail) {
-      setFeedback(
-        languageMode === 'ru'
-          ? 'Чертёж верен: память → цикл → проверка → ранний true / add → false.'
-          : 'Blueprint correct: memory → loop → check → early true / add → false.'
-      );
+      setFeedback(getLocalizedText(successMessage, languageMode));
       onAttempt(true);
       onComplete();
       return;
@@ -79,8 +79,8 @@ export const BlueprintStage: React.FC<BlueprintStageProps> = ({
     if (railIds.length < blueprint.solutionOrder.length) {
       setFeedback(
         languageMode === 'ru'
-          ? 'Не хватает обязательных блоков. Сначала создайте память для seen-значений.'
-          : 'Missing required blocks. Start by creating memory for seen values.'
+          ? 'Не хватает обязательных блоков. Проверьте Discard и порядок.'
+          : 'Missing required blocks. Check Discard and order.'
       );
       return;
     }
@@ -101,11 +101,7 @@ export const BlueprintStage: React.FC<BlueprintStageProps> = ({
   return (
     <div className="alg-stage-card">
       <h2>{languageMode === 'ru' ? 'Чертёж алгоритма' : 'Algorithm Blueprint'}</h2>
-      <p className="alg-help">
-        {languageMode === 'ru'
-          ? 'Соберите логические блоки HashSet. Java ещё скрыт.'
-          : 'Assemble HashSet logic blocks. Java is still hidden.'}
-      </p>
+      <p className="alg-help">{getLocalizedText(helpText, languageMode)}</p>
 
       <OrderedAssembler
         bankItems={items}

@@ -11,24 +11,56 @@ fs.writeFileSync(
   `
 import { validateAlgorithmLabContent } from '../src/data/algorithms/validate';
 import { ALGORITHM_PROBLEMS, getAlgorithmProblemBySlug } from '../src/data/algorithms/registry';
-import { CONTAINS_DUPLICATE_BLUEPRINT, CONTAINS_DUPLICATE_MOSAIC, CONTAINS_DUPLICATE_TRACE_MAIN, CONTAINS_DUPLICATE_SOLUTIONS } from '../src/data/algorithms/containsDuplicate';
+import { ALL_WORKSHOP_PACKS } from '../src/data/algorithms/packs/catalog';
+import { validateMosaicAssembly } from '../src/lib/algorithmLab/mosaicValidator';
 
 export function run() {
   const integrity = validateAlgorithmLabContent();
-  const problem = getAlgorithmProblemBySlug('contains-duplicate');
   const errors = [...integrity.errors];
-  if (!problem) errors.push('contains-duplicate slug missing');
-  if (problem?.stages.length !== 6) errors.push('expected 6 stages');
-  if (CONTAINS_DUPLICATE_BLUEPRINT.solutionOrder.length !== 6) errors.push('blueprint solution length');
-  if (CONTAINS_DUPLICATE_MOSAIC.solutionOrder.length !== 9) errors.push('mosaic solution length');
-  if (!CONTAINS_DUPLICATE_MOSAIC.solutionId) errors.push('mosaic missing solutionId');
-  if (CONTAINS_DUPLICATE_SOLUTIONS.length < 1) errors.push('expected at least one AlgorithmSolution');
-  if (CONTAINS_DUPLICATE_TRACE_MAIN.steps.at(-1)?.returns !== true) errors.push('trace final return');
+
+  if (ALGORITHM_PROBLEMS.length !== 12) {
+    errors.push('expected 12 registered problems, got ' + ALGORITHM_PROBLEMS.length);
+  }
+
+  const mosaicReport = [];
+  for (const pack of ALL_WORKSHOP_PACKS) {
+    const problem = getAlgorithmProblemBySlug(pack.problem.slug);
+    if (!problem) errors.push('missing registry entry for ' + pack.problem.slug);
+    if (problem?.stages.length !== 6) errors.push(pack.problem.slug + ': expected 6 stages');
+
+    let mosaic;
+    try {
+      mosaic = pack.resolveMosaic(pack.targetStrategyId);
+    } catch (err) {
+      errors.push(pack.problem.slug + ': mosaic resolve failed');
+      continue;
+    }
+
+    if (!validateMosaicAssembly(mosaic.solutionOrder, mosaic).correct) {
+      errors.push(pack.problem.slug + ': canonical mosaic must pass');
+    }
+    if (mosaic.solutionOrder.length >= 2) {
+      const swapped = [...mosaic.solutionOrder];
+      [swapped[0], swapped[1]] = [swapped[1], swapped[0]];
+      if (validateMosaicAssembly(swapped, mosaic).correct) {
+        errors.push(pack.problem.slug + ': swapped mosaic must fail');
+      }
+    }
+
+    mosaicReport.push({
+      slug: pack.problem.slug,
+      solutionId: mosaic.solutionId,
+      tiles: mosaic.solutionOrder.length,
+      distractors: pack.distractors.length,
+      traceKind: pack.trace.kind
+    });
+  }
+
   return {
     ok: errors.length === 0,
     problemCount: ALGORITHM_PROBLEMS.length,
-    stages: problem?.stages.map((s) => s.type),
-    mosaicSolutionId: CONTAINS_DUPLICATE_MOSAIC.solutionId,
+    packCount: ALL_WORKSHOP_PACKS.length,
+    mosaics: mosaicReport,
     errors
   };
 }
